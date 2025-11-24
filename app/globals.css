@@ -11,7 +11,7 @@
 
 :root {
   /* Neutral / tekst */
-  --color-neutral-900: #1A1A1A;
+  --color-neutral-900: #000000;
 
   /* Primær blå skala */
   --color-primary-600: #0038A7;
@@ -26,7 +26,7 @@
   --color-danger-600: #BB271A;
 
   /* Tekst */
-  --color-text-main: #1A1A1A;
+  --color-text-main: #000000;
   --color-text-invert: #FFFFFF;
 }
 
