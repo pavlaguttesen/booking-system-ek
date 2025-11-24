@@ -1,80 +1,70 @@
 @import "tailwindcss";
 
-/* ------------------------------
-   1. LIGHT MODE DESIGN TOKENS
---------------------------------*/
-:root {
-  --color-neutral-900: #1A1A1A;
+/* ------------------------------------------------------- */
+/*  UX COLOR SYSTEM                                         */
+/*  Light mode = default                                    */
+/* ------------------------------------------------------- */
 
+:root {
+  /* Base / Text */
+  --color-text-main: #000000;
+  --color-text-invert: #FFFFFF;
+
+  /* Primary Blues */
   --color-primary-600: #0038A7;
-  --color-primary-100: #CBD1FF;
+  --color-primary-300: #CBD1FF;
   --color-primary-200: #B7C2E6;
 
+  /* Surfaces */
   --color-surface-page: #FFFFFF;
+  /* BAGGRUND (hele siden) */
   --color-surface-card: #FFFFFF;
+  /* Kort, paneler, felter */
 
+  /* Accent */
   --color-danger-600: #BB271A;
-
-  --color-text-main: #1A1A1A;
-  --color-text-invert: #FFFFFF;
 }
 
-/* ------------------------------
-   2. DARK MODE TOKENS
-   Trigger: <html data-theme="dark">
---------------------------------*/
+/* ------------------------------------------------------- */
+/*  DARK MODE                                               */
+/* ------------------------------------------------------- */
+
 :root[data-theme="dark"] {
-  --color-primary-100: #BFC4D4;
+  --color-text-main: #FFFFFF;
+  --color-text-invert: #FFFFFF;
+
+  --color-primary-300: #BFC4D4;
   --color-primary-200: #9199AB;
 
-  --color-surface-page: #1A1A1A;
+  --color-surface-page: #000000;
   --color-surface-card: #808080;
 
   --color-danger-600: #AA1616;
-
-  --color-text-main: #FFFFFF;
-  --color-text-invert: #FFFFFF;
 }
 
-/* ------------------------------
-   3. GLOBAL BODY
---------------------------------*/
+/* ------------------------------------------------------- */
+/*  FONT + GLOBAL BASE                                       */
+/* ------------------------------------------------------- */
+
+html,
 body {
-  background: var(--color-surface-page);
-  color: var(--color-text-main);
-  font-family: Arial, Helvetica, sans-serif;
   margin: 0;
+  padding: 0;
+  background-color: var(--color-surface-page);
+  color: var(--color-text-main);
+  font-family: var(--font-sans, 'Inter', sans-serif);
 }
 
-/* ------------------------------
-   4. UTILITY CLASSES
---------------------------------*/
+/* ------------------------------------------------------- */
+/*  UTILITY CLASSES (TAILWIND STYLE NAMING)                 */
+/* ------------------------------------------------------- */
+
 .bg-page {
   background-color: var(--color-surface-page);
 }
 
 .bg-card {
   background-color: var(--color-surface-card);
-}
-
-.bg-neutral-900 {
-  background-color: var(--color-neutral-900);
-}
-
-.bg-primary-600 {
-  background-color: var(--color-primary-600);
-}
-
-.bg-primary-100 {
-  background-color: var(--color-primary-100);
-}
-
-.bg-primary-200 {
-  background-color: var(--color-primary-200);
-}
-
-.bg-danger-600 {
-  background-color: var(--color-danger-600);
 }
 
 .text-main {
@@ -89,8 +79,8 @@ body {
   color: var(--color-primary-600);
 }
 
-.text-primary-100 {
-  color: var(--color-primary-100);
+.text-primary-300 {
+  color: var(--color-primary-300);
 }
 
 .text-primary-200 {
@@ -99,6 +89,22 @@ body {
 
 .text-danger-600 {
   color: var(--color-danger-600);
+}
+
+.bg-primary-600 {
+  background-color: var(--color-primary-600);
+}
+
+.bg-primary-300 {
+  background-color: var(--color-primary-300);
+}
+
+.bg-primary-200 {
+  background-color: var(--color-primary-200);
+}
+
+.bg-danger-600 {
+  background-color: var(--color-danger-600);
 }
 
 .border-primary-600 {
