@@ -49,22 +49,66 @@ body {
 /* ------------------------------
    4. UTILITY CLASSES
 --------------------------------*/
-.bg-page        { background-color: var(--color-surface-page); }
-.bg-card        { background-color: var(--color-surface-card); }
+.bg-page {
+  background-color: var(--color-surface-page);
+}
 
-.bg-neutral-900 { background-color: var(--color-neutral-900); }
-.bg-primary-600 { background-color: var(--color-primary-600); }
-.bg-primary-100 { background-color: var(--color-primary-100); }
-.bg-primary-200 { background-color: var(--color-primary-200); }
-.bg-danger-600  { background-color: var(--color-danger-600); }
+.bg-card {
+  background-color: var(--color-surface-card);
+}
 
-.text-main        { color: var(--color-text-main); }
-.text-invert      { color: var(--color-text-invert); }
-.text-primary-600 { color: var(--color-primary-600); }
-.text-primary-100 { color: var(--color-primary-100); }
-.text-primary-200 { color: var(--color-primary-200); }
-.text-danger-600  { color: var(--color-danger-600); }
+.bg-neutral-900 {
+  background-color: var(--color-neutral-900);
+}
 
-.border-primary-600 { border-color: var(--color-primary-600); }
-.border-primary-200 { border-color: var(--color-primary-200); }
-.border-card        { border-color: var(--color-surface-card); }
+.bg-primary-600 {
+  background-color: var(--color-primary-600);
+}
+
+.bg-primary-100 {
+  background-color: var(--color-primary-100);
+}
+
+.bg-primary-200 {
+  background-color: var(--color-primary-200);
+}
+
+.bg-danger-600 {
+  background-color: var(--color-danger-600);
+}
+
+.text-main {
+  color: var(--color-text-main);
+}
+
+.text-invert {
+  color: var(--color-text-invert);
+}
+
+.text-primary-600 {
+  color: var(--color-primary-600);
+}
+
+.text-primary-100 {
+  color: var(--color-primary-100);
+}
+
+.text-primary-200 {
+  color: var(--color-primary-200);
+}
+
+.text-danger-600 {
+  color: var(--color-danger-600);
+}
+
+.border-primary-600 {
+  border-color: var(--color-primary-600);
+}
+
+.border-primary-200 {
+  border-color: var(--color-primary-200);
+}
+
+.border-card {
+  border-color: var(--color-surface-card);
+}
