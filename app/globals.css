@@ -48,7 +48,6 @@ body {
 
 /* ------------------------------
    4. UTILITY CLASSES
-   (Tailwind-style names)
 --------------------------------*/
 .bg-page        { background-color: var(--color-surface-page); }
 .bg-card        { background-color: var(--color-surface-card); }
