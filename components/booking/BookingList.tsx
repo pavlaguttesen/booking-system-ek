@@ -1,6 +1,13 @@
 "use client";
 
-import { Card, Group, Stack, Text, Badge } from "@mantine/core";
+import {
+  Card,
+  Group,
+  Stack,
+  Text,
+  Badge,
+  type BadgeProps,
+} from "@mantine/core";
 import { useBookingContext } from "@/context/BookingContext";
 
 export function BookingList() {
@@ -9,7 +16,7 @@ export function BookingList() {
 
   if (loading) {
     return (
-      <Text c="#8B949E" size="sm">
+      <Text c="var(--color-primary-200)" size="sm">
         Henter data...
       </Text>
     );
@@ -17,11 +24,33 @@ export function BookingList() {
 
   if (errorMsg) {
     return (
-      <Text c="red" size="sm">
+      <Text c="var(--color-danger-600)" size="sm">
         Fejl: {errorMsg}
       </Text>
     );
   }
+
+  // Badge-styles så vi holder os til paletten
+  const examBadgeStyles: BadgeProps["styles"] = {
+    root: {
+      backgroundColor: "var(--color-danger-600)",
+      color: "var(--color-text-invert)",
+    },
+  };
+
+  const teacherBadgeStyles: BadgeProps["styles"] = {
+    root: {
+      backgroundColor: "var(--color-primary-600)",
+      color: "var(--color-text-invert)",
+    },
+  };
+
+  const adminBadgeStyles: BadgeProps["styles"] = {
+    root: {
+      backgroundColor: "var(--color-neutral-900)",
+      color: "var(--color-text-invert)",
+    },
+  };
 
   return (
     <section className="space-y-6">
@@ -30,17 +59,17 @@ export function BookingList() {
         radius="md"
         p="lg"
         style={{
-          backgroundColor: "#1E2630",
-          border: "1px solid #30363D",
+          backgroundColor: "var(--color-surface-card)",
+          border: "1px solid var(--color-primary-200)",
         }}
       >
         <Stack gap="sm">
-          <Text fw={600} size="lg" c="#C9D1D9">
+          <Text fw={600} size="lg" c="var(--color-text-main)">
             Lokaler
           </Text>
 
           {rooms.length === 0 && (
-            <Text c="#8B949E" size="sm">
+            <Text c="var(--color-primary-200)" size="sm">
               Ingen lokaler fundet.
             </Text>
           )}
@@ -53,15 +82,15 @@ export function BookingList() {
                 radius="md"
                 padding="sm"
                 style={{
-                  backgroundColor: "#222B36",
-                  border: "1px solid #30363D",
+                  backgroundColor: "var(--color-surface-card)",
+                  border: "1px solid var(--color-primary-200)",
                 }}
               >
                 <Stack gap={2}>
-                  <Text fw={500} c="#C9D1D9">
+                  <Text fw={500} c="var(--color-text-main)">
                     {room.room_name}
                   </Text>
-                  <Text c="#8B949E" size="sm">
+                  <Text c="var(--color-primary-200)" size="sm">
                     Etage: {room.floor} • Pladser: {room.nr_of_seats}
                   </Text>
                 </Stack>
@@ -76,17 +105,17 @@ export function BookingList() {
         radius="md"
         p="lg"
         style={{
-          backgroundColor: "#1E2630",
-          border: "1px solid #30363D",
+          backgroundColor: "var(--color-surface-card)",
+          border: "1px solid var(--color-primary-200)",
         }}
       >
         <Stack gap="sm">
-          <Text fw={600} size="lg" c="#C9D1D9">
+          <Text fw={600} size="lg" c="var(--color-text-main)">
             Resultater
           </Text>
 
           {filteredBookings.length === 0 && (
-            <Text c="#8B949E" size="sm">
+            <Text c="var(--color-primary-200)" size="sm">
               Ingen bookinger matcher filtrene.
             </Text>
           )}
@@ -111,8 +140,8 @@ export function BookingList() {
                   radius="md"
                   padding="md"
                   style={{
-                    backgroundColor: "#222B36",
-                    border: "1px solid #30363D",
+                    backgroundColor: "var(--color-surface-card)",
+                    border: "1px solid var(--color-primary-200)",
                   }}
                 >
                   <Stack gap={6}>
@@ -120,29 +149,41 @@ export function BookingList() {
                     <Group justify="space-between" align="flex-start">
                       <Stack gap={2}>
                         <Group gap={8}>
-                          <Text fw={500} c="#C9D1D9">
+                          <Text fw={500} c="var(--color-text-main)">
                             {b.title}
                           </Text>
 
                           {type === "exam" && (
-                            <Badge size="xs" variant="filled" color="yellow">
+                            <Badge
+                              size="xs"
+                              variant="filled"
+                              styles={examBadgeStyles}
+                            >
                               Eksamen
                             </Badge>
                           )}
                           {role === "teacher" && (
-                            <Badge size="xs" variant="light" color="blue">
+                            <Badge
+                              size="xs"
+                              variant="filled"
+                              styles={teacherBadgeStyles}
+                            >
                               Teacher
                             </Badge>
                           )}
                           {role === "admin" && (
-                            <Badge size="xs" variant="light" color="red">
+                            <Badge
+                              size="xs"
+                              variant="filled"
+                              styles={adminBadgeStyles}
+                            >
                               Admin
                             </Badge>
                           )}
                         </Group>
 
                         {/* Lokale + dato */}
-                        <Text c="#8B949E" size="sm">
+                        <Text c="var(--color-primary-200)" size="sm">
                           {roomName} •{" "}
                           {start.toLocaleDateString("da-DK", {
                             day: "2-digit",
@@ -152,7 +193,7 @@ export function BookingList() {
                         </Text>
 
                         {/* Tid på egen linje */}
-                        <Text c="#8B949E" size="sm">
+                        <Text c="var(--color-primary-200)" size="sm">
                           {start.toLocaleTimeString("da-DK", {
                             timeStyle: "short",
                           })}{" "}
@@ -164,12 +205,12 @@ export function BookingList() {
                       </Stack>
                     </Group>
 
-                    <Text c="#8B949E" size="sm">
+                    <Text c="var(--color-primary-200)" size="sm">
                       Booker: {fullName}
                     </Text>
 
                     {b.description && (
-                      <Text size="sm" c="#C9D1D9">
+                      <Text size="sm" c="var(--color-text-main)">
                         {b.description}
                       </Text>
                     )}

@@ -1,26 +1,112 @@
+/* ---------------------------------------------------------- */
+/* 1. Tailwind import                                         */
+/* ---------------------------------------------------------- */
+
 @import "tailwindcss";
 
+/* ---------------------------------------------------------- */
+/* 2. Design tokens (LIGHT MODE)                              */
+/*    Her defineres ALLE farver fra UX som variabler          */
+/* ---------------------------------------------------------- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Neutral / tekst */
+  --color-neutral-900: #1A1A1A;
+
+  /* Primær blå skala */
+  --color-primary-600: #0038A7;
+  --color-primary-100: #CBD1FF;
+  --color-primary-200: #B7C2E6;
+
+  /* Overflader */
+  --color-surface-page: #FFFFFF;  /* generel sidebaggrund */
+  --color-surface-card: #FFFFFF;  /* hvide felter / kort */
+
+  /* Accent rød */
+  --color-danger-600: #BB271A;
+
+  /* Tekst */
+  --color-text-main: #1A1A1A;
+  --color-text-invert: #FFFFFF;
 }
+
+/* ---------------------------------------------------------- */
+/* 3. Design tokens (DARK MODE)                               */
+/*    Aktivér via <html data-theme="dark">                    */
+/* ---------------------------------------------------------- */
+
+:root[data-theme="dark"] {
+  --color-primary-100: #BFC4D4;
+  --color-primary-200: #9199AB;
+
+  --color-surface-page: #1A1A1A;  /* mørk baggrund */
+  --color-surface-card: #808080;  /* hvide felter -> grå */
+
+  --color-danger-600: #AA1616;
+
+  --color-text-main: #FFFFFF;     /* skrift bliver hvid */
+  --color-text-invert: #FFFFFF;
+}
+
+/* ---------------------------------------------------------- */
+/* 4. Tailwind theme hook                                     */
+/*    Gør at Tailwind bruger vores farver som "background"    */
+/*    og "foreground" m.m.                                    */
+/* ---------------------------------------------------------- */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--color-surface-page);
+  --color-foreground: var(--color-text-main);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Eksempler på ekstra tokens der kan bruges i Tailwind */
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-200: var(--color-primary-200);
+  --color-danger-600: var(--color-danger-600);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ---------------------------------------------------------- */
+/* 5. Global body-styling                                     */
+/* ---------------------------------------------------------- */
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-surface-page);
+  color: var(--color-text-main);
+  font-family: var(--font-geist-sans), system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+
+/* ---------------------------------------------------------- */
+/* 6. Utility-klasser (Tailwind-lignende navne)               */
+/*    Brug KUN disse for at holde jer til UX-paletten         */
+/* ---------------------------------------------------------- */
+
+/* Baggrunde */
+.bg-page        { background-color: var(--color-surface-page); }
+.bg-card        { background-color: var(--color-surface-card); }
+
+.bg-neutral-900 { background-color: var(--color-neutral-900); }
+
+.bg-primary-600 { background-color: var(--color-primary-600); }
+.bg-primary-100 { background-color: var(--color-primary-100); }
+.bg-primary-200 { background-color: var(--color-primary-200); }
+
+.bg-danger-600  { background-color: var(--color-danger-600); }
+
+/* Tekstfarver */
+.text-main       { color: var(--color-text-main); }
+.text-invert     { color: var(--color-text-invert); }
+.text-primary-600{ color: var(--color-primary-600); }
+.text-primary-100{ color: var(--color-primary-100); }
+.text-primary-200{ color: var(--color-primary-200); }
+.text-danger-600 { color: var(--color-danger-600); }
+
+/* Kanter */
+.border-primary-600 { border-color: var(--color-primary-600); }
+.border-danger-600  { border-color: var(--color-danger-600); }
+.border-card        { border-color: var(--color-surface-card); }

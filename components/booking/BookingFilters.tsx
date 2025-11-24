@@ -9,6 +9,7 @@ import {
   Stack,
   Text,
   type SelectProps,
+  type ButtonProps,
 } from "@mantine/core";
 import dayjs from "dayjs";
 import { useBookingContext } from "@/context/BookingContext";
@@ -37,16 +38,31 @@ export function BookingFilters() {
 
   const clearDate = () => setSelectedDate("");
 
-  // Fælles input-styles til Mantine-komponenter
+  // Fælles input-styles til Mantine-komponenter - bruger kun vores farve-variabler
   const inputStyles: SelectProps["styles"] = {
     input: {
-      backgroundColor: "#222B36",
-      color: "#C9D1D9",
-      borderColor: "#30363D",
+      backgroundColor: "var(--color-surface-card)",
+      color: "var(--color-text-main)",
+      borderColor: "var(--color-primary-200)",
     },
     dropdown: {
-      backgroundColor: "#161B22",
-      borderColor: "#30363D",
+      backgroundColor: "var(--color-surface-page)",
+      borderColor: "var(--color-primary-200)",
+    },
+    label: {
+      color: "var(--color-text-main)",
+    },
+  };
+
+  // Knap-styles så vi holder os til paletten
+  const buttonStyles: ButtonProps["styles"] = {
+    root: {
+      backgroundColor: "transparent",
+      color: "var(--color-primary-600)",
+      borderColor: "var(--color-primary-600)",
+      "&:hover": {
+        backgroundColor: "var(--color-primary-100)",
+      },
     },
   };
 
@@ -55,12 +71,12 @@ export function BookingFilters() {
       radius="md"
       p="lg"
       style={{
-        backgroundColor: "#1E2630",
-        border: "1px solid #30363D",
+        backgroundColor: "var(--color-surface-card)",
+        border: "1px solid var(--color-primary-200)",
       }}
     >
       <Stack gap="sm">
-        <Text fw={600} size="lg" c="#C9D1D9">
+        <Text fw={600} size="lg" c="var(--color-text-main)">
           Filtre
         </Text>
 
@@ -85,13 +101,28 @@ export function BookingFilters() {
             />
 
             <Group gap={6}>
-              <Button variant="outline" size="xs" onClick={setToday}>
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={setToday}
+                styles={buttonStyles}
+              >
                 I dag
               </Button>
-              <Button variant="outline" size="xs" onClick={setTomorrow}>
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={setTomorrow}
+                styles={buttonStyles}
+              >
                 I morgen
               </Button>
-              <Button variant="outline" size="xs" onClick={clearDate}>
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={clearDate}
+                styles={buttonStyles}
+              >
                 Ryd
               </Button>
             </Group>
