@@ -39,7 +39,7 @@
   --color-primary-100: #BFC4D4;
   --color-primary-200: #9199AB;
 
-  --color-surface-page: #1A1A1A;  /* mørk baggrund */
+  --color-surface-page: #000000;  /* mørk baggrund */
   --color-surface-card: #808080;  /* hvide felter -> grå */
 
   --color-danger-600: #AA1616;
