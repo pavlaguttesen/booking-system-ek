@@ -1,0 +1,9 @@
+.booking-draggable {
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+}
+
+body.dragging {
+  cursor: grabbing !important;
+}

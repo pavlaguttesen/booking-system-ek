@@ -1,53 +1,57 @@
 @import "tailwindcss";
 
-/* ------------------------------------------------------- */
-/*  UX COLOR SYSTEM                                         */
-/*  Light mode = default                                    */
-/* ------------------------------------------------------- */
-
+/* ----------------------------------------------------------
+   UX COLOR TOKENS — LIGHT MODE (default)
+----------------------------------------------------------- */
 :root {
-  /* Base / Text */
+  /* TEXT */
   --color-text-main: #000000;
   --color-text-invert: #FFFFFF;
 
-  /* Primary Blues */
+  /* PRIMARY */
   --color-primary-600: #0038A7;
-  --color-primary-300: #CBD1FF;
-  --color-primary-200: #B7C2E6;
 
-  /* Surfaces */
-  --color-surface-page: #FFFFFF;
-  /* BAGGRUND (hele siden) */
-  --color-surface-card: #FFFFFF;
-  /* Kort, paneler, felter */
+  /* SECONDARY */
+  --color-secondary-300: #CBD1FF; /* panel bagside */
+  --color-secondary-200: #B7C2E6; /* store baggrunde */
 
-  /* Accent */
-  --color-danger-600: #BB271A;
+  /* SURFACES */
+  --color-surface-page: #FFFFFF;  /* hel-side baggrund */
+  --color-surface-card: #FFFFFF;  /* kort og paneler */
+
+  /* STATUS */
+  --color-status-booked: #DA7C86;
+  --color-status-nav: #EBEDFF;
 }
 
-/* ------------------------------------------------------- */
-/*  DARK MODE                                               */
-/* ------------------------------------------------------- */
-
+/* ----------------------------------------------------------
+   DARK MODE  (trigger: <html data-theme="dark">)
+----------------------------------------------------------- */
 :root[data-theme="dark"] {
+  /* TEXT */
   --color-text-main: #FFFFFF;
   --color-text-invert: #FFFFFF;
 
-  --color-primary-300: #BFC4D4;
-  --color-primary-200: #9199AB;
+  /* PRIMARY */
+  --color-primary-600: #0038A7;
 
+  /* SECONDARY (darkened variants) */
+  --color-secondary-300: #BFC4D4;
+  --color-secondary-200: #9199AB;
+
+  /* SURFACES */
   --color-surface-page: #000000;
   --color-surface-card: #808080;
 
-  --color-danger-600: #AA1616;
+  /* STATUS */
+  --color-status-booked: #AA1616;
+  --color-status-nav: #9199AB;
 }
 
-/* ------------------------------------------------------- */
-/*  FONT + GLOBAL BASE                                       */
-/* ------------------------------------------------------- */
-
-html,
-body {
+/* ----------------------------------------------------------
+   GLOBAL FONT + BODY SETUP
+----------------------------------------------------------- */
+html, body {
   margin: 0;
   padding: 0;
   background-color: var(--color-surface-page);
@@ -55,66 +59,30 @@ body {
   font-family: var(--font-sans, 'Inter', sans-serif);
 }
 
-/* ------------------------------------------------------- */
-/*  UTILITY CLASSES (TAILWIND STYLE NAMING)                 */
-/* ------------------------------------------------------- */
+/* ----------------------------------------------------------
+   TAILWIND-STYLE UTILITY HELPERS
+----------------------------------------------------------- */
 
-.bg-page {
-  background-color: var(--color-surface-page);
-}
+/* backgrounds */
+.bg-page        { background-color: var(--color-surface-page); }
+.bg-card        { background-color: var(--color-surface-card); }
 
-.bg-card {
-  background-color: var(--color-surface-card);
-}
+.bg-primary-600 { background-color: var(--color-primary-600); }
 
-.text-main {
-  color: var(--color-text-main);
-}
+.bg-secondary-300 { background-color: var(--color-secondary-300); }
+.bg-secondary-200 { background-color: var(--color-secondary-200); }
 
-.text-invert {
-  color: var(--color-text-invert);
-}
+.bg-status-booked { background-color: var(--color-status-booked); }
+.bg-status-nav    { background-color: var(--color-status-nav); }
 
-.text-primary-600 {
-  color: var(--color-primary-600);
-}
+/* text */
+.text-main          { color: var(--color-text-main); }
+.text-invert        { color: var(--color-text-invert); }
+.text-primary-600   { color: var(--color-primary-600); }
+.text-secondary-300 { color: var(--color-secondary-300); }
+.text-secondary-200 { color: var(--color-secondary-200); }
 
-.text-primary-300 {
-  color: var(--color-primary-300);
-}
-
-.text-primary-200 {
-  color: var(--color-primary-200);
-}
-
-.text-danger-600 {
-  color: var(--color-danger-600);
-}
-
-.bg-primary-600 {
-  background-color: var(--color-primary-600);
-}
-
-.bg-primary-300 {
-  background-color: var(--color-primary-300);
-}
-
-.bg-primary-200 {
-  background-color: var(--color-primary-200);
-}
-
-.bg-danger-600 {
-  background-color: var(--color-danger-600);
-}
-
-.border-primary-600 {
-  border-color: var(--color-primary-600);
-}
-
-.border-primary-200 {
-  border-color: var(--color-primary-200);
-}
-
-.border-card {
-  border-color: var(--color-surface-card);
-}
+/* borders */
+.border-primary-600 { border-color: var(--color-primary-600); }
+.border-secondary-200 { border-color: var(--color-secondary-200); }
+.border-card { border-color: var(--color-surface-card); }
