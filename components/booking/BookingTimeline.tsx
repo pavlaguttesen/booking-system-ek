@@ -1,206 +1,211 @@
 "use client";
 
-import { useBookingContext } from "@/context/BookingContext";
+import { useMemo, useRef } from "react";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { TimelineCurrentTime } from "@/components/booking/TimelineCurrentTime";
+import { useBookingContext } from "@/context/BookingContext";
 
 const DAY_START_HOUR = 8;
-const DAY_END_HOUR = 20;
-const TOTAL_MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60;
+const DAY_END_HOUR = 16;
+const MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60;
 
-export function BookingTimeline({
-  onCreateBooking,
-}: {
-  onCreateBooking: (data: { roomId: string; start: Date; end: Date }) => void;
-}) {
-  // ------------------- ALL HOOKS MUST BE HERE (TOP OF FUNCTION) -------------------
-  const { rooms, filteredBookings, selectedDate } = useBookingContext();
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const [tick, setTick] = useState(0);
+// Hver time = 60px i højden
+const PX_PER_MINUTE = 1; // 1 minut = 1px → 60min = 60px height
+type BookingTimelineProps = {
+    onCreateBooking: (data: {
+        roomId: string;
+        start: Date;
+        end: Date;
+    }) => void;
+};
 
-  useEffect(() => {
-    const interval = setInterval(() => setTick(Date.now()), 60000);
-    return () => clearInterval(interval);
-  }, []);
+export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
 
-  const bookingsForDay = useMemo(() => {
-    if (!selectedDate) return [];
-    return filteredBookings.filter((b) =>
-      dayjs(b.start_time).isSame(dayjs(selectedDate), "day")
+    const { rooms, filteredBookings, selectedDate } = useBookingContext();
+    const timelineRef = useRef<HTMLDivElement | null>(null);
+
+    const hours = useMemo(
+        () =>
+            Array.from(
+                { length: DAY_END_HOUR - DAY_START_HOUR + 1 },
+                (_, i) => DAY_START_HOUR + i
+            ),
+        []
     );
-  }, [filteredBookings, selectedDate]);
 
-  const hours = useMemo(
-    () =>
-      Array.from(
-        { length: DAY_END_HOUR - DAY_START_HOUR + 1 },
-        (_, i) => DAY_START_HOUR + i
-      ),
-    []
-  );
+    if (!selectedDate) {
+        return (
+            <div className="text-center text-gray-600 py-10">
+                Vælg en dato for at se tidsplanen.
+            </div>
+        );
+    }
 
-  // ------------------- 📌 EARLY RETURN AFTER ALL HOOKS -------------------
-  if (!selectedDate) {
+    // Hjælpere
+    function minutesToPx(min: number) {
+        return min * PX_PER_MINUTE;
+    }
+
+    function dateToMinuteOffset(date: Date) {
+        return (date.getHours() - DAY_START_HOUR) * 60 + date.getMinutes();
+    }
+
+    // Klik i grid
+    function handleClick(e: React.MouseEvent<HTMLDivElement>) {
+        if (!timelineRef.current) return;
+
+        const rect = timelineRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const timeColWidth = 70; // Tidskolonne bredde
+
+        if (x < timeColWidth) return;
+
+        const colWidth = (rect.width - timeColWidth) / rooms.length;
+        const roomIndex = Math.floor((x - timeColWidth) / colWidth);
+        const room = rooms[roomIndex];
+        if (!room) return;
+
+        const minuteOffset = Math.max(
+            0,
+            Math.min(MINUTES, y / PX_PER_MINUTE)
+        );
+
+        const startHour = DAY_START_HOUR + Math.floor(minuteOffset / 60);
+        const startMin = Math.floor(minuteOffset % 60);
+
+        const start = dayjs(selectedDate)
+            .hour(startHour)
+            .minute(startMin)
+            .second(0)
+            .toDate();
+
+        const end = dayjs(start).add(1, "hour").toDate();
+
+        onCreateBooking({ roomId: room.id, start, end });
+    }
+
+    // Aktuel tid -> rød linje
+    const now = dayjs();
+    const showNow = now.isSame(dayjs(selectedDate), "day");
+    const nowOffset =
+        (now.hour() - DAY_START_HOUR) * 60 + now.minute();
+
+    const nowTop =
+        nowOffset >= 0 && nowOffset <= MINUTES
+            ? minutesToPx(nowOffset)
+            : null;
+
     return (
-      <div className="text-center text-primary-600 py-10">
-        Vælg en dato for at se tidsplanen.
-      </div>
-    );
-  }
+        <div>
+            {/* TOP HEADER MED ROOM NAVNE */}
+            <div
+                className="grid border border-gray-300 rounded-t-lg overflow-hidden bg-gray-100"
+                style={{
+                    gridTemplateColumns: `70px repeat(${rooms.length}, 1fr)`,
+                }}
+            >
+                {/* Tom tidskolonne */}
+                <div className="bg-gray-100"></div>
 
-  // ------------------- RESTEN AF DIT UI -------------------
+                {/* Rooms */}
+                {rooms.map((room) => (
+                    <div
+                        key={room.id}
+                        className="text-center py-2 font-semibold text-gray-800 border-l border-gray-300"
+                    >
+                        {room.room_name}
+                    </div>
+                ))}
+            </div>
 
-  function handleClickEmpty(e: React.MouseEvent) {
-    if (!timelineRef.current) return;
+            {/* TIME GRID */}
+            <div
+                ref={timelineRef}
+                className="grid border border-t-0 border-gray-300 bg-[#d4dcf4] cursor-pointer rounded-b-lg relative"
+                style={{
+                    gridTemplateColumns: `70px repeat(${rooms.length}, 1fr)`,
+                    height: `${MINUTES * PX_PER_MINUTE}px`,
+                }}
+                onClick={handleClick}
+            >
+                {/* TIDSKOLONNE (VENSTRE) */}
+                <div className="relative bg-white">
+                    {hours.map((hour) => {
+                        const top = minutesToPx((hour - DAY_START_HOUR) * 60);
+                        return (
+                            <div
+                                key={hour}
+                                className="absolute left-2 text-xs text-gray-700"
+                                style={{
+                                    top: `${top}px`,
+                                    transform: "translateY(-50%)",
+                                }}
+                            >
+                                {hour}:00
+                            </div>
+                        );
+                    })}
+                </div>
 
-    const rect = timelineRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const colWidth = rect.width / rooms.length;
-    const roomIndex = Math.floor(x / colWidth);
-    const room = rooms[roomIndex];
-    if (!room) return;
-
-    const minutes = (y / rect.height) * TOTAL_MINUTES;
-    const startHour = DAY_START_HOUR + Math.floor(minutes / 60);
-    const startMin = Math.floor(minutes % 60);
-
-    const start = dayjs(selectedDate)
-      .hour(startHour)
-      .minute(startMin)
-      .second(0)
-      .toDate();
-
-    const end = dayjs(start).add(1, "hour").toDate();
-
-    onCreateBooking({ roomId: room.id, start, end });
-  }
-
-  const nowMinutes =
-    (dayjs().hour() - DAY_START_HOUR) * 60 + dayjs().minute();
-  const nowTopPercent = (nowMinutes / TOTAL_MINUTES) * 100;
-
-  return (
-    <section className="w-full">
-      <div className="w-full flex select-none" ref={timelineRef}>
-        
-        {/* LEFT HOURS COLUMN */}
-        <div className="w-[60px] relative h-[600px] border-r border-secondary-200 bg-white">
-          {hours.map((hour) => {
-            const top =
-              ((hour - DAY_START_HOUR) * 60) / TOTAL_MINUTES * 100;
-            return (
-              <div
-                key={hour}
-                className="absolute left-2 text-xs text-primary-600"
-                style={{ top: `${top}%`, transform: "translateY(-50%)" }}
-              >
-                {hour}:00
-              </div>
-            );
-          })}
-        </div>
-
-        {/* MAIN GRID */}
-        <div
-          className="relative flex-1 h-[600px] border border-secondary-200 rounded-lg overflow-hidden flex cursor-pointer"
-          onClick={handleClickEmpty}
-        >
-          {/* Backdrop colors */}
-          <div className="absolute inset-0 flex z-10">
-            {rooms.map((_, i) => (
-              <div
-                key={i}
-                className={`flex-1 ${
-                  i % 2 === 0 ? "bg-secondary-200" : "bg-secondary-300"
-                }`}
-              />
-            ))}
-          </div>
-
-          {/* Hour lines */}
-          <div className="absolute inset-0 z-20">
-            {hours.map((hour) => {
-              const top =
-                ((hour - DAY_START_HOUR) * 60) / TOTAL_MINUTES * 100;
-              return (
-                <div
-                  key={hour}
-                  className="absolute left-0 w-full border-t border-primary-600/20"
-                  style={{ top: `${top}%` }}
-                />
-              );
-            })}
-          </div>
-
-          {/* Room names */}
-          <div className="absolute inset-x-0 top-0 flex z-30 bg-white/40 backdrop-blur-sm">
-            {rooms.map((room) => (
-              <div
-                key={room.id}
-                className="flex-1 text-center py-1 font-semibold"
-              >
-                {room.room_name}
-              </div>
-            ))}
-          </div>
-
-          {/* Red time line */}
-          {dayjs().isSame(selectedDate, "day") &&
-            nowTopPercent >= 0 &&
-            nowTopPercent <= 100 && (
-              <TimelineCurrentTime topPercent={nowTopPercent} />
-            )}
-
-          {/* Bookings */}
-          <div className="absolute inset-0 flex z-50 pointer-events-none">
-            {rooms.map((room) => {
-              const roomBookings = bookingsForDay.filter(
-                (b) => b.room_id === room.id
-              );
-
-              return (
-                <div key={room.id} className="flex-1 relative">
-                  {roomBookings.map((b) => {
-                    const start = new Date(b.start_time);
-                    const end = new Date(b.end_time);
-
-                    const topPercent =
-                      (dayjs(start).diff(
-                        dayjs(selectedDate)
-                          .hour(DAY_START_HOUR)
-                          .minute(0),
-                        "minute"
-                      ) /
-                        TOTAL_MINUTES) *
-                      100;
-
-                    const heightPercent =
-                      (dayjs(end).diff(dayjs(start), "minute") /
-                        TOTAL_MINUTES) *
-                      100;
+                {/* BOOKING-KOLONNER */}
+                {rooms.map((room) => {
+                    const roomBookings = filteredBookings.filter(
+                        (b) => b.room_id === room.id
+                    );
 
                     return (
-                      <div
-                        key={b.id}
-                        className="absolute left-[10%] right-[10%] bg-status-booked text-main px-4 py-2 rounded-md shadow-md text-sm pointer-events-none"
-                        style={{
-                          top: `${topPercent}%`,
-                          height: `${heightPercent}%`,
-                        }}
-                      >
-                        {b.title}
-                      </div>
+                        <div
+                            key={room.id}
+                            className="relative border-l border-gray-300 bg-transparent"
+                        >
+                            {/* HOUR LINES */}
+                            {hours.map((hour) => {
+                                const top = minutesToPx((hour - DAY_START_HOUR) * 60);
+                                return (
+                                    <div
+                                        key={hour}
+                                        className="absolute left-0 w-full border-t border-black/10"
+                                        style={{ top: `${top}px` }}
+                                    ></div>
+                                );
+                            })}
+
+                            {/* BOOKING BLOBS */}
+                            {roomBookings.map((b) => {
+                                const s = new Date(b.start_time);
+                                const e = new Date(b.end_time);
+                                const sMin = dateToMinuteOffset(s);
+                                const eMin = dateToMinuteOffset(e);
+
+                                const top = minutesToPx(sMin);
+                                const height = minutesToPx(eMin - sMin);
+
+                                return (
+                                    <div
+                                        key={b.id}
+                                        className="absolute left-[10%] right-[10%] bg-red-400 text-white text-xs rounded-md px-2 py-1 shadow-md overflow-hidden"
+                                        style={{
+                                            top: `${top}px`,
+                                            height: `${height}px`,
+                                        }}
+                                    >
+                                        {b.title || "Booking"}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     );
-                  })}
-                </div>
-              );
-            })}
-          </div>
+                })}
+
+                {/* RØD NU-LINJE */}
+                {showNow && nowTop !== null && (
+                    <div
+                        className="absolute left-0 right-0 border-t-2 border-red-500 pointer-events-none"
+                        style={{ top: `${nowTop}px`, zIndex: 50 }}
+                    ></div>
+                )}
+            </div>
         </div>
-      </div>
-    </section>
-  );
+    );
 }

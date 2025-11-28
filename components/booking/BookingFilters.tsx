@@ -1,10 +1,6 @@
 "use client";
 
-// Denne komponent håndterer filtrering af bookinger.
-// Datoen SKAL altid være en valid dato, ellers får timeline "Invalid Date".
-// Derfor arbejder vi her kun med Date-objekter og konverterer til ISO ved setSelectedDate.
-
-// Mantine-krav: DatePickerInput skal have value = Date | null, ikke år/måneds strings.
+// BookingFilters styrer dato, lokaler og booking-type for timeline/listen.
 
 import { DatePickerInput } from "@mantine/dates";
 import {
@@ -31,28 +27,20 @@ export function BookingFilters() {
     setBookingTypeFilter,
   } = useBookingContext();
 
-  // 🎯 Mantine vil gerne have Date | null — ikke en string
-  const pickerValue = selectedDate ? new Date(selectedDate) : null;
+  const pickerValue: Date | null = selectedDate
+    ? dayjs(selectedDate, "YYYY-MM-DD").toDate()
+    : null;
 
-  // 🎯 Disse knapper sætter altid en valid ISO-dato
   const setToday = () => {
-    const newDate = dayjs().format("YYYY-MM-DD");
-    setSelectedDate(newDate);
+    setSelectedDate(dayjs().format("YYYY-MM-DD"));
   };
 
   const setTomorrow = () => {
-    const newDate = dayjs().add(1, "day").format("YYYY-MM-DD");
-    setSelectedDate(newDate);
+    setSelectedDate(dayjs().add(1, "day").format("YYYY-MM-DD"));
   };
 
-  // 🎯 Vi tillader IKKE at clearDate giver en tom streng → det ødelægger timeline
-  // I stedet vælger vi "i dag"
-  const clearDate = () => {
-    const fallback = dayjs().format("YYYY-MM-DD");
-    setSelectedDate(fallback);
-  };
+  const clearDate = () => setSelectedDate(null);
 
-  // Styling
   const inputStyles: SelectProps["styles"] = {
     input: {
       backgroundColor: "var(--color-surface-card)",
@@ -94,24 +82,23 @@ export function BookingFilters() {
         </Text>
 
         <Group grow wrap="wrap" gap="md">
-          {/* Dato-filter */}
+          {/* Dato */}
           <Stack gap={4} style={{ minWidth: "240px" }}>
             <DatePickerInput
               label="Dato"
               placeholder="Vælg dato"
-              // Mantine kræver Date | null
               value={pickerValue}
-              valueFormat="DD-MM-YYYY"
-              clearable={false} // ❌ ikke tilladt at lade brugeren cleare dato
-              styles={inputStyles}
               onChange={(value) => {
-                // value = Date | null
                 if (value) {
-                  // Konverter til ISO for at undgå "Invalid Date"
                   const iso = dayjs(value).format("YYYY-MM-DD");
                   setSelectedDate(iso);
+                } else {
+                  setSelectedDate(null);
                 }
               }}
+              clearable
+              valueFormat="DD-MM-YYYY"
+              styles={inputStyles}
             />
 
             <Group gap={6}>
@@ -142,7 +129,7 @@ export function BookingFilters() {
             </Group>
           </Stack>
 
-          {/* Lokale-filter */}
+          {/* Lokale */}
           <Select
             label="Lokale"
             placeholder="Vælg lokale"
@@ -156,7 +143,7 @@ export function BookingFilters() {
             style={{ minWidth: "220px" }}
           />
 
-          {/* Type-filter */}
+          {/* Type */}
           <Select
             label="Type"
             placeholder="Alle typer"

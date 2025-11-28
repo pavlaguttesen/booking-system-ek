@@ -1,39 +1,61 @@
 "use client";
 
+// BookingContext håndterer data fra Supabase (rooms, bookings, profiles)
+// samt de filtre, som resten af appen bruger.
+
 import {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useState,
   ReactNode,
 } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { createClient } from "@supabase/supabase-js";
+import dayjs from "dayjs";
 
+// Læs miljøvariabler
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  // Giver en tydelig fejl hvis env mangler
+  throw new Error(
+    "Supabase URL eller KEY mangler. Tjek din .env.local (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_KEY)."
+  );
+}
+
+// Supabase client (kun anon-key)
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Typer baseret på dine tabeller
 export type Room = {
   id: string;
   room_name: string;
-  floor: number;
-  nr_of_seats: number;
+  nr_of_seats: number | null;
+  floor: number | null;
+  created_at: string | null;
+  has_whiteboard: boolean | null;
+  has_screen: boolean | null;
+  has_board: boolean | null;
+  capacity: number | null;
+};
+
+export type Booking = {
+  id: string;
+  room_id: string;
+  user_id: string | null;
+  title: string | null;
+  description: string | null;
+  start_time: string; // ISO
+  end_time: string; // ISO
+  created_at: string | null;
+  booking_type: string | null; // fx "normal" | "exam"
 };
 
 export type Profile = {
   id: string;
   full_name: string | null;
-  role: string; // 'student' | 'teacher' | 'admin'
-};
-
-export type BookingType = "normal" | "exam" | null;
-
-export type Booking = {
-  id: string;
-  title: string;
-  description: string | null;
-  start_time: string;
-  end_time: string;
-  booking_type: BookingType;
-  room_id: string;
-  user_id: string;
+  role: "student" | "teacher" | "admin" | null;
 };
 
 type BookingContextValue = {
@@ -43,111 +65,98 @@ type BookingContextValue = {
   filteredBookings: Booking[];
   loading: boolean;
   errorMsg: string | null;
-  selectedDate: string; // yyyy-mm-dd eller ""
-  selectedRoomId: string; // 'all' eller room.id
+
+  // Filtre
+  selectedDate: string | null; // "YYYY-MM-DD"
+  selectedRoomId: string; // "all" eller room.id
   bookingTypeFilter: "all" | "normal" | "exam";
-  setSelectedDate: (value: string) => void;
-  setSelectedRoomId: (value: string) => void;
-  setBookingTypeFilter: (value: "all" | "normal" | "exam") => void;
+
+  setSelectedDate: (v: string | null) => void;
+  setSelectedRoomId: (v: string) => void;
+  setBookingTypeFilter: (v: "all" | "normal" | "exam") => void;
+
+  reloadBookings: () => Promise<void>;
 };
 
-const BookingContext = createContext<BookingContextValue | undefined>(
-  undefined
-);
+const BookingContext = createContext<BookingContextValue | null>(null);
 
 export function BookingProvider({ children }: { children: ReactNode }) {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Filter state
-  const [selectedDate, setSelectedDate] = useState<string>("");
+  // Filtre
+  const [selectedDate, setSelectedDate] = useState<string | null>(
+    dayjs().format("YYYY-MM-DD")
+  );
   const [selectedRoomId, setSelectedRoomId] = useState<string>("all");
-  const [bookingTypeFilter, setBookingTypeFilter] =
-    useState<"all" | "normal" | "exam">("all");
+  const [bookingTypeFilter, setBookingTypeFilter] = useState<
+    "all" | "normal" | "exam"
+  >("all");
 
+  // --------- LOADERS ---------
+
+  async function loadRooms() {
+    const { data, error } = await supabase.from("rooms").select("*");
+    if (error) {
+      setErrorMsg(error.message);
+      return;
+    }
+    setRooms((data as Room[]) || []);
+  }
+
+  async function loadProfiles() {
+    const { data, error } = await supabase.from("profiles").select("*");
+    if (error) {
+      setErrorMsg(error.message);
+      return;
+    }
+    setProfiles((data as Profile[]) || []);
+  }
+
+  async function loadBookings() {
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("*")
+      .order("start_time", { ascending: true });
+
+    if (error) {
+      setErrorMsg(error.message);
+      return;
+    }
+    setBookings((data as Booking[]) || []);
+  }
+
+  async function reloadBookings() {
+    await loadBookings();
+  }
+
+  // Første load
   useEffect(() => {
-    const loadData = async () => {
+    (async () => {
       setLoading(true);
-      setErrorMsg(null);
-
-      // Hent rooms
-      const { data: roomsData, error: roomsError } = await supabase
-        .from("rooms")
-        .select("id, room_name, floor, nr_of_seats")
-        .order("room_name", { ascending: true });
-
-      if (roomsError) {
-        setErrorMsg(roomsError.message);
-        setLoading(false);
-        return;
-      }
-      setRooms((roomsData ?? []) as Room[]);
-
-      // Hent profiles
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, full_name, role");
-
-      if (profilesError) {
-        setErrorMsg(profilesError.message);
-        setLoading(false);
-        return;
-      }
-      setProfiles((profilesData ?? []) as Profile[]);
-
-      // Hent bookings
-      const { data: bookingsData, error: bookingsError } = await supabase
-        .from("bookings")
-        .select(
-          "id, title, description, start_time, end_time, booking_type, room_id, user_id"
-        )
-        .order("start_time", { ascending: true });
-
-      if (bookingsError) {
-        setErrorMsg(bookingsError.message);
-        setLoading(false);
-        return;
-      }
-      setBookings((bookingsData ?? []) as Booking[]);
-
+      await Promise.all([loadRooms(), loadProfiles(), loadBookings()]);
       setLoading(false);
-    };
-
-    loadData();
+    })();
   }, []);
 
-  const filteredBookings = useMemo(() => {
-    const normalizeDate = (iso: string) => {
-      const d = new Date(iso);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    };
+  // ---------- FILTERING TIL TIMELINE / LISTE ----------
 
-    return bookings.filter((b) => {
-      let ok = true;
+  const filteredBookings: Booking[] = bookings.filter((b) => {
+    if (selectedRoomId !== "all" && b.room_id !== selectedRoomId) return false;
 
-      if (selectedDate) {
-        const bookingDate = normalizeDate(b.start_time);
-        if (bookingDate !== selectedDate) ok = false;
-      }
+    if (bookingTypeFilter !== "all") {
+      if ((b.booking_type || "normal") !== bookingTypeFilter) return false;
+    }
 
-      if (selectedRoomId !== "all") {
-        if (b.room_id !== selectedRoomId) ok = false;
-      }
+    if (selectedDate) {
+      if (!dayjs(b.start_time).isSame(dayjs(selectedDate), "day")) return false;
+    }
 
-      if (bookingTypeFilter !== "all") {
-        const type = (b.booking_type ?? "normal") as "normal" | "exam";
-        if (type !== bookingTypeFilter) ok = false;
-      }
-
-      return ok;
-    });
-  }, [bookings, selectedDate, selectedRoomId, bookingTypeFilter]);
+    return true;
+  });
 
   const value: BookingContextValue = {
     rooms,
@@ -156,12 +165,16 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     filteredBookings,
     loading,
     errorMsg,
+
     selectedDate,
     selectedRoomId,
     bookingTypeFilter,
+
     setSelectedDate,
     setSelectedRoomId,
     setBookingTypeFilter,
+
+    reloadBookings,
   };
 
   return (
@@ -171,10 +184,10 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useBookingContext(): BookingContextValue {
+export function useBookingContext() {
   const ctx = useContext(BookingContext);
   if (!ctx) {
-    throw new Error("useBookingContext must be used within a BookingProvider");
+    throw new Error("useBookingContext must be used inside BookingProvider");
   }
   return ctx;
 }
