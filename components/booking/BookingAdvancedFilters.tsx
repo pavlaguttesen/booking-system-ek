@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DateInput, TimeInput } from "@mantine/dates";
 import { Button, Group } from "@mantine/core";
 import dayjs from "dayjs";
@@ -20,25 +20,105 @@ export function BookingAdvancedFilters({
     eightPersons: boolean;
   }) => void;
 }) {
-  const { setSelectedDate, roomFilters } = useBookingContext();
+  const {
+    setSelectedDate,
+    roomFilters,
+    filteredRooms,
+    bookings,
+    selectedDate,
+  } = useBookingContext();
 
   const [date, setDate] = useState<Date | null>(null);
   const [timeFrom, setTimeFrom] = useState("");
   const [timeTo, setTimeTo] = useState("");
+  const [suggestedTimes, setSuggestedTimes] = useState<string[]>([]);
 
   const today = dayjs().startOf("day");
 
+  /* -----------------------------------------------------
+     Forslag baseret på dato + ledige rum
+  ----------------------------------------------------- */
+  useEffect(() => {
+    if (!selectedDate) {
+      setSuggestedTimes([]);
+      return;
+    }
+
+    const selectedDay = dayjs(selectedDate);
+    const now = dayjs();
+
+    const isToday = selectedDay.isSame(now, "day");
+
+    let startHour = 8;
+
+    if (isToday) {
+      const currentHour = now.hour();
+      const currentMinute = now.minute();
+
+      // Hvis dagen er “slut”, ingen forslag
+      if (currentHour > 15 || (currentHour === 15 && currentMinute > 0)) {
+        setSuggestedTimes([]);
+        setTimeFrom("");
+        setTimeTo("");
+        return;
+      }
+
+      const nextHour = currentMinute === 0 ? currentHour : currentHour + 1;
+      startHour = Math.max(8, Math.min(nextHour, 15));
+    }
+
+    const times: string[] = [];
+
+    for (let h = startHour; h <= 15; h++) {
+      const slotStart = selectedDay.hour(h).minute(0).second(0);
+      const slotEnd = slotStart.add(1, "hour");
+
+      if (isToday && slotStart.isBefore(now)) continue;
+
+      const hasFreeRoom = filteredRooms.some((room) => {
+        return !bookings.some((b) => {
+          if (b.room_id !== room.id) return false;
+
+          const bStart = dayjs(b.start_time);
+          const bEnd = dayjs(b.end_time);
+
+          return slotStart.isBefore(bEnd) && slotEnd.isAfter(bStart);
+        });
+      });
+
+      if (hasFreeRoom) {
+        times.push(slotStart.format("HH:mm"));
+      }
+    }
+
+    setSuggestedTimes(times);
+
+    if (times.length > 0) {
+      const first = times[0];
+      setTimeFrom(first);
+      const endHour = Number(first.split(":")[0]) + 1;
+      setTimeTo(`${String(endHour).padStart(2, "0")}:00`);
+    } else {
+      setTimeFrom("");
+      setTimeTo("");
+    }
+  }, [selectedDate, filteredRooms, bookings]);
+
+  /* -----------------------------------------------------
+     Dato-håndtering
+  ----------------------------------------------------- */
   function handleDateChange(value: string | Date | null) {
     let next: Date | null = null;
 
-    if (value instanceof Date) next = value;
+    if (value === null) next = null;
+    else if (value instanceof Date) next = value;
     else if (typeof value === "string") {
       const parsed = new Date(value);
       next = isNaN(parsed.getTime()) ? null : parsed;
     }
 
-    if (next && dayjs(next).startOf("day").isBefore(today)) {
-      return; // No selecting past dates
+    if (next && dayjs(next).isBefore(today, "day")) {
+      next = today.toDate();
     }
 
     setDate(next);
@@ -51,13 +131,9 @@ export function BookingAdvancedFilters({
     setSelectedDate(dayjs(d).format("YYYY-MM-DD"));
   }
 
-  // If today has passed completely
-  const now = dayjs();
-  const dayEnded =
-    date &&
-    dayjs(date).isSame(today, "day") &&
-    now.hour() >= 16;
-
+  /* -----------------------------------------------------
+     UI
+  ----------------------------------------------------- */
   return (
     <div className="bg-card p-5 rounded-lg shadow-sm space-y-4">
       <DateInput
@@ -67,57 +143,82 @@ export function BookingAdvancedFilters({
         onChange={handleDateChange}
         valueFormat="DD-MM-YYYY"
         minDate={today.toDate()}
+        styles={{
+          input: {
+            backgroundColor: "var(--color-surface-card)",
+            color: "var(--color-text-main)",
+            borderColor: "var(--color-secondary-200)",
+          },
+          label: { color: "var(--color-text-main)", fontWeight: 600 },
+        }}
       />
 
       <Group gap={6}>
-        <Button variant="outline" size="xs" onClick={() => setRelativeDay(0)}>
+        <Button size="xs" variant="outline" onClick={() => setRelativeDay(0)}>
           I dag
         </Button>
-        <Button variant="outline" size="xs" onClick={() => setRelativeDay(1)}>
+        <Button size="xs" variant="outline" onClick={() => setRelativeDay(1)}>
           I morgen
         </Button>
-        <Button variant="outline" size="xs" onClick={() => setRelativeDay(2)}>
+        <Button size="xs" variant="outline" onClick={() => setRelativeDay(2)}>
           I overmorgen
         </Button>
       </Group>
 
-      {dayEnded ? (
-        <p className="text-sm text-red-500 font-medium">
-          Du kan ikke længere booke for i dag.
-        </p>
-      ) : (
-        <>
-          <TimeInput
-            label="Fra"
-            value={timeFrom}
-            onChange={(e) => setTimeFrom(e.currentTarget.value)}
-          />
-          <TimeInput
-            label="Til"
-            value={timeTo}
-            onChange={(e) => setTimeTo(e.currentTarget.value)}
-          />
+      <label className="text-sm font-medium text-main">Fra</label>
+      <TimeInput
+        value={timeFrom}
+        onChange={(e) => setTimeFrom(e.currentTarget.value)}
+      />
 
-          <Button
-            fullWidth
-            className="bg-primary-600 text-invert hover:opacity-90"
-            onClick={() =>
-              onSearch({
-                timeFrom,
-                timeTo,
-                whiteboard: roomFilters.whiteboard,
-                screen: roomFilters.screen,
-                board: roomFilters.board,
-                fourPersons: false,
-                sixPersons: false,
-                eightPersons: false,
-              })
-            }
-          >
-            Søg
-          </Button>
-        </>
+      {suggestedTimes.length > 0 && (
+        <div>
+          <p className="text-sm text-main mb-1">Forslag</p>
+          <Group gap={6}>
+            {suggestedTimes.map((t) => (
+              <Button
+                key={t}
+                size="xs"
+                variant="outline"
+                onClick={() => {
+                  setTimeFrom(t);
+                  const endHour = Number(t.split(":")[0]) + 1;
+                  setTimeTo(`${String(endHour).padStart(2, "0")}:00`);
+                }}
+              >
+                {t}
+              </Button>
+            ))}
+          </Group>
+        </div>
       )}
+
+      <label className="text-sm font-medium text-main">Til</label>
+      <TimeInput value={timeTo} onChange={(e) => setTimeTo(e.currentTarget.value)} />
+
+      <Button
+        fullWidth
+        onClick={() => {
+          // NY VALIDATION – forhindrer tomme input
+          if (!timeFrom || !timeTo) {
+            alert("Vælg venligst både start- og sluttid.");
+            return;
+          }
+
+          onSearch({
+            timeFrom,
+            timeTo,
+            whiteboard: roomFilters.whiteboard,
+            screen: roomFilters.screen,
+            board: roomFilters.board,
+            fourPersons: false,
+            sixPersons: false,
+            eightPersons: false,
+          });
+        }}
+      >
+        Søg
+      </Button>
     </div>
   );
 }

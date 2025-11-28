@@ -9,9 +9,8 @@ import { CreateBookingOverlay } from "@/app/overlays/CreateBookingOverlay";
 import { ErrorOverlay } from "@/app/overlays/ErrorOverlay";
 import { SelectRoomOverlay } from "@/app/overlays/SelectRoomOverlay";
 import { createClient } from "@supabase/supabase-js";
-import dayjs from "dayjs";
-
 import TopFilterBar from "@/components/booking/TopFilterBar";
+import dayjs from "dayjs";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
@@ -39,15 +38,14 @@ function PageContent() {
     end: Date;
   } | null>(null);
 
-  // -----------------------------
-  // TIMELINE BOOKING REQUEST
-  // -----------------------------
+  /* -----------------------------------------------------
+     TIMELINE BOOKING REQUEST
+  ----------------------------------------------------- */
   function handleCreateBookingRequest(data: {
     roomId: string;
     start: Date;
     end: Date;
   }) {
-    // BLOCK PAST BOOKINGS
     if (dayjs(data.start).isBefore(dayjs())) {
       return setError({
         title: "For sent",
@@ -59,9 +57,9 @@ function PageContent() {
     setOverlayOpen(true);
   }
 
-  // -----------------------------
-  // ADVANCED SEARCH LOGIC
-  // -----------------------------
+  /* -----------------------------------------------------
+     ADVANCED SEARCH LOGIC
+  ----------------------------------------------------- */
   async function handleAdvancedSearch(filters: {
     timeFrom: string;
     timeTo: string;
@@ -79,6 +77,13 @@ function PageContent() {
       });
     }
 
+    if (!filters.timeFrom || !filters.timeTo) {
+      return setError({
+        title: "Manglende tid",
+        message: "Vælg både start- og sluttid.",
+      });
+    }
+
     const [fh, fm] = filters.timeFrom.split(":").map(Number);
     const [th, tm] = filters.timeTo.split(":").map(Number);
 
@@ -92,6 +97,13 @@ function PageContent() {
     const start = dayjs(selectedDate).hour(fh).minute(fm).toDate();
     const end = dayjs(selectedDate).hour(th).minute(tm).toDate();
 
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return setError({
+        title: "Ugyldig tid",
+        message: "Der mangler et gyldigt tidspunkt.",
+      });
+    }
+
     if (end <= start) {
       return setError({
         title: "Fejl i tidsrum",
@@ -99,16 +111,20 @@ function PageContent() {
       });
     }
 
-    // Prevent booking in past
     if (dayjs(start).isBefore(dayjs())) {
       return setError({
         title: "For sent",
-        message: "Du kan ikke søge efter ledige rum i et tidsrum der allerede er gået.",
+        message: "Du kan ikke søge i et tidsrum der allerede er gået.",
       });
     }
 
-    const requiredCap =
-      filters.eightPersons ? 8 : filters.sixPersons ? 6 : filters.fourPersons ? 4 : 0;
+    const requiredCap = filters.eightPersons
+      ? 8
+      : filters.sixPersons
+      ? 6
+      : filters.fourPersons
+      ? 4
+      : 0;
 
     const featureMatched = rooms.filter((r) => {
       if (filters.whiteboard && !r.has_whiteboard) return false;
@@ -121,7 +137,7 @@ function PageContent() {
     if (featureMatched.length === 0) {
       return setError({
         title: "Ingen match",
-        message: "Ingen rum opfylder dine valgte filtre.",
+        message: "Ingen rum opfylder dine filtre.",
       });
     }
 
@@ -135,8 +151,10 @@ function PageContent() {
 
         const bStart = new Date(b.start_time).getTime();
         const bEnd = new Date(b.end_time).getTime();
+
         const s = start.getTime();
         const e = end.getTime();
+
         return s < bEnd && e > bStart;
       });
     });
@@ -156,15 +174,14 @@ function PageContent() {
       });
     }
 
-    // MULTIPLE ROOMS → open selection modal
     setAvailableRooms(available);
     setSearchTimes({ start, end });
     setSelectRoomOpen(true);
   }
 
-  // -----------------------------
-  // SUBMIT BOOKING
-  // -----------------------------
+  /* -----------------------------------------------------
+     SUBMIT BOOKING
+  ----------------------------------------------------- */
   async function handleSubmitBooking(formData: {
     roomId: string;
     title: string;
@@ -174,11 +191,18 @@ function PageContent() {
     try {
       const { roomId, title, start, end } = formData;
 
-      // Prevent booking past
+      // VALIDATION
+      if (!start || isNaN(start.getTime()) || !end || isNaN(end.getTime())) {
+        return setError({
+          title: "Ugyldig tid",
+          message: "Tidsdata kunne ikke læses korrekt.",
+        });
+      }
+
       if (dayjs(start).isBefore(dayjs())) {
         return setError({
           title: "For sent",
-          message: "Du kan ikke booke et tidsrum der allerede er gået.",
+          message: "Du kan ikke booke et tidsrum der er gået.",
         });
       }
 
@@ -195,6 +219,7 @@ function PageContent() {
 
         const bS = new Date(b.start_time).getTime();
         const bE = new Date(b.end_time).getTime();
+
         const s = start.getTime();
         const e = end.getTime();
 
@@ -217,12 +242,18 @@ function PageContent() {
         booking_type: "normal",
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error(
+          "🔥 FULL SUPABASE ERROR:",
+          JSON.stringify(error, null, 2)
+        );
+        throw error;
+      }
 
       await reloadBookings();
       setOverlayOpen(false);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("RAW ERROR:", err);
       setError({
         title: "Fejl",
         message: "Der opstod en fejl. Prøv igen senere.",
@@ -232,7 +263,9 @@ function PageContent() {
 
   return (
     <div className="w-full max-w-[1600px] mx-auto px-6 py-6 space-y-8">
-      <TopFilterBar />
+      <div className="flex items-center justify-between">
+        <TopFilterBar />
+      </div>
 
       <div className="flex gap-10">
         <div className="flex-1 space-y-6">
@@ -245,7 +278,6 @@ function PageContent() {
         </div>
       </div>
 
-      {/* CREATE BOOKING */}
       {overlayData && (
         <CreateBookingOverlay
           opened={overlayOpen}
@@ -258,7 +290,6 @@ function PageContent() {
         />
       )}
 
-      {/* ERROR */}
       {error && (
         <ErrorOverlay
           opened={!!error}
@@ -268,7 +299,6 @@ function PageContent() {
         />
       )}
 
-      {/* ROOM SELECTION MODAL */}
       {selectRoomOpen && searchTimes && (
         <SelectRoomOverlay
           opened={selectRoomOpen}

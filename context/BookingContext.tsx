@@ -84,11 +84,13 @@ type BookingContextValue = {
     screen: boolean;
     board: boolean;
     capacity: number | null;
+    floor: number | null;       // ⬅️ NEW
   };
 
   toggleRoomFilter: (key: "whiteboard" | "screen" | "board") => void;
   setCapacityFilter: (value: number | null) => void;
-  resetRoomFilters: () => void;   // ⬅️ NEW!
+  setFloorFilter: (value: number | null) => void; // ⬅️ NEW
+  resetRoomFilters: () => void;
 };
 
 const BookingContext = createContext<BookingContextValue | null>(null);
@@ -120,6 +122,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     screen: false,
     board: false,
     capacity: null as number | null,
+    floor: null as number | null, // ⬅️ NEW
   });
 
   function toggleRoomFilter(key: "whiteboard" | "screen" | "board") {
@@ -136,12 +139,20 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     }));
   }
 
+  function setFloorFilter(value: number | null) {
+    setRoomFilters((prev) => ({
+      ...prev,
+      floor: value,
+    }));
+  }
+
   function resetRoomFilters() {
     setRoomFilters({
       whiteboard: false,
       screen: false,
       board: false,
       capacity: null,
+      floor: null,     // ⬅️ NEW
     });
   }
 
@@ -195,7 +206,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   });
 
   // -------------------------------
-  // Room filtering inkl. capacity
+  // Room filtering inkl. floor & capacity
   // -------------------------------
   const filteredRooms = rooms.filter((room) => {
     if (roomFilters.whiteboard && !room.has_whiteboard) return false;
@@ -204,6 +215,10 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
     if (roomFilters.capacity !== null) {
       if (!room.capacity || room.capacity < roomFilters.capacity) return false;
+    }
+
+    if (roomFilters.floor !== null) {
+      if (room.floor !== roomFilters.floor) return false;
     }
 
     return true;
@@ -235,7 +250,8 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     roomFilters,
     toggleRoomFilter,
     setCapacityFilter,
-    resetRoomFilters, // ⬅️ nu er funktionen eksporteret
+    setFloorFilter,     // ⬅️ EXPORTED
+    resetRoomFilters,
   };
 
   return (
@@ -245,6 +261,9 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// -------------------------------
+// Hook
+// -------------------------------
 export function useBookingContext() {
   const ctx = useContext(BookingContext);
   if (!ctx) {
