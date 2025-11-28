@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { BookingTimeline } from "@/components/booking/BookingTimeline";
+import { BookingFilters } from "@/components/booking/BookingFilters";
+import { BookingList } from "@/components/booking/BookingList";
 import { BookingProvider, useBookingContext } from "@/context/BookingContext";
 import { CreateBookingOverlay } from "@/app/overlays/CreateBookingOverlay";
 
@@ -15,7 +17,7 @@ function PageContent() {
     end: Date;
   } | null>(null);
 
-  // When clicking the timeline
+  // Når der klikkes i timeline
   function handleCreateBookingRequest(data: {
     roomId: string;
     start: Date;
@@ -25,7 +27,7 @@ function PageContent() {
     setOverlayOpen(true);
   }
 
-  // When pressing "Opret booking"
+  // Når booking sendes fra modal
   function handleSubmitBooking(formData: {
     roomId: string;
     title: string;
@@ -34,31 +36,33 @@ function PageContent() {
   }) {
     console.log("NEW BOOKING:", formData);
 
-    // TODO: CALL SUPABASE HERE
+    // TODO:
     // await supabase.from("bookings").insert(...)
-    // then refresh state
-
+    // refresh bookings from context
     setOverlayOpen(false);
   }
 
   return (
-    <>
+    <div className="w-full max-w-[1600px] mx-auto px-6 py-6">
       <div className="flex gap-10">
-        {/* LEFT SIDE — timeline */}
-        <div className="flex-1">
+
+        {/* ------------------ VENSTRE SIDE (TIMELINE + RESULTATER) ------------------ */}
+        <div className="flex-1 space-y-6">
+
+          {/* TIMELINE */}
           <BookingTimeline onCreateBooking={handleCreateBookingRequest} />
+
+          {/* LISTEN UNDER TIMELINE */}
+          <BookingList />
         </div>
 
-        {/* RIGHT SIDE — your existing date picker + filter UI */}
-        <div className="w-[300px]">
-          {/* This is where you embed your DatePicker, TimeInput, Filters, etc */}
-          <p className="text-sm text-gray-600">
-            Right-side filter + calendar UI goes here.
-          </p>
+        {/* ------------------ HØJRE SIDE (KALENDER + FILTRE) ------------------ */}
+        <div className="w-[330px] shrink-0">
+          <BookingFilters />
         </div>
       </div>
 
-      {/* CREATE BOOKING OVERLAY */}
+      {/* ------------------ CREATE BOOKING OVERLAY ------------------ */}
       <CreateBookingOverlay
         opened={overlayOpen}
         onClose={() => setOverlayOpen(false)}
@@ -68,7 +72,7 @@ function PageContent() {
         end={overlayData?.end ?? new Date()}
         onSubmit={handleSubmitBooking}
       />
-    </>
+    </div>
   );
 }
 

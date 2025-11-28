@@ -1,5 +1,11 @@
 "use client";
 
+// Denne komponent håndterer filtrering af bookinger.
+// Datoen SKAL altid være en valid dato, ellers får timeline "Invalid Date".
+// Derfor arbejder vi her kun med Date-objekter og konverterer til ISO ved setSelectedDate.
+
+// Mantine-krav: DatePickerInput skal have value = Date | null, ikke år/måneds strings.
+
 import { DatePickerInput } from "@mantine/dates";
 import {
   Select,
@@ -25,20 +31,28 @@ export function BookingFilters() {
     setBookingTypeFilter,
   } = useBookingContext();
 
-  // DatePickerInput kører her med string|null
-  const pickerValue: string | null = selectedDate || null;
+  // 🎯 Mantine vil gerne have Date | null — ikke en string
+  const pickerValue = selectedDate ? new Date(selectedDate) : null;
 
+  // 🎯 Disse knapper sætter altid en valid ISO-dato
   const setToday = () => {
-    setSelectedDate(dayjs().format("YYYY-MM-DD"));
+    const newDate = dayjs().format("YYYY-MM-DD");
+    setSelectedDate(newDate);
   };
 
   const setTomorrow = () => {
-    setSelectedDate(dayjs().add(1, "day").format("YYYY-MM-DD"));
+    const newDate = dayjs().add(1, "day").format("YYYY-MM-DD");
+    setSelectedDate(newDate);
   };
 
-  const clearDate = () => setSelectedDate("");
+  // 🎯 Vi tillader IKKE at clearDate giver en tom streng → det ødelægger timeline
+  // I stedet vælger vi "i dag"
+  const clearDate = () => {
+    const fallback = dayjs().format("YYYY-MM-DD");
+    setSelectedDate(fallback);
+  };
 
-  // Fælles input-styles til Mantine-komponenter - bruger kun vores farve-variabler
+  // Styling
   const inputStyles: SelectProps["styles"] = {
     input: {
       backgroundColor: "var(--color-surface-card)",
@@ -54,7 +68,6 @@ export function BookingFilters() {
     },
   };
 
-  // Knap-styles så vi holder os til paletten
   const buttonStyles: ButtonProps["styles"] = {
     root: {
       backgroundColor: "transparent",
@@ -86,18 +99,19 @@ export function BookingFilters() {
             <DatePickerInput
               label="Dato"
               placeholder="Vælg dato"
+              // Mantine kræver Date | null
               value={pickerValue}
-              onChange={(value: string | null) => {
+              valueFormat="DD-MM-YYYY"
+              clearable={false} // ❌ ikke tilladt at lade brugeren cleare dato
+              styles={inputStyles}
+              onChange={(value) => {
+                // value = Date | null
                 if (value) {
+                  // Konverter til ISO for at undgå "Invalid Date"
                   const iso = dayjs(value).format("YYYY-MM-DD");
                   setSelectedDate(iso);
-                } else {
-                  setSelectedDate("");
                 }
               }}
-              clearable
-              valueFormat="DD-MM-YYYY"
-              styles={inputStyles}
             />
 
             <Group gap={6}>

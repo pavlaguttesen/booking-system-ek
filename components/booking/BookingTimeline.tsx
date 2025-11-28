@@ -1,47 +1,55 @@
 "use client";
 
-import { useMemo, useRef } from "react";
-import dayjs from "dayjs";
 import { useBookingContext } from "@/context/BookingContext";
+import dayjs from "dayjs";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { TimelineCurrentTime } from "@/components/booking/TimelineCurrentTime";
 
 const DAY_START_HOUR = 8;
 const DAY_END_HOUR = 20;
 const TOTAL_MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60;
 
-function isSameDate(dateStr: string, selectedDate: string | null) {
-  if (!selectedDate || selectedDate.trim() === "") return true;
-  return dayjs(dateStr).isSame(dayjs(selectedDate), "day");
-}
-
-function getMinutesSinceStart(d: Date) {
-  return (d.getHours() - DAY_START_HOUR) * 60 + d.getMinutes();
-}
-
-function getDurationMinutes(start: Date, end: Date) {
-  return (end.getTime() - start.getTime()) / 60000;
-}
-
 export function BookingTimeline({
   onCreateBooking,
 }: {
-  onCreateBooking: (data: {
-    roomId: string;
-    start: Date;
-    end: Date;
-  }) => void;
+  onCreateBooking: (data: { roomId: string; start: Date; end: Date }) => void;
 }) {
+  // ------------------- ALL HOOKS MUST BE HERE (TOP OF FUNCTION) -------------------
   const { rooms, filteredBookings, selectedDate } = useBookingContext();
   const timelineRef = useRef<HTMLDivElement>(null);
+  const [tick, setTick] = useState(0);
 
-  const bookingsForDay = useMemo(
-    () => filteredBookings.filter((b) => isSameDate(b.start_time, selectedDate)),
-    [filteredBookings, selectedDate]
+  useEffect(() => {
+    const interval = setInterval(() => setTick(Date.now()), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const bookingsForDay = useMemo(() => {
+    if (!selectedDate) return [];
+    return filteredBookings.filter((b) =>
+      dayjs(b.start_time).isSame(dayjs(selectedDate), "day")
+    );
+  }, [filteredBookings, selectedDate]);
+
+  const hours = useMemo(
+    () =>
+      Array.from(
+        { length: DAY_END_HOUR - DAY_START_HOUR + 1 },
+        (_, i) => DAY_START_HOUR + i
+      ),
+    []
   );
 
-  const hours = Array.from(
-    { length: DAY_END_HOUR - DAY_START_HOUR + 1 },
-    (_, i) => DAY_START_HOUR + i
-  );
+  // ------------------- 📌 EARLY RETURN AFTER ALL HOOKS -------------------
+  if (!selectedDate) {
+    return (
+      <div className="text-center text-primary-600 py-10">
+        Vælg en dato for at se tidsplanen.
+      </div>
+    );
+  }
+
+  // ------------------- RESTEN AF DIT UI -------------------
 
   function handleClickEmpty(e: React.MouseEvent) {
     if (!timelineRef.current) return;
@@ -50,13 +58,11 @@ export function BookingTimeline({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Which room column?
     const colWidth = rect.width / rooms.length;
     const roomIndex = Math.floor(x / colWidth);
     const room = rooms[roomIndex];
     if (!room) return;
 
-    // Convert Y → time
     const minutes = (y / rect.height) * TOTAL_MINUTES;
     const startHour = DAY_START_HOUR + Math.floor(minutes / 60);
     const startMin = Math.floor(minutes % 60);
@@ -69,20 +75,22 @@ export function BookingTimeline({
 
     const end = dayjs(start).add(1, "hour").toDate();
 
-    onCreateBooking({
-      roomId: room.id,
-      start,
-      end,
-    });
+    onCreateBooking({ roomId: room.id, start, end });
   }
+
+  const nowMinutes =
+    (dayjs().hour() - DAY_START_HOUR) * 60 + dayjs().minute();
+  const nowTopPercent = (nowMinutes / TOTAL_MINUTES) * 100;
 
   return (
     <section className="w-full">
       <div className="w-full flex select-none" ref={timelineRef}>
-        {/* LEFT TIME BAR */}
+        
+        {/* LEFT HOURS COLUMN */}
         <div className="w-[60px] relative h-[600px] border-r border-secondary-200 bg-white">
           {hours.map((hour) => {
-            const top = ((hour - DAY_START_HOUR) * 60) / TOTAL_MINUTES * 100;
+            const top =
+              ((hour - DAY_START_HOUR) * 60) / TOTAL_MINUTES * 100;
             return (
               <div
                 key={hour}
@@ -100,7 +108,7 @@ export function BookingTimeline({
           className="relative flex-1 h-[600px] border border-secondary-200 rounded-lg overflow-hidden flex cursor-pointer"
           onClick={handleClickEmpty}
         >
-          {/* Column backgrounds */}
+          {/* Backdrop colors */}
           <div className="absolute inset-0 flex z-10">
             {rooms.map((_, i) => (
               <div
@@ -115,7 +123,8 @@ export function BookingTimeline({
           {/* Hour lines */}
           <div className="absolute inset-0 z-20">
             {hours.map((hour) => {
-              const top = ((hour - DAY_START_HOUR) * 60) / TOTAL_MINUTES * 100;
+              const top =
+                ((hour - DAY_START_HOUR) * 60) / TOTAL_MINUTES * 100;
               return (
                 <div
                   key={hour}
@@ -126,8 +135,8 @@ export function BookingTimeline({
             })}
           </div>
 
-          {/* Room labels */}
-          <div className="absolute inset-x-0 top-0 flex z-30">
+          {/* Room names */}
+          <div className="absolute inset-x-0 top-0 flex z-30 bg-white/40 backdrop-blur-sm">
             {rooms.map((room) => (
               <div
                 key={room.id}
@@ -138,26 +147,38 @@ export function BookingTimeline({
             ))}
           </div>
 
+          {/* Red time line */}
+          {dayjs().isSame(selectedDate, "day") &&
+            nowTopPercent >= 0 &&
+            nowTopPercent <= 100 && (
+              <TimelineCurrentTime topPercent={nowTopPercent} />
+            )}
+
           {/* Bookings */}
           <div className="absolute inset-0 flex z-50 pointer-events-none">
-            {rooms.map((room, roomIndex) => {
+            {rooms.map((room) => {
               const roomBookings = bookingsForDay.filter(
                 (b) => b.room_id === room.id
               );
 
               return (
-                <div key={room.id} className="flex-1 relative min-w-[140px]">
+                <div key={room.id} className="flex-1 relative">
                   {roomBookings.map((b) => {
                     const start = new Date(b.start_time);
                     const end = new Date(b.end_time);
 
-                    const topPercent = Math.max(
-                      0,
-                      (getMinutesSinceStart(start) / TOTAL_MINUTES) * 100
-                    );
+                    const topPercent =
+                      (dayjs(start).diff(
+                        dayjs(selectedDate)
+                          .hour(DAY_START_HOUR)
+                          .minute(0),
+                        "minute"
+                      ) /
+                        TOTAL_MINUTES) *
+                      100;
 
                     const heightPercent =
-                      (Math.max(5, getDurationMinutes(start, end)) /
+                      (dayjs(end).diff(dayjs(start), "minute") /
                         TOTAL_MINUTES) *
                       100;
 
