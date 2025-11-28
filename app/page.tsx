@@ -2,31 +2,24 @@
 
 import { useState } from "react";
 import { BookingTimeline } from "@/components/booking/BookingTimeline";
-import { BookingFilters } from "@/components/booking/BookingFilters";
 import { BookingAdvancedFilters } from "@/components/booking/BookingAdvancedFilters";
 import { BookingList } from "@/components/booking/BookingList";
-import {
-  BookingProvider,
-  useBookingContext,
-} from "@/context/BookingContext";
+import { BookingProvider, useBookingContext } from "@/context/BookingContext";
 import { CreateBookingOverlay } from "@/app/overlays/CreateBookingOverlay";
 import { ErrorOverlay } from "@/app/overlays/ErrorOverlay";
+import { SelectRoomOverlay } from "@/app/overlays/SelectRoomOverlay";
 import { createClient } from "@supabase/supabase-js";
 import dayjs from "dayjs";
 
-// Supabase client (samme env-variabler som i context)
+import TopFilterBar from "@/components/booking/TopFilterBar";
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function PageContent() {
-  const {
-    rooms,
-    bookings,
-    filteredBookings,
-    selectedDate,
-    reloadBookings,
-  } = useBookingContext();
+  const { rooms, bookings, filteredBookings, selectedDate, reloadBookings } =
+    useBookingContext();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayData, setOverlayData] = useState<{
@@ -35,152 +28,143 @@ function PageContent() {
     end: Date;
   } | null>(null);
 
-  const [error, setError] = useState<{
-    title: string;
-    message: string;
+  const [error, setError] = useState<{ title: string; message: string } | null>(
+    null
+  );
+
+  const [selectRoomOpen, setSelectRoomOpen] = useState(false);
+  const [availableRooms, setAvailableRooms] = useState<any[]>([]);
+  const [searchTimes, setSearchTimes] = useState<{
+    start: Date;
+    end: Date;
   } | null>(null);
 
-  // Når der klikkes i timeline
+  // -----------------------------
+  // TIMELINE BOOKING REQUEST
+  // -----------------------------
   function handleCreateBookingRequest(data: {
     roomId: string;
     start: Date;
     end: Date;
   }) {
+    // BLOCK PAST BOOKINGS
+    if (dayjs(data.start).isBefore(dayjs())) {
+      return setError({
+        title: "For sent",
+        message: "Du kan ikke oprette en booking i fortiden.",
+      });
+    }
+
     setOverlayData(data);
     setOverlayOpen(true);
   }
 
-  // Avanceret søgning via højresiden
-  function handleAdvancedSearch(filters: {
+  // -----------------------------
+  // ADVANCED SEARCH LOGIC
+  // -----------------------------
+  async function handleAdvancedSearch(filters: {
     timeFrom: string;
     timeTo: string;
     whiteboard: boolean;
     screen: boolean;
+    board: boolean;
     fourPersons: boolean;
     sixPersons: boolean;
     eightPersons: boolean;
-    board: boolean;
   }) {
     if (!selectedDate) {
-      setError({
+      return setError({
         title: "Vælg dato",
-        message: "Vælg venligst en dato i kalenderen før du søger.",
+        message: "Du skal vælge en dato først.",
       });
-      return;
     }
 
-    const { timeFrom, timeTo } = filters;
+    const [fh, fm] = filters.timeFrom.split(":").map(Number);
+    const [th, tm] = filters.timeTo.split(":").map(Number);
 
-    if (!timeFrom || !timeTo) {
-      setError({
-        title: "Tid mangler",
-        message: "Vælg både start- og sluttid for din søgning.",
+    if (isNaN(fh) || isNaN(th)) {
+      return setError({
+        title: "Tidsformat",
+        message: "Indtast venligst gyldige tidspunkter.",
       });
-      return;
     }
 
-    const [fromH, fromM] = timeFrom.split(":").map(Number);
-    const [toH, toM] = timeTo.split(":").map(Number);
-
-    if (isNaN(fromH) || isNaN(toH)) {
-      setError({
-        title: "Ugyldig tid",
-        message: "Kontrollér dine tidspunkter og prøv igen.",
-      });
-      return;
-    }
-
-    const start = dayjs(selectedDate)
-      .hour(fromH)
-      .minute(fromM || 0)
-      .second(0)
-      .toDate();
-
-    const end = dayjs(selectedDate)
-      .hour(toH)
-      .minute(toM || 0)
-      .second(0)
-      .toDate();
+    const start = dayjs(selectedDate).hour(fh).minute(fm).toDate();
+    const end = dayjs(selectedDate).hour(th).minute(tm).toDate();
 
     if (end <= start) {
-      setError({
-        title: "Ugyldig periode",
+      return setError({
+        title: "Fejl i tidsrum",
         message: "Sluttid skal være senere end starttid.",
       });
-      return;
     }
 
-    // Filtrer rooms efter features
-    const requiredCapacity = filters.eightPersons
-      ? 8
-      : filters.sixPersons
-      ? 6
-      : filters.fourPersons
-      ? 4
-      : 0;
+    // Prevent booking in past
+    if (dayjs(start).isBefore(dayjs())) {
+      return setError({
+        title: "For sent",
+        message: "Du kan ikke søge efter ledige rum i et tidsrum der allerede er gået.",
+      });
+    }
 
-    const featureMatchedRooms = rooms.filter((r) => {
+    const requiredCap =
+      filters.eightPersons ? 8 : filters.sixPersons ? 6 : filters.fourPersons ? 4 : 0;
+
+    const featureMatched = rooms.filter((r) => {
       if (filters.whiteboard && !r.has_whiteboard) return false;
       if (filters.screen && !r.has_screen) return false;
       if (filters.board && !r.has_board) return false;
-
-      if (requiredCapacity && (r.capacity || 0) < requiredCapacity)
-        return false;
-
+      if (requiredCap && (r.capacity || 0) < requiredCap) return false;
       return true;
     });
 
-    if (featureMatchedRooms.length === 0) {
-      setError({
-        title: "Ingen ledige rum",
-        message:
-          "Der er ingen rum, der matcher dine filtre. Prøv at ændre kravene.",
+    if (featureMatched.length === 0) {
+      return setError({
+        title: "Ingen match",
+        message: "Ingen rum opfylder dine valgte filtre.",
       });
-      return;
     }
 
-    // Find rum uden booking i perioden
     const dayBookings = bookings.filter((b) =>
-      dayjs(b.start_time).isSame(dayjs(selectedDate), "day")
+      dayjs(b.start_time).isSame(selectedDate, "day")
     );
 
-    function hasConflict(roomId: string) {
-      const newStart = start.getTime();
-      const newEnd = end.getTime();
-      return dayBookings.some((b) => {
-        if (b.room_id !== roomId) return false;
-        const existingStart = new Date(b.start_time).getTime();
-        const existingEnd = new Date(b.end_time).getTime();
+    const available = featureMatched.filter((r) => {
+      return !dayBookings.some((b) => {
+        if (b.room_id !== r.id) return false;
 
-        return (
-          (newStart >= existingStart && newStart < existingEnd) ||
-          (existingStart >= newStart && existingStart < newEnd)
-        );
+        const bStart = new Date(b.start_time).getTime();
+        const bEnd = new Date(b.end_time).getTime();
+        const s = start.getTime();
+        const e = end.getTime();
+        return s < bEnd && e > bStart;
       });
-    }
-
-    const freeRoom = featureMatchedRooms.find(
-      (room) => !hasConflict(room.id)
-    );
-
-    if (!freeRoom) {
-      setError({
-        title: "Ingen ledige rum",
-        message:
-          "Der er ingen ledige studierum med dine valg. Prøv at ændre tid eller filtre.",
-      });
-      return;
-    }
-
-    // Vi har fundet et ledigt rum → åbner booking-overlay
-    handleCreateBookingRequest({
-      roomId: freeRoom.id,
-      start,
-      end,
     });
+
+    if (available.length === 0) {
+      return setError({
+        title: "Ingen ledige rum",
+        message: "Der er ingen ledige rum i dette tidsrum.",
+      });
+    }
+
+    if (available.length === 1) {
+      return handleCreateBookingRequest({
+        roomId: available[0].id,
+        start,
+        end,
+      });
+    }
+
+    // MULTIPLE ROOMS → open selection modal
+    setAvailableRooms(available);
+    setSearchTimes({ start, end });
+    setSelectRoomOpen(true);
   }
 
-  // Når booking sendes fra overlay
+  // -----------------------------
+  // SUBMIT BOOKING
+  // -----------------------------
   async function handleSubmitBooking(formData: {
     roomId: string;
     title: string;
@@ -190,38 +174,38 @@ function PageContent() {
     try {
       const { roomId, title, start, end } = formData;
 
-      // Lukkedage (weekend)
-      const weekday = start.getDay();
-      if (weekday === 0 || weekday === 6) {
-        setError({
-          title: "Booking kunne ikke foretages",
-          message: "Booking er ikke muligt på lukkedage.",
+      // Prevent booking past
+      if (dayjs(start).isBefore(dayjs())) {
+        return setError({
+          title: "For sent",
+          message: "Du kan ikke booke et tidsrum der allerede er gået.",
         });
-        return;
       }
 
-      // Konflikt-check mod eksisterende bookinger (samme rum)
+      const weekday = start.getDay();
+      if (weekday === 0 || weekday === 6) {
+        return setError({
+          title: "Lukket",
+          message: "Studierum kan ikke bookes i weekenden.",
+        });
+      }
+
       const hasConflict = filteredBookings.some((b) => {
         if (b.room_id !== roomId) return false;
 
-        const existingStart = new Date(b.start_time).getTime();
-        const existingEnd = new Date(b.end_time).getTime();
-        const newStart = start.getTime();
-        const newEnd = end.getTime();
+        const bS = new Date(b.start_time).getTime();
+        const bE = new Date(b.end_time).getTime();
+        const s = start.getTime();
+        const e = end.getTime();
 
-        return (
-          (newStart >= existingStart && newStart < existingEnd) ||
-          (existingStart >= newStart && existingStart < newEnd)
-        );
+        return s < bE && e > bS;
       });
 
       if (hasConflict) {
-        setError({
-          title: "Ingen ledige rum",
-          message:
-            "Der er ingen ledige studierum med dine valg. Prøv at ændre tid eller filtre.",
+        return setError({
+          title: "Optaget",
+          message: "Dette rum er optaget i valgt tidsrum.",
         });
-        return;
       }
 
       const { error } = await supabase.from("bookings").insert({
@@ -229,46 +213,39 @@ function PageContent() {
         title,
         start_time: start.toISOString(),
         end_time: end.toISOString(),
-        user_id: null, // kan kobles på auth senere
+        user_id: null,
         booking_type: "normal",
       });
 
-      if (error) {
-        setError({
-          title: "Booking kunne ikke foretages",
-          message: error.message,
-        });
-        return;
-      }
+      if (error) throw error;
 
       await reloadBookings();
       setOverlayOpen(false);
     } catch (err) {
       console.error(err);
       setError({
-        title: "Booking kunne ikke foretages",
+        title: "Fejl",
         message: "Der opstod en fejl. Prøv igen senere.",
       });
     }
   }
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto px-6 py-6">
+    <div className="w-full max-w-[1600px] mx-auto px-6 py-6 space-y-8">
+      <TopFilterBar />
+
       <div className="flex gap-10">
-        {/* VENSTRE: Timeline + liste */}
         <div className="flex-1 space-y-6">
           <BookingTimeline onCreateBooking={handleCreateBookingRequest} />
           <BookingList />
         </div>
 
-        {/* HØJRE: Filtre + avanceret søgning */}
         <div className="w-[340px] shrink-0 space-y-6">
-          <BookingFilters />
           <BookingAdvancedFilters onSearch={handleAdvancedSearch} />
         </div>
       </div>
 
-      {/* Overlay til oprettelse */}
+      {/* CREATE BOOKING */}
       {overlayData && (
         <CreateBookingOverlay
           opened={overlayOpen}
@@ -281,13 +258,39 @@ function PageContent() {
         />
       )}
 
-      {/* Fejl-popup */}
+      {/* ERROR */}
       {error && (
         <ErrorOverlay
           opened={!!error}
           title={error.title}
           message={error.message}
           onClose={() => setError(null)}
+        />
+      )}
+
+      {/* ROOM SELECTION MODAL */}
+      {selectRoomOpen && searchTimes && (
+        <SelectRoomOverlay
+          opened={selectRoomOpen}
+          onClose={() => setSelectRoomOpen(false)}
+          rooms={availableRooms}
+          start={searchTimes.start}
+          end={searchTimes.end}
+          onSelect={(roomId) => {
+            if (dayjs(searchTimes.start).isBefore(dayjs())) {
+              return setError({
+                title: "For sent",
+                message: "Dette tidsrum er allerede passeret.",
+              });
+            }
+
+            setSelectRoomOpen(false);
+            handleCreateBookingRequest({
+              roomId,
+              start: searchTimes.start,
+              end: searchTimes.end,
+            });
+          }}
         />
       )}
     </div>
