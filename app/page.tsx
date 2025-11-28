@@ -5,20 +5,33 @@ import { BookingTimeline } from "@/components/booking/BookingTimeline";
 import { BookingAdvancedFilters } from "@/components/booking/BookingAdvancedFilters";
 import { BookingList } from "@/components/booking/BookingList";
 import { BookingProvider, useBookingContext } from "@/context/BookingContext";
+
 import { CreateBookingOverlay } from "@/app/overlays/CreateBookingOverlay";
 import { ErrorOverlay } from "@/app/overlays/ErrorOverlay";
 import { SelectRoomOverlay } from "@/app/overlays/SelectRoomOverlay";
+
 import { createClient } from "@supabase/supabase-js";
 import TopFilterBar from "@/components/booking/TopFilterBar";
 import dayjs from "dayjs";
 
+/* ---------------------------------------------------------
+   SUPABASE CLIENT
+--------------------------------------------------------- */
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+/* ---------------------------------------------------------
+   PAGE CONTENT
+--------------------------------------------------------- */
 function PageContent() {
-  const { rooms, bookings, filteredBookings, selectedDate, reloadBookings } =
-    useBookingContext();
+  const {
+    rooms,
+    bookings,
+    filteredBookings,
+    selectedDate,
+    reloadBookings,
+  } = useBookingContext();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayData, setOverlayData] = useState<{
@@ -38,9 +51,9 @@ function PageContent() {
     end: Date;
   } | null>(null);
 
-  /* -----------------------------------------------------
+  /* ---------------------------------------------------------
      TIMELINE BOOKING REQUEST
-  ----------------------------------------------------- */
+  --------------------------------------------------------- */
   function handleCreateBookingRequest(data: {
     roomId: string;
     start: Date;
@@ -57,9 +70,9 @@ function PageContent() {
     setOverlayOpen(true);
   }
 
-  /* -----------------------------------------------------
+  /* ---------------------------------------------------------
      ADVANCED SEARCH LOGIC
-  ----------------------------------------------------- */
+  --------------------------------------------------------- */
   async function handleAdvancedSearch(filters: {
     timeFrom: string;
     timeTo: string;
@@ -100,7 +113,7 @@ function PageContent() {
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return setError({
         title: "Ugyldig tid",
-        message: "Der mangler et gyldigt tidspunkt.",
+        message: "Kunne ikke tolke tidspunkt.",
       });
     }
 
@@ -118,6 +131,7 @@ function PageContent() {
       });
     }
 
+    // Kapacitetskrav
     const requiredCap = filters.eightPersons
       ? 8
       : filters.sixPersons
@@ -126,6 +140,7 @@ function PageContent() {
       ? 4
       : 0;
 
+    // Match feature-filters
     const featureMatched = rooms.filter((r) => {
       if (filters.whiteboard && !r.has_whiteboard) return false;
       if (filters.screen && !r.has_screen) return false;
@@ -141,10 +156,12 @@ function PageContent() {
       });
     }
 
+    // Find dagens bookinger
     const dayBookings = bookings.filter((b) =>
       dayjs(b.start_time).isSame(selectedDate, "day")
     );
 
+    // Find ledige rum
     const available = featureMatched.filter((r) => {
       return !dayBookings.some((b) => {
         if (b.room_id !== r.id) return false;
@@ -166,6 +183,7 @@ function PageContent() {
       });
     }
 
+    // Hvis ét match → gå direkte til booking
     if (available.length === 1) {
       return handleCreateBookingRequest({
         roomId: available[0].id,
@@ -174,14 +192,15 @@ function PageContent() {
       });
     }
 
+    // Ellers vælg mellem flere
     setAvailableRooms(available);
     setSearchTimes({ start, end });
     setSelectRoomOpen(true);
   }
 
-  /* -----------------------------------------------------
+  /* ---------------------------------------------------------
      SUBMIT BOOKING
-  ----------------------------------------------------- */
+  --------------------------------------------------------- */
   async function handleSubmitBooking(formData: {
     roomId: string;
     title: string;
@@ -191,8 +210,7 @@ function PageContent() {
     try {
       const { roomId, title, start, end } = formData;
 
-      // VALIDATION
-      if (!start || isNaN(start.getTime()) || !end || isNaN(end.getTime())) {
+      if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) {
         return setError({
           title: "Ugyldig tid",
           message: "Tidsdata kunne ikke læses korrekt.",
@@ -219,7 +237,6 @@ function PageContent() {
 
         const bS = new Date(b.start_time).getTime();
         const bE = new Date(b.end_time).getTime();
-
         const s = start.getTime();
         const e = end.getTime();
 
@@ -243,16 +260,13 @@ function PageContent() {
       });
 
       if (error) {
-        console.error(
-          "🔥 FULL SUPABASE ERROR:",
-          JSON.stringify(error, null, 2)
-        );
+        console.error("SUPABASE ERROR:", error);
         throw error;
       }
 
       await reloadBookings();
       setOverlayOpen(false);
-    } catch (err: any) {
+    } catch (err) {
       console.error("RAW ERROR:", err);
       setError({
         title: "Fejl",
@@ -261,23 +275,34 @@ function PageContent() {
     }
   }
 
+  /* ---------------------------------------------------------
+     RENDER
+  --------------------------------------------------------- */
   return (
     <div className="w-full max-w-[1600px] mx-auto px-6 py-6 space-y-8">
+
+      {/* TOP FILTRE */}
       <div className="flex items-center justify-between">
         <TopFilterBar />
       </div>
 
+      {/* LAYOUT */}
       <div className="flex gap-10">
         <div className="flex-1 space-y-6">
           <BookingTimeline onCreateBooking={handleCreateBookingRequest} />
           <BookingList />
         </div>
 
+        {/* ADVANCED */}
         <div className="w-[340px] shrink-0 space-y-6">
-          <BookingAdvancedFilters onSearch={handleAdvancedSearch} />
+          <BookingAdvancedFilters
+            onSearch={handleAdvancedSearch}
+            onError={(title, message) => setError({ title, message })}
+          />
         </div>
       </div>
 
+      {/* CREATE BOOKING OVERLAY */}
       {overlayData && (
         <CreateBookingOverlay
           opened={overlayOpen}
@@ -290,6 +315,7 @@ function PageContent() {
         />
       )}
 
+      {/* ERROR OVERLAY */}
       {error && (
         <ErrorOverlay
           opened={!!error}
@@ -299,6 +325,7 @@ function PageContent() {
         />
       )}
 
+      {/* SELECT ROOM OVERLAY */}
       {selectRoomOpen && searchTimes && (
         <SelectRoomOverlay
           opened={selectRoomOpen}
@@ -327,6 +354,9 @@ function PageContent() {
   );
 }
 
+/* ---------------------------------------------------------
+   PAGE WRAPPER MED PROVIDER
+--------------------------------------------------------- */
 export default function Page() {
   return (
     <BookingProvider>

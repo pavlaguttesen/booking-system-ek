@@ -6,8 +6,15 @@ import { Button, Group } from "@mantine/core";
 import dayjs from "dayjs";
 import { useBookingContext } from "@/context/BookingContext";
 
+function useMounted() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted;
+}
+
 export function BookingAdvancedFilters({
   onSearch,
+  onError,    // <-- NY PROP
 }: {
   onSearch: (data: {
     timeFrom: string;
@@ -19,7 +26,11 @@ export function BookingAdvancedFilters({
     sixPersons: boolean;
     eightPersons: boolean;
   }) => void;
+
+  onError: (title: string, message: string) => void; // <-- NY PROP
 }) {
+  const mounted = useMounted();
+
   const {
     setSelectedDate,
     roomFilters,
@@ -36,7 +47,7 @@ export function BookingAdvancedFilters({
   const today = dayjs().startOf("day");
 
   /* -----------------------------------------------------
-     Forslag baseret på dato + ledige rum
+     Auto-forslag
   ----------------------------------------------------- */
   useEffect(() => {
     if (!selectedDate) {
@@ -46,7 +57,6 @@ export function BookingAdvancedFilters({
 
     const selectedDay = dayjs(selectedDate);
     const now = dayjs();
-
     const isToday = selectedDay.isSame(now, "day");
 
     let startHour = 8;
@@ -55,7 +65,6 @@ export function BookingAdvancedFilters({
       const currentHour = now.hour();
       const currentMinute = now.minute();
 
-      // Hvis dagen er “slut”, ingen forslag
       if (currentHour > 15 || (currentHour === 15 && currentMinute > 0)) {
         setSuggestedTimes([]);
         setTimeFrom("");
@@ -86,9 +95,7 @@ export function BookingAdvancedFilters({
         });
       });
 
-      if (hasFreeRoom) {
-        times.push(slotStart.format("HH:mm"));
-      }
+      if (hasFreeRoom) times.push(slotStart.format("HH:mm"));
     }
 
     setSuggestedTimes(times);
@@ -96,8 +103,7 @@ export function BookingAdvancedFilters({
     if (times.length > 0) {
       const first = times[0];
       setTimeFrom(first);
-      const endHour = Number(first.split(":")[0]) + 1;
-      setTimeTo(`${String(endHour).padStart(2, "0")}:00`);
+      setTimeTo(`${String(Number(first.split(":")[0]) + 1).padStart(2, "0")}:00`);
     } else {
       setTimeFrom("");
       setTimeTo("");
@@ -110,12 +116,11 @@ export function BookingAdvancedFilters({
   function handleDateChange(value: string | Date | null) {
     let next: Date | null = null;
 
-    if (value === null) next = null;
-    else if (value instanceof Date) next = value;
+    if (value instanceof Date) next = value;
     else if (typeof value === "string") {
       const parsed = new Date(value);
       next = isNaN(parsed.getTime()) ? null : parsed;
-    }
+    } else next = null;
 
     if (next && dayjs(next).isBefore(today, "day")) {
       next = today.toDate();
@@ -132,10 +137,26 @@ export function BookingAdvancedFilters({
   }
 
   /* -----------------------------------------------------
-     UI
+     Client-only rendering (hydration fix)
+  ----------------------------------------------------- */
+  if (!mounted) {
+    return (
+      <div className="bg-card p-5 rounded-lg shadow-sm space-y-4 opacity-40 animate-pulse">
+        <div className="h-6 bg-secondary-300 rounded w-40" />
+        <div className="h-10 bg-secondary-200 rounded" />
+        <div className="h-10 bg-secondary-200 rounded" />
+        <div className="h-10 bg-secondary-200 rounded" />
+      </div>
+    );
+  }
+
+  /* -----------------------------------------------------
+     RENDER
   ----------------------------------------------------- */
   return (
     <div className="bg-card p-5 rounded-lg shadow-sm space-y-4">
+
+      {/* Dato */}
       <DateInput
         label="Dato"
         placeholder="Vælg dato"
@@ -153,6 +174,7 @@ export function BookingAdvancedFilters({
         }}
       />
 
+      {/* Hurtig-dato */}
       <Group gap={6}>
         <Button size="xs" variant="outline" onClick={() => setRelativeDay(0)}>
           I dag
@@ -165,12 +187,14 @@ export function BookingAdvancedFilters({
         </Button>
       </Group>
 
+      {/* Fra */}
       <label className="text-sm font-medium text-main">Fra</label>
       <TimeInput
         value={timeFrom}
         onChange={(e) => setTimeFrom(e.currentTarget.value)}
       />
 
+      {/* Forslag */}
       {suggestedTimes.length > 0 && (
         <div>
           <p className="text-sm text-main mb-1">Forslag</p>
@@ -182,8 +206,9 @@ export function BookingAdvancedFilters({
                 variant="outline"
                 onClick={() => {
                   setTimeFrom(t);
-                  const endHour = Number(t.split(":")[0]) + 1;
-                  setTimeTo(`${String(endHour).padStart(2, "0")}:00`);
+                  setTimeTo(
+                    `${String(Number(t.split(":")[0]) + 1).padStart(2, "0")}:00`
+                  );
                 }}
               >
                 {t}
@@ -193,15 +218,19 @@ export function BookingAdvancedFilters({
         </div>
       )}
 
+      {/* Til */}
       <label className="text-sm font-medium text-main">Til</label>
-      <TimeInput value={timeTo} onChange={(e) => setTimeTo(e.currentTarget.value)} />
+      <TimeInput
+        value={timeTo}
+        onChange={(e) => setTimeTo(e.currentTarget.value)}
+      />
 
+      {/* Søg */}
       <Button
         fullWidth
         onClick={() => {
-          // NY VALIDATION – forhindrer tomme input
           if (!timeFrom || !timeTo) {
-            alert("Vælg venligst både start- og sluttid.");
+            onError("Manglende tid", "Vælg venligst både start- og sluttid.");
             return;
           }
 
@@ -222,3 +251,5 @@ export function BookingAdvancedFilters({
     </div>
   );
 }
+
+export default BookingAdvancedFilters;

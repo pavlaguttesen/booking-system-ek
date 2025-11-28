@@ -1,7 +1,14 @@
 "use client";
 
 import { useBookingContext } from "@/context/BookingContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+// Hook der sikrer at vi kun renderer inputs på klienten
+function useMounted() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted;
+}
 
 export default function TopFilterBar() {
   const {
@@ -12,8 +19,11 @@ export default function TopFilterBar() {
     setFloorFilter,
   } = useBookingContext();
 
+  const mounted = useMounted(); // <-- Forhindrer SSR-hydration mismatch
+
   const [capacityInput, setCapacityInput] = useState("");
 
+  // Håndterer kapacitetfelt
   function handleCapacityChange(val: string) {
     setCapacityInput(val);
 
@@ -26,86 +36,95 @@ export default function TopFilterBar() {
   }
 
   return (
-    <div className="w-full flex items-center justify-between mb-4">
+    <div className="w-full flex items-start justify-between mb-4">
 
-      {/* LEFT SIDE */}
-      <div className="flex items-center gap-10">
+      {/* LEFT GROUP */}
+      <div className="flex items-start gap-10">
 
         {/* FACILITETER */}
-        <div>
+        <div className="flex flex-col">
           <label className="text-sm font-semibold text-main">Faciliteter</label>
-          <div className="flex gap-3 mt-1">
 
-            {/* Whiteboard */}
+          <div className="flex gap-3 mt-1">
             <button
               onClick={() => toggleRoomFilter("whiteboard")}
               className={`px-4 py-2 rounded-md border text-sm transition
-                ${roomFilters.whiteboard
-                  ? "bg-primary-600 text-invert border-primary-600"
-                  : "bg-secondary-300 text-main border-secondary-200"
+                ${
+                  roomFilters.whiteboard
+                    ? "bg-primary-600 text-invert border-primary-600"
+                    : "bg-secondary-300 text-main border-secondary-200"
                 }`}
             >
               Whiteboard
             </button>
 
-            {/* Skærm */}
             <button
               onClick={() => toggleRoomFilter("screen")}
               className={`px-4 py-2 rounded-md border text-sm transition
-                ${roomFilters.screen
-                  ? "bg-primary-600 text-invert border-primary-600"
-                  : "bg-secondary-300 text-main border-secondary-200"
+                ${
+                  roomFilters.screen
+                    ? "bg-primary-600 text-invert border-primary-600"
+                    : "bg-secondary-300 text-main border-secondary-200"
                 }`}
             >
               Skærm
             </button>
 
-            {/* Opslagstavle */}
             <button
               onClick={() => toggleRoomFilter("board")}
               className={`px-4 py-2 rounded-md border text-sm transition
-                ${roomFilters.board
-                  ? "bg-primary-600 text-invert border-primary-600"
-                  : "bg-secondary-300 text-main border-secondary-200"
+                ${
+                  roomFilters.board
+                    ? "bg-primary-600 text-invert border-primary-600"
+                    : "bg-secondary-300 text-main border-secondary-200"
                 }`}
             >
               Opslagstavle
             </button>
-
           </div>
         </div>
 
         {/* ANTAL PERSONER */}
-        <div>
+        <div className="flex flex-col">
           <label className="text-sm font-semibold text-main">Antal personer</label>
-          <input
-            type="text"
-            value={capacityInput}
-            placeholder="Fx 4"
-            onChange={(e) => handleCapacityChange(e.target.value)}
-            className="px-3 py-2 rounded-md border text-sm bg-secondary-300 border-secondary-200 text-main w-24 mt-1"
-          />
+
+          {/* 
+            Vi renderer først input på klienten.
+            På serveren renderer vi en tom div → ingen mismatch.
+          */}
+          {mounted ? (
+            <input
+              type="text"
+              value={capacityInput}
+              placeholder="Fx 4"
+              onChange={(e) => handleCapacityChange(e.target.value)}
+              className="px-3 py-2 rounded-md border text-sm bg-secondary-300 border-secondary-200 text-main w-24 mt-1"
+            />
+          ) : (
+            <div className="w-24 h-[36px] mt-1 bg-secondary-300 rounded-md border border-secondary-200" />
+          )}
         </div>
 
-        {/* ETAGE — NEW */}
-        <div>
+        {/* ETAGE */}
+        <div className="flex flex-col">
           <label className="text-sm font-semibold text-main">Etage</label>
           <div className="flex gap-3 mt-1">
-
             {[1, 2, 3, 4].map((f) => (
               <button
                 key={f}
-                onClick={() => setFloorFilter(roomFilters.floor === f ? null : f)}
+                onClick={() =>
+                  setFloorFilter(roomFilters.floor === f ? null : f)
+                }
                 className={`px-4 py-2 rounded-md border text-sm transition
-                  ${roomFilters.floor === f
-                    ? "bg-primary-600 text-invert border-primary-600"
-                    : "bg-secondary-300 text-main border-secondary-200"
+                  ${
+                    roomFilters.floor === f
+                      ? "bg-primary-600 text-invert border-primary-600"
+                      : "bg-secondary-300 text-main border-secondary-200"
                   }`}
               >
                 {f}
               </button>
             ))}
-
           </div>
         </div>
 
@@ -117,7 +136,7 @@ export default function TopFilterBar() {
           resetRoomFilters();
           setCapacityInput("");
         }}
-        className="px-5 py-2 rounded-md border text-sm transition bg-secondary-300 border-secondary-200 text-main hover:bg-secondary-200 active:scale-[0.98]"
+        className="px-5 py-2 rounded-md border text-sm transition bg-secondary-300 border-secondary-200 text-main hover:bg-secondary-200 active:scale-[0.98] h-fit"
       >
         Nulstil filtre
       </button>
