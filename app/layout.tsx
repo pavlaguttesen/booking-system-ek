@@ -8,6 +8,9 @@ import { MantineProvider, createTheme } from "@mantine/core";
 import { Inter } from "next/font/google";
 
 import NavBar from "@/components/NavBar";
+import NavbarWrapper from "@/components/NavbarWrapper";
+import AuthGate from "@/components/AuthGate";
+import { AuthProvider } from "@/context/AuthContext"; // Dansk kommentar: Auth provider
 
 const inter = Inter({
   subsets: ["latin"],
@@ -50,13 +53,29 @@ const theme = createTheme({
   primaryShade: 9,
 });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className={inter.variable} data-theme="light">
       <body className="bg-page text-main font-sans">
         <MantineProvider theme={theme} defaultColorScheme="light">
-          <NavBar />
-          <main className="max-w-7xl mx-auto px-6 py-10">{children}</main>
+
+          {/* Dansk kommentar: Rollen skal hentes før navbar vises */}
+          <AuthProvider>
+            <AuthGate>
+
+              <NavbarWrapper>
+                <NavBar />
+              </NavbarWrapper>
+
+              {children}
+
+            </AuthGate>
+          </AuthProvider>
+
         </MantineProvider>
       </body>
     </html>

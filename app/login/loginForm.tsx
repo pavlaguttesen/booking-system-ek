@@ -2,17 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
-import {supabase} from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 import Logo from "./logo";
 
 export default function LoginForm() {
   const router = useRouter();
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-  );
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,32 +19,62 @@ export default function LoginForm() {
     setLoading(true);
     setErrorMsg("");
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    // 1️⃣ Log in
+    const { data: loginData, error: loginError } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setErrorMsg(error.message);
+    if (loginError) {
+      setErrorMsg("Forkert e-mail eller kodeord");
       setLoading(false);
       return;
     }
 
-    const role = data.user?.user_metadata?.role;
+    const user = loginData.user;
+    if (!user) {
+      setErrorMsg("Login fejlede. Prøv igen senere.");
+      setLoading(false);
+      return;
+    }
 
-    if (role === "admin") router.push("/admin");
-    else if (role === "teacher") router.push("/teacher");
-    else router.push("/student");
+    // 2️⃣ Fetch profile row
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profileData) {
+      setErrorMsg("Kunne ikke hente brugerprofil.");
+      setLoading(false);
+      return;
+    }
+
+    const role = profileData.role ?? "student";
+
+    // 3️⃣ Store in localStorage (temporary state until context is used)
+    localStorage.setItem(
+      "booking_profile",
+      JSON.stringify({
+        id: user.id,
+        email: user.email,
+        role,
+        full_name: profileData.full_name ?? "",
+      })
+    );
+
+    // 4️⃣ Redirect user
+    router.push("/");
 
     setLoading(false);
   }
 
   return (
     <form onSubmit={handleLogin} className="w-full max-w-md">
-
       <Logo />
 
-      {/* Intro til login siden */}
       <h2 className="text-main text-sm mb-1">
         Velkommen til bookingsystemet
       </h2>
@@ -59,7 +83,6 @@ export default function LoginForm() {
         Her kan du nemt booke lokaler, udstyr og studiepladser. <br />
         Log ind med dit EK København-login.
       </p>
-
 
       <label className="block mb-2 text-main font-medium">E-mail:</label>
       <input
@@ -78,10 +101,6 @@ export default function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-
-      <a className="text-primary-600 text-sm mb-6 inline-block" href="#">
-        Glemt kodeord?
-      </a>
 
       {errorMsg && (
         <p className="text-status-booked text-sm mb-4">{errorMsg}</p>
@@ -104,7 +123,6 @@ export default function LoginForm() {
         />
         Husk mig
       </label>
-
     </form>
   );
 }

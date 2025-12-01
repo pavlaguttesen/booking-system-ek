@@ -162,3 +162,24 @@ html, body {
   opacity: 0.6;
   cursor: not-allowed !important;
 }
+
+/* Smooth anim til Mantine Switch */
+[data-mantine-color-scheme] .mantine-Switch-track {
+  transition: background-color 0.25s ease;
+}
+
+[data-mantine-color-scheme] .mantine-Switch-thumb {
+  transition: all 0.25s ease;
+}
+
+.admin-switch {
+  transition: all 0.25s ease;
+}
+
+.admin-switch .mantine-Switch-track {
+  transition: background-color 0.25s ease;
+}
+
+.admin-switch .mantine-Switch-thumb {
+  transition: transform 0.25s ease, background-color 0.25s ease;
+}

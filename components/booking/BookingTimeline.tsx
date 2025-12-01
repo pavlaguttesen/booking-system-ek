@@ -1,13 +1,14 @@
 "use client";
 
-// Rød tidslinje der viser nuværende tidspunkt i timeline.
-// Vises kun hvis valgt dato = i dag.
+// Dansk kommentar: Timeline med visualisering af bookinger,
+// grå fortid, afrunding til kvarter og kliklogik med overlap-stop.
 
 import { useMemo, useRef } from "react";
 import dayjs from "dayjs";
 import { useBookingContext } from "@/context/BookingContext";
+import { useAuth } from "@/context/AuthContext";
 
-import "./BookingTimeline.css"; // ← CSS til skrå striber
+import "./BookingTimeline.css";
 
 const DAY_START_HOUR = 8;
 const DAY_END_HOUR = 16;
@@ -15,23 +16,24 @@ const MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60;
 
 const PX_PER_MINUTE = 1;
 
-// Visuelle marginer i top og bund
 const TOP_MARGIN = 16;
 const BOTTOM_MARGIN = 16;
 
-// Ny smallere tidskolonne
 const TIME_COL_WIDTH = 55;
 
 type BookingTimelineProps = {
-  onCreateBooking: (data: {
-    roomId: string;
-    start: Date;
-    end: Date;
-  }) => void;
+  onCreateBooking: (data: { roomId: string; start: Date; end: Date }) => void;
+  onDeleteBooking?: (booking: any) => void;
 };
 
-export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
-  const { filteredRooms, filteredBookings, selectedDate } = useBookingContext();
+export function BookingTimeline({
+  onCreateBooking,
+  onDeleteBooking,
+}: BookingTimelineProps) {
+  const { filteredRooms, filteredBookings, profiles, selectedDate } =
+    useBookingContext();
+  const { user, role } = useAuth();
+
   const timelineRef = useRef<HTMLDivElement | null>(null);
 
   const hours = useMemo(
@@ -54,7 +56,7 @@ export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
   const today = dayjs();
   const selected = dayjs(selectedDate);
 
-  // 📌 Dato før i dag → ikke tilladt
+  // Forbud mod fortidens dato
   if (selected.isBefore(today, "day")) {
     return (
       <div className="text-center py-14 bg-secondary-300 rounded-xl border border-secondary-200">
@@ -65,7 +67,7 @@ export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
     );
   }
 
-  // 📌 Hvis klokken er efter lukketid
+  // For sent på dagen
   if (selected.isSame(today, "day") && today.hour() >= DAY_END_HOUR) {
     return (
       <div className="text-center py-14 bg-secondary-300 rounded-xl border border-secondary-200">
@@ -77,20 +79,18 @@ export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
     );
   }
 
-  // 📌 Ingen rum matcher filtrene
+  // Ingen rum matcher
   if (filteredRooms.length === 0) {
     return (
       <div className="text-center py-16 px-4 bg-secondary-300 rounded-xl border border-secondary-200">
         <p className="text-lg font-semibold text-main">
           Ingen rum matcher dine filtre
         </p>
-        <p className="text-sm text-main/70 mt-1">
-          Prøv at ændre dine filtervalg øverst.
-        </p>
       </div>
     );
   }
 
+  // Omregning
   function minutesToPx(min: number) {
     return min * PX_PER_MINUTE;
   }
@@ -99,23 +99,33 @@ export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
     return (date.getHours() - DAY_START_HOUR) * 60 + date.getMinutes();
   }
 
-  /* -------------------------------------------------------
-     Klik på timeline
-  ------------------------------------------------------- */
+  // Afrund til nærmeste kvarter
+  function roundToQuarter(mins: number) {
+    return Math.round(mins / 15) * 15;
+  }
+
+  // Hent næste booking
+  function getNextBooking(roomId: string, start: dayjs.Dayjs) {
+    const bookings = filteredBookings
+      .filter((b) => b.room_id === roomId)
+      .map((b) => ({
+        s: dayjs(b.start_time),
+        e: dayjs(b.end_time),
+      }));
+
+    return bookings.find((b) => b.s.isAfter(start));
+  }
+
+  // Klik logik
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     if (!timelineRef.current) return;
 
-    const now = dayjs();
     const rect = timelineRef.current.getBoundingClientRect();
-
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Klik i hatch-zoner → ignorér
     if (y < TOP_MARGIN) return;
     if (y > TOP_MARGIN + minutesToPx(MINUTES)) return;
-
-    // Brug ny smallere timespalte
     if (x < TIME_COL_WIDTH) return;
 
     const colWidth = (rect.width - TIME_COL_WIDTH) / filteredRooms.length;
@@ -124,42 +134,42 @@ export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
     if (!room) return;
 
     const minuteOffset = (y - TOP_MARGIN) / PX_PER_MINUTE;
-    const startHour = DAY_START_HOUR + Math.floor(minuteOffset / 60);
-    const startMin = Math.floor(minuteOffset % 60);
 
-    const start = selected.hour(startHour).minute(startMin).second(0);
+    const rawStartMin =
+      DAY_START_HOUR * 60 + minuteOffset - DAY_START_HOUR * 60;
 
-    // Må ikke klikke i fortiden
-    if (selected.isSame(now, "day") && start.isBefore(now)) return;
+    const roundedStart = roundToQuarter(rawStartMin);
 
-    const end = start.add(1, "hour").toDate();
+    const start = selected.hour(DAY_START_HOUR).minute(roundedStart);
+
+    if (selected.isSame(today, "day") && start.isBefore(today)) return;
+
+    let end = start.add(60, "minute");
+
+    const next = getNextBooking(room.id, start);
+    if (next && end.isAfter(next.s)) {
+      end = next.s;
+    }
 
     onCreateBooking({
       roomId: room.id,
       start: start.toDate(),
-      end,
+      end: end.toDate(),
     });
   }
 
-  /* -------------------------------------------------------
-     NU-linje
-  ------------------------------------------------------- */
   const now = dayjs();
   const showNow = selected.isSame(now, "day");
-  const nowOffsetMinutes =
-    (now.hour() - DAY_START_HOUR) * 60 + now.minute();
+  const nowOffsetMinutes = (now.hour() - DAY_START_HOUR) * 60 + now.minute();
 
   const nowTop =
     nowOffsetMinutes >= 0 && nowOffsetMinutes <= MINUTES
       ? TOP_MARGIN + minutesToPx(nowOffsetMinutes)
       : null;
 
-  /* -------------------------------------------------------
-     RENDER TIMELINE
-  ------------------------------------------------------- */
   return (
     <div>
-      {/* Header med rum */}
+      {/* Header */}
       <div
         className="grid border border-gray-300 rounded-t-lg overflow-hidden bg-gray-100"
         style={{
@@ -187,21 +197,25 @@ export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
         }}
         onClick={handleClick}
       >
-        {/* 🔥 Skrå hatch-zoner */}
-        <div
-          className="diagonal-hatch pointer-events-none"
-          style={{
-            top: 0,
-            height: TOP_MARGIN,
-          }}
-        />
+        {/* Fortid grået ud */}
+        {showNow && (
+          <div
+            className="absolute left-0 right-0 bg-black/15 pointer-events-none"
+            style={{
+              top: TOP_MARGIN,
+              height: minutesToPx(nowOffsetMinutes),
+            }}
+          />
+        )}
 
+        {/* Hatch zones */}
         <div
           className="diagonal-hatch pointer-events-none"
-          style={{
-            bottom: 0,
-            height: BOTTOM_MARGIN,
-          }}
+          style={{ top: 0, height: TOP_MARGIN }}
+        />
+        <div
+          className="diagonal-hatch pointer-events-none"
+          style={{ bottom: 0, height: BOTTOM_MARGIN }}
         />
 
         {/* Time labels */}
@@ -212,10 +226,7 @@ export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
               <div
                 key={hour}
                 className="absolute w-full text-xs text-gray-700 flex items-center justify-center"
-                style={{
-                  top,
-                  transform: "translateY(-50%)",
-                }}
+                style={{ top, transform: "translateY(-50%)" }}
               >
                 {hour}:00
               </div>
@@ -234,9 +245,10 @@ export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
               key={room.id}
               className="relative border-l border-gray-300 bg-transparent"
             >
-              {/* Gridlines */}
+              {/* Grid lines */}
               {hours.map((hour) => {
-                const top = TOP_MARGIN + minutesToPx((hour - DAY_START_HOUR) * 60);
+                const top =
+                  TOP_MARGIN + minutesToPx((hour - DAY_START_HOUR) * 60);
                 return (
                   <div
                     key={hour}
@@ -254,16 +266,50 @@ export function BookingTimeline({ onCreateBooking }: BookingTimelineProps) {
                 const sMin = dateToMinuteOffset(s);
                 const eMin = dateToMinuteOffset(e);
 
+                const owner = profiles.find((p) => p.id === b.user_id);
+                const isOwner = user?.id === b.user_id;
+                const canDelete =
+                  (isOwner || role === "admin") && onDeleteBooking;
+
                 return (
                   <div
                     key={b.id}
-                    className="absolute left-[10%] right-[10%] bg-status-booked text-invert text-xs rounded-md px-2 py-1 shadow-md overflow-hidden"
+                    className="absolute inset-x-0 mx-[10%] bg-status-booked text-invert text-xs rounded-md px-2 py-1 shadow-md overflow-hidden"
                     style={{
                       top: TOP_MARGIN + minutesToPx(sMin),
                       height: minutesToPx(eMin - sMin),
                     }}
                   >
-                    {b.title || "Booking"}
+                    {/* Titel */}
+                    <div className="font-semibold truncate">
+                      {b.title || "Booking"}
+                    </div>
+
+                    {/* Booker */}
+                    <div className="text-[10px] opacity-90">
+                      {owner?.full_name || "Ukendt"}
+                    </div>
+
+                    {/* Tid */}
+                    <div className="text-[10px] mt-1 opacity-90">
+                      {dayjs(s).format("HH:mm")} – {dayjs(e).format("HH:mm")}
+                    </div>
+
+                    {/* DELETE KNAP */}
+                    {canDelete && (
+                      <button
+                        onClick={(ev) => {
+                          ev.stopPropagation();
+                          onDeleteBooking(b);
+                        }}
+                        className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center 
+                                   rounded-full bg-white text-red-600 text-[10px] font-bold
+                                   shadow-md cursor-pointer hover:bg-gray-100"
+                        style={{ zIndex: 50 }}
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                 );
               })}

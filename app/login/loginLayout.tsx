@@ -1,26 +1,46 @@
 "use client";
 
-export default function loginLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function LoginLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen bg-page">
-      {/* Venstre side */}
+    <div className="w-screen h-screen flex overflow-hidden">
 
-      <div className="w-1/2 bg-card text-main flex items-center justify-center px-12">
-        <>{children}</>
+      {/* LEFT SIDE */}
+      <div className="
+        w-1/2 
+        flex 
+        items-center 
+        justify-center 
+        bg-white 
+        px-[6vw] 
+      ">
+        <div className="w-full max-w-[420px]">
+          {children}
+        </div>
       </div>
 
-      {/* Højre side */}
-      <div className="w-1/2 bg-secondary-200 relative overflow-hidden">
+      {/* RIGHT SIDE */}
+      <div className="
+        w-1/2 
+        h-full 
+        relative 
+        bg-[#C9D4F1] 
+        overflow-hidden
+      ">
         <img
-          className="absolute inset-0 scale-150 translate-x-20  object-cover opacity-50 rotate-315"
           src="/ek_sekundaert-logo_business-blue_rgb.png"
           alt="EK sekundært logo"
+          className="
+            absolute 
+            right-[-12%]
+            top-[8%]
+            w-[90%]
+            max-w-none
+            opacity-[0.25]
+            scale-[1.4]
+          "
         />
       </div>
+
     </div>
   );
 }

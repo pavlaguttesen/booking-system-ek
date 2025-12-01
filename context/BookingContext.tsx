@@ -35,6 +35,7 @@ export type Room = {
   has_screen: boolean | null;
   has_board: boolean | null;
   capacity: number | null;
+  room_type?: string | null;   // <-- NEW FIELD (must exist in DB)
 };
 
 export type Booking = {
@@ -78,18 +79,20 @@ type BookingContextValue = {
 
   reloadBookings: () => Promise<void>;
 
-  // NEW UI filters
+  // UI filters
   roomFilters: {
     whiteboard: boolean;
     screen: boolean;
     board: boolean;
     capacity: number | null;
-    floor: number | null;       // ⬅️ NEW
+    floor: number | null;
+    roomType: string | null; // <-- NEW
   };
 
   toggleRoomFilter: (key: "whiteboard" | "screen" | "board") => void;
   setCapacityFilter: (value: number | null) => void;
-  setFloorFilter: (value: number | null) => void; // ⬅️ NEW
+  setFloorFilter: (value: number | null) => void;
+  setRoomTypeFilter: (value: string | null) => void; // <-- NEW
   resetRoomFilters: () => void;
 };
 
@@ -115,14 +118,15 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   >("all");
 
   // -------------------------------
-  // NEW — TopBar Filters
+  // TopBar Filters
   // -------------------------------
   const [roomFilters, setRoomFilters] = useState({
     whiteboard: false,
     screen: false,
     board: false,
     capacity: null as number | null,
-    floor: null as number | null, // ⬅️ NEW
+    floor: null as number | null,
+    roomType: null as string | null, // <-- NEW
   });
 
   function toggleRoomFilter(key: "whiteboard" | "screen" | "board") {
@@ -146,13 +150,21 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     }));
   }
 
+  function setRoomTypeFilter(value: string | null) {
+    setRoomFilters((prev) => ({
+      ...prev,
+      roomType: value,
+    }));
+  }
+
   function resetRoomFilters() {
     setRoomFilters({
       whiteboard: false,
       screen: false,
       board: false,
       capacity: null,
-      floor: null,     // ⬅️ NEW
+      floor: null,
+      roomType: null,
     });
   }
 
@@ -194,19 +206,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // -------------------------------
-  // Filter bookinger efter dato/rum/bookingtype
-  // -------------------------------
-  const filteredBookings = bookings.filter((b) => {
-    if (selectedRoomId !== "all" && b.room_id !== selectedRoomId) return false;
-    if (bookingTypeFilter !== "all" && (b.booking_type || "normal") !== bookingTypeFilter)
-      return false;
-    if (selectedDate && !dayjs(b.start_time).isSame(dayjs(selectedDate), "day"))
-      return false;
-    return true;
-  });
-
-  // -------------------------------
-  // Room filtering inkl. floor & capacity
+  // Room filtering inkl. floor, capacity, roomType
   // -------------------------------
   const filteredRooms = rooms.filter((room) => {
     if (roomFilters.whiteboard && !room.has_whiteboard) return false;
@@ -221,6 +221,22 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       if (room.floor !== roomFilters.floor) return false;
     }
 
+    if (roomFilters.roomType !== null) {
+      if (room.room_type !== roomFilters.roomType) return false;
+    }
+
+    return true;
+  });
+
+  // -------------------------------
+  // Booking filtering
+  // -------------------------------
+  const filteredBookings = bookings.filter((b) => {
+    if (selectedRoomId !== "all" && b.room_id !== selectedRoomId) return false;
+    if (bookingTypeFilter !== "all" && (b.booking_type || "normal") !== bookingTypeFilter)
+      return false;
+    if (selectedDate && !dayjs(b.start_time).isSame(selectedDate, "day"))
+      return false;
     return true;
   });
 
@@ -250,7 +266,8 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     roomFilters,
     toggleRoomFilter,
     setCapacityFilter,
-    setFloorFilter,     // ⬅️ EXPORTED
+    setFloorFilter,
+    setRoomTypeFilter, // <-- EXPORTED
     resetRoomFilters,
   };
 

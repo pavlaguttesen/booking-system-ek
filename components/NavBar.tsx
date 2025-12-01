@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
 
 export default function NavBar() {
+  const { role } = useAuth();
+
   return (
     <header className="w-full bg-secondary-200 px-10 py-4 flex justify-between items-center">
 
       {/* Logo */}
       <div className="flex items-center gap-4">
         <Image
-          src="/logo-ek.png" 
+          src="/logo-ek.png"
           alt="Erhvervsakademiet København"
           width={140}
           height={50}
@@ -27,13 +30,16 @@ export default function NavBar() {
           Min side
         </Link>
 
-        {/* Midlertidigt: indstillinger er en page */}
-        <Link 
-          href="/indstillinger" 
-          className="hover:underline"
-        >
+        <Link href="/indstillinger" className="hover:underline">
           Indstillinger
         </Link>
+
+        {/* ADMIN LINK — visible only for role === "admin" */}
+        {role === "admin" && (
+          <Link href="/admin" className="hover:underline">
+            Admin
+          </Link>
+        )}
       </nav>
     </header>
   );

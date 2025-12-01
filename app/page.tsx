@@ -9,6 +9,7 @@ import { BookingProvider, useBookingContext } from "@/context/BookingContext";
 import { CreateBookingOverlay } from "@/app/overlays/CreateBookingOverlay";
 import { ErrorOverlay } from "@/app/overlays/ErrorOverlay";
 import { SelectRoomOverlay } from "@/app/overlays/SelectRoomOverlay";
+import { DeleteBookingOverlay } from "@/app/overlays/DeleteBookingsOverlay";
 
 import { createClient } from "@supabase/supabase-js";
 import TopFilterBar from "@/components/booking/TopFilterBar";
@@ -25,13 +26,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
    PAGE CONTENT
 --------------------------------------------------------- */
 function PageContent() {
-  const {
-    rooms,
-    bookings,
-    filteredBookings,
-    selectedDate,
-    reloadBookings,
-  } = useBookingContext();
+  const { rooms, profiles, bookings, filteredBookings, selectedDate, reloadBookings } =
+    useBookingContext();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayData, setOverlayData] = useState<{
@@ -51,6 +47,10 @@ function PageContent() {
     end: Date;
   } | null>(null);
 
+  // ↓↓↓ NYE STATES TIL SLETNING ↓↓↓
+  const [deleteOverlayOpen, setDeleteOverlayOpen] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState<any>(null);
+
   /* ---------------------------------------------------------
      TIMELINE BOOKING REQUEST
   --------------------------------------------------------- */
@@ -68,6 +68,37 @@ function PageContent() {
 
     setOverlayData(data);
     setOverlayOpen(true);
+  }
+
+  /* ---------------------------------------------------------
+     NYT: DELETE BOOKING REQUEST
+  --------------------------------------------------------- */
+  function handleDeleteBookingRequest(booking: any) {
+    setBookingToDelete(booking);
+    setDeleteOverlayOpen(true);
+  }
+
+  /* ---------------------------------------------------------
+     NYT: CONFIRM DELETE
+  --------------------------------------------------------- */
+  async function handleConfirmDelete() {
+    if (!bookingToDelete) return;
+
+    const { error } = await supabase
+      .from("bookings")
+      .delete()
+      .eq("id", bookingToDelete.id);
+
+    if (error) {
+      return setError({
+        title: "Fejl",
+        message: "Kunne ikke slette booking.",
+      });
+    }
+
+    await reloadBookings();
+    setDeleteOverlayOpen(false);
+    setBookingToDelete(null);
   }
 
   /* ---------------------------------------------------------
@@ -131,7 +162,6 @@ function PageContent() {
       });
     }
 
-    // Kapacitetskrav
     const requiredCap = filters.eightPersons
       ? 8
       : filters.sixPersons
@@ -140,7 +170,6 @@ function PageContent() {
       ? 4
       : 0;
 
-    // Match feature-filters
     const featureMatched = rooms.filter((r) => {
       if (filters.whiteboard && !r.has_whiteboard) return false;
       if (filters.screen && !r.has_screen) return false;
@@ -156,12 +185,10 @@ function PageContent() {
       });
     }
 
-    // Find dagens bookinger
     const dayBookings = bookings.filter((b) =>
       dayjs(b.start_time).isSame(selectedDate, "day")
     );
 
-    // Find ledige rum
     const available = featureMatched.filter((r) => {
       return !dayBookings.some((b) => {
         if (b.room_id !== r.id) return false;
@@ -183,7 +210,6 @@ function PageContent() {
       });
     }
 
-    // Hvis ét match → gå direkte til booking
     if (available.length === 1) {
       return handleCreateBookingRequest({
         roomId: available[0].id,
@@ -192,7 +218,6 @@ function PageContent() {
       });
     }
 
-    // Ellers vælg mellem flere
     setAvailableRooms(available);
     setSearchTimes({ start, end });
     setSelectRoomOpen(true);
@@ -209,6 +234,16 @@ function PageContent() {
   }) {
     try {
       const { roomId, title, start, end } = formData;
+
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData.user;
+
+      if (!user) {
+        return setError({
+          title: "Ikke logget ind",
+          message: "Du skal være logget ind for at oprette en booking.",
+        });
+      }
 
       if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) {
         return setError({
@@ -252,11 +287,12 @@ function PageContent() {
 
       const { error } = await supabase.from("bookings").insert({
         room_id: roomId,
-        title,
+        title: title,
         start_time: start.toISOString(),
         end_time: end.toISOString(),
-        user_id: null,
+        user_id: user.id,
         booking_type: "normal",
+        description: null,
       });
 
       if (error) {
@@ -280,7 +316,6 @@ function PageContent() {
   --------------------------------------------------------- */
   return (
     <div className="w-full max-w-[1600px] mx-auto px-6 py-6 space-y-8">
-
       {/* TOP FILTRE */}
       <div className="flex items-center justify-between">
         <TopFilterBar />
@@ -289,7 +324,10 @@ function PageContent() {
       {/* LAYOUT */}
       <div className="flex gap-10">
         <div className="flex-1 space-y-6">
-          <BookingTimeline onCreateBooking={handleCreateBookingRequest} />
+          <BookingTimeline
+            onCreateBooking={handleCreateBookingRequest}
+            onDeleteBooking={handleDeleteBookingRequest} // ← NYT
+          />
           <BookingList />
         </div>
 
@@ -348,6 +386,18 @@ function PageContent() {
               end: searchTimes.end,
             });
           }}
+        />
+      )}
+
+      {/* DELETE BOOKING OVERLAY */}
+      {deleteOverlayOpen && bookingToDelete && (
+        <DeleteBookingOverlay
+          opened={deleteOverlayOpen}
+          onClose={() => setDeleteOverlayOpen(false)}
+          booking={bookingToDelete}
+          room={rooms.find((r) => r.id === bookingToDelete.room_id) || null}
+          profile={profiles.find((p) => p.id === bookingToDelete.user_id) || null}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </div>

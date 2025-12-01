@@ -1,6 +1,7 @@
 "use client";
 
 import { useBookingContext } from "@/context/BookingContext";
+import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 
 // Hook der sikrer at vi kun renderer inputs på klienten
@@ -17,13 +18,14 @@ export default function TopFilterBar() {
     setCapacityFilter,
     resetRoomFilters,
     setFloorFilter,
+    setRoomTypeFilter,   // <-- NOW EXISTS
   } = useBookingContext();
 
-  const mounted = useMounted(); // <-- Forhindrer SSR-hydration mismatch
-
+  const { role } = useAuth();
+  const mounted = useMounted();
   const [capacityInput, setCapacityInput] = useState("");
 
-  // Håndterer kapacitetfelt
+  // Kapacitetsændring
   function handleCapacityChange(val: string) {
     setCapacityInput(val);
 
@@ -34,6 +36,23 @@ export default function TopFilterBar() {
       setCapacityFilter(null);
     }
   }
+
+  // Lokaletype muligheder
+  const roomTypeOptions = [
+    { value: "studierum", label: "Studierum" },
+    { value: "møderum", label: "Mødelokale" },
+    { value: "klasseværelse", label: "Klasselokale" },
+    { value: "auditorium", label: "Auditorium" },
+  ];
+
+  // Rollebaseret adgang
+  const allowedTypesByRole: Record<string, string[]> = {
+    student: ["studierum", "møderum"],
+    teacher: ["møderum", "klasseværelse", "auditorium"],
+    admin: ["studierum", "møderum", "klasseværelse", "auditorium"],
+  };
+
+  const allowedRoomTypes = allowedTypesByRole[role ?? "student"];
 
   return (
     <div className="w-full flex items-start justify-between mb-4">
@@ -88,10 +107,6 @@ export default function TopFilterBar() {
         <div className="flex flex-col">
           <label className="text-sm font-semibold text-main">Antal personer</label>
 
-          {/* 
-            Vi renderer først input på klienten.
-            På serveren renderer vi en tom div → ingen mismatch.
-          */}
           {mounted ? (
             <input
               type="text"
@@ -127,6 +142,28 @@ export default function TopFilterBar() {
             ))}
           </div>
         </div>
+
+        {/* LOKALETYPE (kun lærer + admin) */}
+        {role !== "student" && (
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-main">Lokaletype</label>
+
+            <select
+              className="px-4 py-2 rounded-md border text-sm bg-secondary-300 border-secondary-200 text-main mt-1"
+              value={roomFilters.roomType ?? ""}
+              onChange={(e) => setRoomTypeFilter(e.target.value || null)}
+            >
+              <option value="">Alle</option>
+              {roomTypeOptions
+                .filter((opt) => allowedRoomTypes.includes(opt.value))
+                .map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+            </select>
+          </div>
+        )}
 
       </div>
 
