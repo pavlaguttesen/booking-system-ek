@@ -4,18 +4,33 @@
 // antal pladser, etage og faciliteter. Data sendes til Supabase.
 
 import { useState } from "react";
-import { TextInput, NumberInput, Checkbox, Button, Select } from "@mantine/core";
+import {
+  TextInput,
+  NumberInput,
+  Checkbox,
+  Button,
+  Select,
+} from "@mantine/core";
 import { supabase } from "@/lib/supabaseClient";
 
-export default function CreateRoomForm() {
+type CreateRoomFormProps = {
+  // Dansk kommentar: Kaldes efter succesfuld oprettelse, så parent kan genindlæse listen
+  onRoomCreated?: () => void;
+};
+
+export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
+  // Dansk kommentar: Lokal state til formularfelter
   const [roomName, setRoomName] = useState("");
   const [capacity, setCapacity] = useState<number | null>(null);
   const [floor, setFloor] = useState<number | null>(null);
+  const [nrOfSeats, setNrOfSeats] = useState<number | null>(null);
   const [hasWhiteboard, setHasWhiteboard] = useState(false);
   const [hasScreen, setHasScreen] = useState(false);
   const [hasBoard, setHasBoard] = useState(false);
   const [roomType, setRoomType] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
 
+  // Dansk kommentar: UI state
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -25,7 +40,7 @@ export default function CreateRoomForm() {
     setSuccessMsg("");
     setErrorMsg("");
 
-    // Dansk kommentar: Validerer at admin har udfyldt de vigtigste felter
+    // Dansk kommentar: Simpel validering
     if (!roomName || !roomType) {
       setErrorMsg("Du skal udfylde både navn og type.");
       setLoading(false);
@@ -37,10 +52,12 @@ export default function CreateRoomForm() {
         room_name: roomName,
         capacity: capacity ?? null,
         floor: floor ?? null,
+        nr_of_seats: nrOfSeats ?? null,
         has_whiteboard: hasWhiteboard,
         has_screen: hasScreen,
         has_board: hasBoard,
         room_type: roomType,
+        is_closed: isClosed,
       },
     ]);
 
@@ -50,22 +67,30 @@ export default function CreateRoomForm() {
       return;
     }
 
+    // Dansk kommentar: Kald parent callback så listen kan genindlæses
+    if (onRoomCreated) {
+      onRoomCreated();
+    }
+
     setSuccessMsg("Lokalet blev oprettet.");
     setLoading(false);
 
-    // Dansk kommentar: Nulstil formular efter succes
+    // Dansk kommentar: Reset form
     setRoomName("");
     setCapacity(null);
     setFloor(null);
+    setNrOfSeats(null);
     setHasWhiteboard(false);
     setHasScreen(false);
     setHasBoard(false);
     setRoomType(null);
+    setIsClosed(false);
   }
 
   return (
     <div className="flex flex-col gap-6">
 
+      {/* Dansk kommentar: Fejl- og succesbeskeder */}
       {errorMsg && (
         <p className="text-red-600 text-sm">{errorMsg}</p>
       )}
@@ -74,6 +99,7 @@ export default function CreateRoomForm() {
         <p className="text-green-700 text-sm">{successMsg}</p>
       )}
 
+      {/* Lokalenavn */}
       <TextInput
         label="Lokalenavn"
         placeholder="Fx 3.14 eller 'Studierum 5'"
@@ -81,6 +107,7 @@ export default function CreateRoomForm() {
         onChange={(e) => setRoomName(e.target.value)}
       />
 
+      {/* Lokaletype */}
       <Select
         label="Lokaletype"
         placeholder="Vælg type"
@@ -94,35 +121,40 @@ export default function CreateRoomForm() {
         ]}
       />
 
+      {/* Kapacitet */}
       <NumberInput
         label="Kapacitet"
         placeholder="Fx 24"
-        value={capacity ?? undefined} // Dansk kommentar: undefined i stedet for null til Mantine
-        onChange={(value) => {
-          // Dansk kommentar: Mantine giver string | number, vi gemmer som number | null
-          if (typeof value === "number") {
-            setCapacity(value);
-          } else {
-            setCapacity(null);
-          }
-        }}
+        value={capacity ?? undefined}
+        onChange={(value) =>
+          setCapacity(typeof value === "number" ? value : null)
+        }
         min={1}
       />
 
+      {/* Antal sæder */}
+      <NumberInput
+        label="Antal sæder"
+        placeholder="Fx 16"
+        value={nrOfSeats ?? undefined}
+        onChange={(value) =>
+          setNrOfSeats(typeof value === "number" ? value : null)
+        }
+        min={1}
+      />
+
+      {/* Etage */}
       <NumberInput
         label="Etage"
         placeholder="Fx 1, 2, 3..."
         value={floor ?? undefined}
-        onChange={(value) => {
-          if (typeof value === "number") {
-            setFloor(value);
-          } else {
-            setFloor(null);
-          }
-        }}
+        onChange={(value) =>
+          setFloor(typeof value === "number" ? value : null)
+        }
         min={1}
       />
 
+      {/* Faciliteter */}
       <div className="flex flex-col gap-2">
         <Checkbox
           label="Whiteboard"
@@ -141,8 +173,15 @@ export default function CreateRoomForm() {
           checked={hasBoard}
           onChange={(e) => setHasBoard(e.currentTarget.checked)}
         />
+
+        <Checkbox
+          label="Lukket lokale"
+          checked={isClosed}
+          onChange={(e) => setIsClosed(e.currentTarget.checked)}
+        />
       </div>
 
+      {/* Submit-knap */}
       <Button loading={loading} onClick={handleSubmit}>
         Opret lokale
       </Button>

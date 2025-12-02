@@ -1,13 +1,14 @@
 "use client";
 
 // Dansk kommentar: Timeline med visualisering af bookinger,
-// grå fortid, afrunding til kvarter og kliklogik med overlap-stop.
+// grå fortid, afrunding til kvarter, popup-information og kliklogik.
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { useBookingContext } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
 
+import BookingInfoPopup from "./BookingInfoPopup"; // ← VIGTIGT: popup component
 import "./BookingTimeline.css";
 
 const DAY_START_HOUR = 8;
@@ -36,6 +37,11 @@ export function BookingTimeline({
 
   const timelineRef = useRef<HTMLDivElement | null>(null);
 
+  // Dansk kommentar: Liste over aktive infopopups (flere muligt).
+  const [infoPopups, setInfoPopups] = useState<
+    { id: string; booking: any; x: number; y: number }[]
+  >([]);
+
   const hours = useMemo(
     () =>
       Array.from(
@@ -44,6 +50,24 @@ export function BookingTimeline({
       ),
     []
   );
+
+  /* ----------------------------------------------------------
+     🟦 SORTÉR RUM I KORREKT ORDEN (C.1.1 → C.4.5)
+  ---------------------------------------------------------- */
+  const sortedRooms = useMemo(() => {
+    return [...filteredRooms].sort((a, b) => {
+      const fa = a.floor ?? 0;
+      const fb = b.floor ?? 0;
+
+      if (fa !== fb) return fa - fb;
+
+      const pa = a.room_name.split(".").map(Number);
+      const pb = b.room_name.split(".").map(Number);
+
+      if (pa[1] !== pb[1]) return pa[1] - pb[1];
+      return pa[2] - pb[2];
+    });
+  }, [filteredRooms]);
 
   if (!selectedDate) {
     return (
@@ -56,7 +80,7 @@ export function BookingTimeline({
   const today = dayjs();
   const selected = dayjs(selectedDate);
 
-  // Forbud mod fortidens dato
+  // Forbud mod fortid
   if (selected.isBefore(today, "day")) {
     return (
       <div className="text-center py-14 bg-secondary-300 rounded-xl border border-secondary-200">
@@ -79,8 +103,7 @@ export function BookingTimeline({
     );
   }
 
-  // Ingen rum matcher
-  if (filteredRooms.length === 0) {
+  if (sortedRooms.length === 0) {
     return (
       <div className="text-center py-16 px-4 bg-secondary-300 rounded-xl border border-secondary-200">
         <p className="text-lg font-semibold text-main">
@@ -90,7 +113,7 @@ export function BookingTimeline({
     );
   }
 
-  // Omregning
+  // Omregninger
   function minutesToPx(min: number) {
     return min * PX_PER_MINUTE;
   }
@@ -99,12 +122,11 @@ export function BookingTimeline({
     return (date.getHours() - DAY_START_HOUR) * 60 + date.getMinutes();
   }
 
-  // Afrund til nærmeste kvarter
   function roundToQuarter(mins: number) {
     return Math.round(mins / 15) * 15;
   }
 
-  // Hent næste booking
+  // Find næste booking
   function getNextBooking(roomId: string, start: dayjs.Dayjs) {
     const bookings = filteredBookings
       .filter((b) => b.room_id === roomId)
@@ -116,7 +138,7 @@ export function BookingTimeline({
     return bookings.find((b) => b.s.isAfter(start));
   }
 
-  // Klik logik
+  // Klik på timeline → opret booking
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     if (!timelineRef.current) return;
 
@@ -128,9 +150,9 @@ export function BookingTimeline({
     if (y > TOP_MARGIN + minutesToPx(MINUTES)) return;
     if (x < TIME_COL_WIDTH) return;
 
-    const colWidth = (rect.width - TIME_COL_WIDTH) / filteredRooms.length;
+    const colWidth = (rect.width - TIME_COL_WIDTH) / sortedRooms.length;
     const roomIndex = Math.floor((x - TIME_COL_WIDTH) / colWidth);
-    const room = filteredRooms[roomIndex];
+    const room = sortedRooms[roomIndex];
     if (!room) return;
 
     const minuteOffset = (y - TOP_MARGIN) / PX_PER_MINUTE;
@@ -168,16 +190,16 @@ export function BookingTimeline({
       : null;
 
   return (
-    <div>
+    <div className="relative">
       {/* Header */}
       <div
         className="grid border border-gray-300 rounded-t-lg overflow-hidden bg-gray-100"
         style={{
-          gridTemplateColumns: `${TIME_COL_WIDTH}px repeat(${filteredRooms.length}, 1fr)`,
+          gridTemplateColumns: `${TIME_COL_WIDTH}px repeat(${sortedRooms.length}, 1fr)`,
         }}
       >
         <div></div>
-        {filteredRooms.map((room) => (
+        {sortedRooms.map((room) => (
           <div
             key={room.id}
             className="text-center py-2 font-semibold text-gray-800 border-l border-gray-300"
@@ -192,12 +214,12 @@ export function BookingTimeline({
         ref={timelineRef}
         className="booking-timeline grid border border-t-0 border-gray-300 bg-[#d4dcf4] cursor-pointer rounded-b-lg relative"
         style={{
-          gridTemplateColumns: `${TIME_COL_WIDTH}px repeat(${filteredRooms.length}, 1fr)`,
+          gridTemplateColumns: `${TIME_COL_WIDTH}px repeat(${sortedRooms.length}, 1fr)`,
           height: TOP_MARGIN + minutesToPx(MINUTES) + BOTTOM_MARGIN,
         }}
         onClick={handleClick}
       >
-        {/* Fortid grået ud */}
+        {/* Fortid */}
         {showNow && (
           <div
             className="absolute left-0 right-0 bg-black/15 pointer-events-none"
@@ -235,7 +257,7 @@ export function BookingTimeline({
         </div>
 
         {/* Rumkolonner */}
-        {filteredRooms.map((room) => {
+        {sortedRooms.map((room) => {
           const roomBookings = filteredBookings.filter(
             (b) => b.room_id === room.id
           );
@@ -274,33 +296,47 @@ export function BookingTimeline({
                 return (
                   <div
                     key={b.id}
-                    className="absolute inset-x-0 mx-[10%] bg-status-booked text-invert text-xs rounded-md px-2 py-1 shadow-md overflow-hidden"
+                    className="absolute inset-x-0 mx-[10%] bg-status-booked text-invert text-xs rounded-md px-2 py-1 shadow-md overflow-hidden cursor-pointer"
                     style={{
                       top: TOP_MARGIN + minutesToPx(sMin),
                       height: minutesToPx(eMin - sMin),
                     }}
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+
+                      const rect =
+                        timelineRef.current?.getBoundingClientRect();
+                      const clickX = ev.clientX - (rect?.left ?? 0);
+                      const clickY = ev.clientY - (rect?.top ?? 0);
+
+                      setInfoPopups((prev) => [
+                        ...prev,
+                        {
+                          id: b.id + "-" + Date.now(),
+                          booking: b,
+                          x: clickX,
+                          y: clickY,
+                        },
+                      ]);
+                    }}
                   >
-                    {/* Titel */}
                     <div className="font-semibold truncate">
                       {b.title || "Booking"}
                     </div>
 
-                    {/* Booker */}
                     <div className="text-[10px] opacity-90">
                       {owner?.full_name || "Ukendt"}
                     </div>
 
-                    {/* Tid */}
                     <div className="text-[10px] mt-1 opacity-90">
                       {dayjs(s).format("HH:mm")} – {dayjs(e).format("HH:mm")}
                     </div>
 
-                    {/* DELETE KNAP */}
                     {canDelete && (
                       <button
                         onClick={(ev) => {
                           ev.stopPropagation();
-                          onDeleteBooking(b);
+                          onDeleteBooking?.(b);
                         }}
                         className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center 
                                    rounded-full bg-white text-red-600 text-[10px] font-bold
@@ -324,6 +360,26 @@ export function BookingTimeline({
             style={{ top: nowTop, zIndex: 50 }}
           />
         )}
+
+        {/* POPUPS */}
+        {infoPopups.map((p) => {
+          const owner = profiles.find((pr) => pr.id === p.booking.user_id);
+          const room = sortedRooms.find((r) => r.id === p.booking.room_id);
+
+          return (
+            <BookingInfoPopup
+              key={p.id}
+              booking={p.booking}
+              ownerName={owner?.full_name ?? "Ukendt"}
+              roomName={room?.room_name ?? "Ukendt lokale"}
+              x={p.x}
+              y={p.y}
+              onClose={() =>
+                setInfoPopups((prev) => prev.filter((i) => i.id !== p.id))
+              }
+            />
+          );
+        })}
       </div>
     </div>
   );

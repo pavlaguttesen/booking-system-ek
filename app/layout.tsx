@@ -10,7 +10,7 @@ import { Inter } from "next/font/google";
 import NavBar from "@/components/NavBar";
 import NavbarWrapper from "@/components/NavbarWrapper";
 import AuthGate from "@/components/AuthGate";
-import { AuthProvider } from "@/context/AuthContext"; // Dansk kommentar: Auth provider
+import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -61,9 +61,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable} data-theme="light">
       <body className="bg-page text-main font-sans">
-        <MantineProvider theme={theme} defaultColorScheme="light">
 
-          {/* Dansk kommentar: Rollen skal hentes før navbar vises */}
+        <MantineProvider theme={theme} defaultColorScheme="light">
           <AuthProvider>
             <AuthGate>
 
@@ -75,6 +74,9 @@ export default function RootLayout({
 
             </AuthGate>
           </AuthProvider>
+
+          {/* 🔥 PORTAL MOUNT ROOT — OVERLAYS MOUNTER HER */}
+          <div id="overlay-root"></div>
 
         </MantineProvider>
       </body>

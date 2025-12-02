@@ -9,19 +9,19 @@
   --color-text-invert: #ffffff;
 
   /* PRIMARY */
-  --color-primary-600: #0038A7;
+  --color-primary-600: #0038a7;
 
   /* SECONDARY */
-  --color-secondary-300: #CBD1FF; /* panel baggrund */
-  --color-secondary-200: #B7C2E6; /* store flader / borders */
+  --color-secondary-300: #cbd1ff; /* panel baggrund */
+  --color-secondary-200: #b7c2e6; /* store flader / borders */
 
   /* SURFACES */
   --color-surface-page: #ffffff;
   --color-surface-card: #ffffff;
 
   /* STATUS */
-  --color-status-booked: #DA7C86;
-  --color-status-nav: #EBEDFF;
+  --color-status-booked: #da7c86;
+  --color-status-nav: #ebedff;
 }
 
 /* ----------------------------------------------------------
@@ -31,27 +31,28 @@
   --color-text-main: #ffffff;
   --color-text-invert: #ffffff;
 
-  --color-primary-600: #0038A7;
+  --color-primary-600: #0038a7;
 
-  --color-secondary-300: #BFC4D4;
-  --color-secondary-200: #9199AB;
+  --color-secondary-300: #bfc4d4;
+  --color-secondary-200: #9199ab;
 
   --color-surface-page: #000000;
   --color-surface-card: #808080;
 
-  --color-status-booked: #AA1616;
-  --color-status-nav: #9199AB;
+  --color-status-booked: #aa1616;
+  --color-status-nav: #9199ab;
 }
 
 /* ----------------------------------------------------------
    GLOBAL FONT + BODY
 ----------------------------------------------------------- */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   background-color: var(--color-surface-page);
   color: var(--color-text-main);
-  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-family: var(--font-sans, "Inter", sans-serif);
 }
 
 /* ----------------------------------------------------------
@@ -59,29 +60,55 @@ html, body {
 ----------------------------------------------------------- */
 
 /* Backdrops & cards */
-.bg-page            { background-color: var(--color-surface-page); }
-.bg-card            { background-color: var(--color-surface-card); }
+.bg-page {
+  background-color: var(--color-surface-page);
+}
+.bg-card {
+  background-color: var(--color-surface-card);
+}
 
 /* Primaries */
-.bg-primary-600     { background-color: var(--color-primary-600); }
+.bg-primary-600 {
+  background-color: var(--color-primary-600);
+}
 
 /* Secondary backgrounds */
-.bg-secondary-300   { background-color: var(--color-secondary-300); }
-.bg-secondary-200   { background-color: var(--color-secondary-200); }
+.bg-secondary-300 {
+  background-color: var(--color-secondary-300);
+}
+.bg-secondary-200 {
+  background-color: var(--color-secondary-200);
+}
 
 /* Status */
-.bg-status-booked   { background-color: var(--color-status-booked); }
-.bg-status-nav      { background-color: var(--color-status-nav); }
+.bg-status-booked {
+  background-color: var(--color-status-booked);
+}
+.bg-status-nav {
+  background-color: var(--color-status-nav);
+}
 
 /* Text */
-.text-main          { color: var(--color-text-main); }
-.text-invert        { color: var(--color-text-invert); }
-.text-primary-600   { color: var(--color-primary-600); }
+.text-main {
+  color: var(--color-text-main);
+}
+.text-invert {
+  color: var(--color-text-invert);
+}
+.text-primary-600 {
+  color: var(--color-primary-600);
+}
 
 /* Borders */
-.border-primary-600 { border-color: var(--color-primary-600); }
-.border-secondary-200 { border-color: var(--color-secondary-200); }
-.border-card        { border-color: var(--color-surface-card); }
+.border-primary-600 {
+  border-color: var(--color-primary-600);
+}
+.border-secondary-200 {
+  border-color: var(--color-secondary-200);
+}
+.border-card {
+  border-color: var(--color-surface-card);
+}
 
 /* ----------------------------------------------------------
    MANTINE OVERRIDES — UX-COMPATIBLE
@@ -98,11 +125,11 @@ html, body {
 }
 
 .mantine-Button-root:hover {
-  background-color: #002C84 !important; /* mørkere primary */
+  background-color: #002c84 !important; /* mørkere primary */
 }
 
 .mantine-Button-root:active {
-  background-color: #001F63 !important;
+  background-color: #001f63 !important;
 }
 
 /* INPUT FIELDS (TextInput, DateInput, TimeInput) */
@@ -120,7 +147,7 @@ html, body {
 .mantine-Input-input::placeholder,
 .mantine-DateInput-input::placeholder,
 .mantine-TimeInput-input::placeholder {
-  color: #8891A5 !important;
+  color: #8891a5 !important;
 }
 
 /* Focus */
@@ -182,4 +209,21 @@ html, body {
 
 .admin-switch .mantine-Switch-thumb {
   transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+/* -----------------------------------------------------------
+   OVERLAY ROOT — PORTAL OVERLAYS
+----------------------------------------------------------- */
+#overlay-root {
+  position: relative !important;
+  z-index: 999999 !important;
+}
+
+/* Sikrer at overlays aldrig clips */
+.overlay-root {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  overflow-y: auto !important;
+  pointer-events: auto !important;
 }
