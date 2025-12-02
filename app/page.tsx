@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BookingTimeline } from "@/components/booking/BookingTimeline";
 import { BookingAdvancedFilters } from "@/components/booking/BookingAdvancedFilters";
-import { BookingList } from "@/components/booking/BookingList";
+import BookingList from "@/components/booking/BookingList";
 import { BookingProvider, useBookingContext } from "@/context/BookingContext";
 
 import { CreateBookingOverlay } from "@/app/overlays/CreateBookingOverlay";
@@ -26,8 +26,14 @@ const supabase = createClient(supabaseUrl, supabaseKey);
    PAGE CONTENT
 --------------------------------------------------------- */
 function PageContent() {
-  const { rooms, profiles, bookings, filteredBookings, selectedDate, reloadBookings } =
-    useBookingContext();
+  const {
+    rooms,
+    profiles,
+    bookings,
+    filteredBookings,
+    selectedDate,
+    reloadBookings,
+  } = useBookingContext();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayData, setOverlayData] = useState<{
@@ -396,7 +402,9 @@ function PageContent() {
           onClose={() => setDeleteOverlayOpen(false)}
           booking={bookingToDelete}
           room={rooms.find((r) => r.id === bookingToDelete.room_id) || null}
-          profile={profiles.find((p) => p.id === bookingToDelete.user_id) || null}
+          profile={
+            profiles.find((p) => p.id === bookingToDelete.user_id) || null
+          }
           onConfirm={handleConfirmDelete}
         />
       )}

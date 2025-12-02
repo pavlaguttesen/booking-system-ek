@@ -1,226 +1,184 @@
 "use client";
 
-import {
-  Card,
-  Group,
-  Stack,
-  Text,
-  Badge,
-  type BadgeProps,
-} from "@mantine/core";
+import { Card, CardSection, Text, Stack, Group } from "@mantine/core";
+import dayjs from "dayjs";
 import { useBookingContext } from "@/context/BookingContext";
 
-export function BookingList() {
-  const { rooms, profiles, filteredBookings, loading, errorMsg } =
-    useBookingContext();
+export default function BookingList() {
+  const { rooms, bookings, selectedDate } = useBookingContext();
+  const now = dayjs();
 
-  if (loading) {
-    return (
-      <Text c="var(--color-primary-200)" size="sm">
-        Henter data...
-      </Text>
-    );
+  function getNextBooking(roomId: string) {
+    return bookings
+      .filter(
+        (b) =>
+          b.room_id === roomId &&
+          dayjs(b.start_time).isSame(selectedDate, "day") &&
+          dayjs(b.start_time).isAfter(now)
+      )
+      .sort((a, b) => dayjs(a.start_time).diff(dayjs(b.start_time)))[0];
   }
 
-  if (errorMsg) {
-    return (
-      <Text c="var(--color-danger-600)" size="sm">
-        Fejl: {errorMsg}
-      </Text>
-    );
+  function isOccupied(roomId: string) {
+    return bookings.some((b) => {
+      if (b.room_id !== roomId) return false;
+      const s = dayjs(b.start_time);
+      const e = dayjs(b.end_time);
+      return now.isAfter(s) && now.isBefore(e);
+    });
   }
 
-  // Badge-styles så vi holder os til paletten
-  const examBadgeStyles: BadgeProps["styles"] = {
-    root: {
-      backgroundColor: "var(--color-danger-600)",
-      color: "var(--color-text-invert)",
-    },
-  };
-
-  const teacherBadgeStyles: BadgeProps["styles"] = {
-    root: {
-      backgroundColor: "var(--color-primary-600)",
-      color: "var(--color-text-invert)",
-    },
-  };
-
-  const adminBadgeStyles: BadgeProps["styles"] = {
-    root: {
-      backgroundColor: "var(--color-neutral-900)",
-      color: "var(--color-text-invert)",
-    },
-  };
+  const roomsByFloor = rooms.reduce((acc, room) => {
+    const floor = room.floor ?? 0;
+    acc[floor] = acc[floor] || [];
+    acc[floor].push(room);
+    return acc;
+  }, {} as Record<number, typeof rooms>);
 
   return (
-    <section className="space-y-6">
-      {/* Lokaler-kort */}
-      <Card
-        radius="md"
-        p="lg"
-        style={{
-          backgroundColor: "var(--color-surface-card)",
-          border: "1px solid var(--color-primary-200)",
-        }}
+    <section className="w-full">
+      <Text fw={700} size="xl" className="text-main mb-4">
+        Oversigt over lokaler
+      </Text>
+
+      {/* ⭐ ALWAYS 4 columns → only collapse at VERY small widths */}
+      <div
+        className="
+        grid 
+        grid-cols-4          /* ALWAYS 4 */
+        max-[600px]:grid-cols-2  /* Go to 2 columns at <600px */
+        max-[420px]:grid-cols-1  /* Go to 1 column at <420px */
+        gap-6
+      "
       >
-        <Stack gap="sm">
-          <Text fw={600} size="lg" c="var(--color-text-main)">
-            Lokaler
-          </Text>
-
-          {rooms.length === 0 && (
-            <Text c="var(--color-primary-200)" size="sm">
-              Ingen lokaler fundet.
-            </Text>
-          )}
-
-          {/* GRID: 1–4 kolonner alt efter skærmstørrelse */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {rooms.map((room) => (
-              <Card
-                key={room.id}
-                radius="md"
-                padding="sm"
+        {Object.keys(roomsByFloor)
+          .sort((a, b) => Number(a) - Number(b))
+          .map((floor) => (
+            <Card
+              key={floor}
+              radius="md"
+              withBorder
+              p={0}
+              style={{
+                width: "100%", // Card fills cell completely
+                borderColor: "#d0d7ea",
+                backgroundColor: "white",
+              }}
+            >
+              {/* Full-width header */}
+              <div
                 style={{
-                  backgroundColor: "var(--color-surface-card)",
-                  border: "1px solid var(--color-primary-200)",
+                  background: "#d4dcf4",
+                  height: "48px",
+                  borderTopLeftRadius: "8px",
+                  borderTopRightRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <Stack gap={2}>
-                  <Text fw={500} c="var(--color-text-main)">
-                    {room.room_name}
-                  </Text>
-                  <Text c="var(--color-primary-200)" size="sm">
-                    Etage: {room.floor} • Pladser: {room.nr_of_seats}
-                  </Text>
-                </Stack>
-              </Card>
-            ))}
-          </div>
-        </Stack>
-      </Card>
-
-      {/* Booking-kort */}
-      <Card
-        radius="md"
-        p="lg"
-        style={{
-          backgroundColor: "var(--color-surface-card)",
-          border: "1px solid var(--color-primary-200)",
-        }}
-      >
-        <Stack gap="sm">
-          <Text fw={600} size="lg" c="var(--color-text-main)">
-            Resultater
-          </Text>
-
-          {filteredBookings.length === 0 && (
-            <Text c="var(--color-primary-200)" size="sm">
-              Ingen bookinger matcher filtrene.
-            </Text>
-          )}
-
-          {/* GRID: 1–4 kolonner alt efter skærmstørrelse */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredBookings.map((b) => {
-              const room = rooms.find((r) => r.id === b.room_id);
-              const profile = profiles.find((p) => p.id === b.user_id);
-
-              const roomName = room?.room_name ?? "Ukendt lokale";
-              const fullName = profile?.full_name ?? "Ukendt bruger";
-              const role = profile?.role;
-              const type = (b.booking_type ?? "normal") as "normal" | "exam";
-
-              const start = new Date(b.start_time);
-              const end = new Date(b.end_time);
-
-              return (
-                <Card
-                  key={b.id}
-                  radius="md"
-                  padding="md"
+                <Text
+                  fw={700}
+                  size="lg"
                   style={{
-                    backgroundColor: "var(--color-surface-card)",
-                    border: "1px solid var(--color-primary-200)",
+                    color: "#1a1a1a",
+                    margin: 0,
+                    lineHeight: "1",
                   }}
                 >
-                  <Stack gap={6}>
-                    {/* Titel + badges */}
-                    <Group justify="space-between" align="flex-start">
-                      <Stack gap={2}>
-                        <Group gap={8}>
-                          <Text fw={500} c="var(--color-text-main)">
-                            {b.title}
-                          </Text>
+                  Etage {floor}
+                </Text>
+              </div>
 
-                          {type === "exam" && (
-                            <Badge
-                              size="xs"
-                              variant="filled"
-                              styles={examBadgeStyles}
+              {/* ⭐ Content area */}
+              <div style={{ padding: "14px" }}>
+                <Stack gap={10}>
+                  {roomsByFloor[Number(floor)]
+                    .sort((a, b) => a.room_name.localeCompare(b.room_name))
+                    .map((room, index) => {
+                      const next = getNextBooking(room.id);
+                      const occupied = isOccupied(room.id);
+
+                      let badgeColor = "#3b8f3b";
+                      let badgeText = "LEDIGT";
+
+                      if (room.is_closed || occupied) {
+                        badgeColor = "#b80000";
+                        badgeText = "OPTAGET";
+                      } else if (
+                        next &&
+                        dayjs(next.start_time).diff(now, "minute") <= 60
+                      ) {
+                        const t = dayjs(next.start_time).format("HH:mm");
+                        badgeColor = "#d4b100";
+                        badgeText = `SNART OPTAGET • ${t}`;
+                      }
+
+                      return (
+                        <div
+                          key={room.id}
+                          style={{
+                            paddingTop: index === 0 ? "0" : "12px",
+                            borderTop:
+                              index === 0
+                                ? "none"
+                                : "1px solid rgba(0,0,0,0.15)",
+                          }}
+                        >
+                          <Group justify="space-between" align="flex-start">
+                            <Stack gap={2}>
+                              <Text fw={600} className="text-main">
+                                {room.room_name}
+                              </Text>
+
+                              <Text size="sm" className="text-main/70">
+                                {room.room_type} • {room.nr_of_seats} pladser
+                              </Text>
+
+                              {room.is_closed ? (
+                                <Text size="sm" className="text-main/60">
+                                  Lokalet er midlertidigt lukket.
+                                </Text>
+                              ) : occupied ? (
+                                <Text size="sm" className="text-main/60">
+                                  Optaget lige nu.
+                                </Text>
+                              ) : next ? (
+                                <Text size="sm" className="text-main/60">
+                                  Ledigt nu — optaget fra{" "}
+                                  {dayjs(next.start_time).format("HH:mm")}
+                                </Text>
+                              ) : (
+                                <Text size="sm" className="text-main/60">
+                                  Ledigt resten af dagen.
+                                </Text>
+                              )}
+                            </Stack>
+
+                            <div
+                              style={{
+                                background: badgeColor,
+                                color: "white",
+                                padding: "4px 10px",
+                                borderRadius: "8px",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                whiteSpace: "nowrap",
+                                minWidth: "110px",
+                                textAlign: "center",
+                              }}
                             >
-                              Eksamen
-                            </Badge>
-                          )}
-                          {role === "teacher" && (
-                            <Badge
-                              size="xs"
-                              variant="filled"
-                              styles={teacherBadgeStyles}
-                            >
-                              Teacher
-                            </Badge>
-                          )}
-                          {role === "admin" && (
-                            <Badge
-                              size="xs"
-                              variant="filled"
-                              styles={adminBadgeStyles}
-                            >
-                              Admin
-                            </Badge>
-                          )}
-                        </Group>
-
-                        {/* Lokale + dato */}
-                        <Text c="var(--color-primary-200)" size="sm">
-                          {roomName} •{" "}
-                          {start.toLocaleDateString("da-DK", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })}
-                        </Text>
-
-                        {/* Tid på egen linje */}
-                        <Text c="var(--color-primary-200)" size="sm">
-                          {start.toLocaleTimeString("da-DK", {
-                            timeStyle: "short",
-                          })}{" "}
-                          –{" "}
-                          {end.toLocaleTimeString("da-DK", {
-                            timeStyle: "short",
-                          })}
-                        </Text>
-                      </Stack>
-                    </Group>
-
-                    <Text c="var(--color-primary-200)" size="sm">
-                      Booker: {fullName}
-                    </Text>
-
-                    {b.description && (
-                      <Text size="sm" c="var(--color-text-main)">
-                        {b.description}
-                      </Text>
-                    )}
-                  </Stack>
-                </Card>
-              );
-            })}
-          </div>
-        </Stack>
-      </Card>
+                              {badgeText}
+                            </div>
+                          </Group>
+                        </div>
+                      );
+                    })}
+                </Stack>
+              </div>
+            </Card>
+          ))}
+      </div>
     </section>
   );
 }

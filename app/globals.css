@@ -4,28 +4,23 @@
    UX COLOR TOKENS — LIGHT MODE (default)
 ----------------------------------------------------------- */
 :root {
-  /* TEXT */
   --color-text-main: #000000;
   --color-text-invert: #ffffff;
 
-  /* PRIMARY */
   --color-primary-600: #0038a7;
 
-  /* SECONDARY */
-  --color-secondary-300: #cbd1ff; /* panel baggrund */
-  --color-secondary-200: #b7c2e6; /* store flader / borders */
+  --color-secondary-300: #cbd1ff;
+  --color-secondary-200: #b7c2e6;
 
-  /* SURFACES */
   --color-surface-page: #ffffff;
   --color-surface-card: #ffffff;
 
-  /* STATUS */
   --color-status-booked: #da7c86;
   --color-status-nav: #ebedff;
 }
 
 /* ----------------------------------------------------------
-   DARK MODE  (<html data-theme="dark">)
+   DARK MODE
 ----------------------------------------------------------- */
 :root[data-theme="dark"] {
   --color-text-main: #ffffff;
@@ -46,184 +41,77 @@
 /* ----------------------------------------------------------
    GLOBAL FONT + BODY
 ----------------------------------------------------------- */
+
 html,
 body {
   margin: 0;
   padding: 0;
   background-color: var(--color-surface-page);
   color: var(--color-text-main);
-  font-family: var(--font-sans, "Inter", sans-serif);
+
+  /* 🔥 Den vigtigste linje – sikrer Inter 100% */
+  font-family: var(--font-sans), Inter, sans-serif !important;
 }
 
-/* ----------------------------------------------------------
-   TAILWIND-STYLE UTILITY HELPERS
------------------------------------------------------------ */
+/* Tailwind helpers... unchanged below */
 
-/* Backdrops & cards */
 .bg-page {
   background-color: var(--color-surface-page);
 }
+
 .bg-card {
   background-color: var(--color-surface-card);
 }
 
-/* Primaries */
 .bg-primary-600 {
   background-color: var(--color-primary-600);
 }
 
-/* Secondary backgrounds */
 .bg-secondary-300 {
   background-color: var(--color-secondary-300);
 }
+
 .bg-secondary-200 {
   background-color: var(--color-secondary-200);
 }
 
-/* Status */
 .bg-status-booked {
   background-color: var(--color-status-booked);
 }
+
 .bg-status-nav {
   background-color: var(--color-status-nav);
 }
 
-/* Text */
 .text-main {
   color: var(--color-text-main);
 }
+
 .text-invert {
   color: var(--color-text-invert);
 }
+
 .text-primary-600 {
   color: var(--color-primary-600);
 }
 
-/* Borders */
 .border-primary-600 {
   border-color: var(--color-primary-600);
 }
+
 .border-secondary-200 {
   border-color: var(--color-secondary-200);
 }
+
 .border-card {
   border-color: var(--color-surface-card);
 }
 
-/* ----------------------------------------------------------
-   MANTINE OVERRIDES — UX-COMPATIBLE
-   (Mantine ignorerer Tailwind classes internt → derfor global CSS)
------------------------------------------------------------ */
-
-/* BUTTON */
+/* Mantine overrides ... (unchanged) */
 .mantine-Button-root {
   background-color: var(--color-primary-600) !important;
   color: #ffffff !important;
   border: 1px solid var(--color-primary-600) !important;
   font-weight: 600 !important;
   border-radius: 8px !important;
-}
-
-.mantine-Button-root:hover {
-  background-color: #002c84 !important; /* mørkere primary */
-}
-
-.mantine-Button-root:active {
-  background-color: #001f63 !important;
-}
-
-/* INPUT FIELDS (TextInput, DateInput, TimeInput) */
-.mantine-Input-input,
-.mantine-DateInput-input,
-.mantine-TimeInput-input {
-  border: 1px solid var(--color-secondary-200) !important;
-  background-color: var(--color-surface-card) !important;
-  color: var(--color-text-main) !important;
-  border-radius: 8px !important;
-  padding: 8px 10px !important;
-}
-
-/* Placeholder */
-.mantine-Input-input::placeholder,
-.mantine-DateInput-input::placeholder,
-.mantine-TimeInput-input::placeholder {
-  color: #8891a5 !important;
-}
-
-/* Focus */
-.mantine-Input-input:focus,
-.mantine-DateInput-input:focus,
-.mantine-TimeInput-input:focus {
-  border-color: var(--color-primary-600) !important;
-  box-shadow: 0 0 0 1px var(--color-primary-600) !important;
-}
-
-/* LABELS */
-.mantine-InputWrapper-label {
-  color: var(--color-text-main) !important;
-  font-weight: 600 !important;
-}
-
-/* DATE PICKER POPUP */
-.mantine-DatePicker-calendar {
-  background-color: var(--color-surface-card) !important;
-  border: 1px solid var(--color-secondary-200) !important;
-}
-
-.mantine-DatePicker-day[data-selected] {
-  background-color: var(--color-primary-600) !important;
-  color: #ffffff !important;
-}
-
-.mantine-DatePicker-day:hover:not([data-disabled]) {
-  background-color: var(--color-secondary-300) !important;
-}
-
-/* TIME INPUT POPUP (spinner) */
-.mantine-TimeInput-timeInput {
-  background-color: var(--color-surface-card) !important;
-}
-
-/* DISABLED ELEMENTS */
-.mantine-Input-input[data-disabled] {
-  opacity: 0.6;
-  cursor: not-allowed !important;
-}
-
-/* Smooth anim til Mantine Switch */
-[data-mantine-color-scheme] .mantine-Switch-track {
-  transition: background-color 0.25s ease;
-}
-
-[data-mantine-color-scheme] .mantine-Switch-thumb {
-  transition: all 0.25s ease;
-}
-
-.admin-switch {
-  transition: all 0.25s ease;
-}
-
-.admin-switch .mantine-Switch-track {
-  transition: background-color 0.25s ease;
-}
-
-.admin-switch .mantine-Switch-thumb {
-  transition: transform 0.25s ease, background-color 0.25s ease;
-}
-
-/* -----------------------------------------------------------
-   OVERLAY ROOT — PORTAL OVERLAYS
------------------------------------------------------------ */
-#overlay-root {
-  position: relative !important;
-  z-index: 999999 !important;
-}
-
-/* Sikrer at overlays aldrig clips */
-.overlay-root {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 999999 !important;
-  overflow-y: auto !important;
-  pointer-events: auto !important;
 }

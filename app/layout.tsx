@@ -14,7 +14,8 @@ import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-sans", // 🔥 korrekt
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -51,15 +52,17 @@ const theme = createTheme({
   },
   primaryColor: "primary",
   primaryShade: 9,
+
+  // 🔥 Inter aktiveres globalt i Mantine
+  fontFamily: "var(--font-sans), Inter, sans-serif",
+  headings: {
+    fontFamily: "var(--font-sans), Inter, sans-serif",
+  },
 });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable} data-theme="light">
+    <html lang="da" className={inter.variable} data-theme="light">
       <body className="bg-page text-main font-sans">
 
         <MantineProvider theme={theme} defaultColorScheme="light">
@@ -75,10 +78,10 @@ export default function RootLayout({
             </AuthGate>
           </AuthProvider>
 
-          {/* 🔥 PORTAL MOUNT ROOT — OVERLAYS MOUNTER HER */}
+          {/* OVERLAY ROOT */}
           <div id="overlay-root"></div>
-
         </MantineProvider>
+
       </body>
     </html>
   );
