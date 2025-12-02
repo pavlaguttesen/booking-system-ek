@@ -9,6 +9,7 @@ import {
 } from "react";
 import { createClient } from "@supabase/supabase-js";
 import dayjs from "dayjs";
+import { useAuth } from "@/context/AuthContext"; // ← NYT
 
 // Env
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -79,7 +80,7 @@ type BookingContextValue = {
   setBookingTypeFilter: (v: "all" | "normal" | "exam") => void;
 
   reloadBookings: () => Promise<void>;
-  reloadRooms: () => Promise<void>; // ← NEW
+  reloadRooms: () => Promise<void>;
 
   roomFilters: {
     whiteboard: boolean;
@@ -116,6 +117,15 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   const [bookingTypeFilter, setBookingTypeFilter] = useState<
     "all" | "normal" | "exam"
   >("all");
+
+  const { role } = useAuth(); // ← NYT
+
+  // Hvem må SE hvilke typer lokaler
+  const allowedTypesForRole: Record<string, string[]> = {
+    student: ["studierum", "møderum"],
+    teacher: ["møderum", "klasseværelse", "auditorium"],
+    admin: ["studierum", "møderum", "klasseværelse", "auditorium"],
+  };
 
   // -------------------------------
   // Filters
@@ -210,9 +220,18 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // -------------------------------
-  // Room filtering
+  // Room filtering (MED ROLLECHECK)
   // -------------------------------
   const filteredRooms = rooms.filter((room) => {
+    // 1️⃣ Rollebaseret filtrering
+    if (role) {
+      const allowed = allowedTypesForRole[role] || [];
+      if (room.room_type && !allowed.includes(room.room_type)) {
+        return false;
+      }
+    }
+
+    // 2️⃣ Eksisterende filtre
     if (roomFilters.whiteboard && !room.has_whiteboard) return false;
     if (roomFilters.screen && !room.has_screen) return false;
     if (roomFilters.board && !room.has_board) return false;
@@ -237,7 +256,10 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   // -------------------------------
   const filteredBookings = bookings.filter((b) => {
     if (selectedRoomId !== "all" && b.room_id !== selectedRoomId) return false;
-    if (bookingTypeFilter !== "all" && (b.booking_type || "normal") !== bookingTypeFilter)
+    if (
+      bookingTypeFilter !== "all" &&
+      (b.booking_type || "normal") !== bookingTypeFilter
+    )
       return false;
     if (selectedDate && !dayjs(b.start_time).isSame(selectedDate, "day"))
       return false;
@@ -266,7 +288,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     setBookingTypeFilter,
 
     reloadBookings,
-    reloadRooms, // ← ADDED HERE
+    reloadRooms,
 
     roomFilters,
     toggleRoomFilter,

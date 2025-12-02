@@ -18,7 +18,7 @@ export default function TopFilterBar() {
     setCapacityFilter,
     resetRoomFilters,
     setFloorFilter,
-    setRoomTypeFilter,   // <-- NOW EXISTS
+    setRoomTypeFilter,
   } = useBookingContext();
 
   const { role } = useAuth();
@@ -28,8 +28,8 @@ export default function TopFilterBar() {
   // Kapacitetsændring
   function handleCapacityChange(val: string) {
     setCapacityInput(val);
-
     const n = Number(val);
+
     if (!isNaN(n) && n > 0) {
       setCapacityFilter(n);
     } else {
@@ -127,9 +127,7 @@ export default function TopFilterBar() {
             {[1, 2, 3, 4].map((f) => (
               <button
                 key={f}
-                onClick={() =>
-                  setFloorFilter(roomFilters.floor === f ? null : f)
-                }
+                onClick={() => setFloorFilter(roomFilters.floor === f ? null : f)}
                 className={`px-4 py-2 rounded-md border text-sm transition
                   ${
                     roomFilters.floor === f
@@ -143,28 +141,26 @@ export default function TopFilterBar() {
           </div>
         </div>
 
-        {/* LOKALETYPE (kun lærer + admin) */}
-        {role !== "student" && (
-          <div className="flex flex-col">
-            <label className="text-sm font-semibold text-main">Lokaletype</label>
+        {/* LOKALETYPE — VIS FOR ALLE ROLLER */}
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-main">Lokaletype</label>
 
-            <select
-              className="px-4 py-2 rounded-md border text-sm bg-secondary-300 border-secondary-200 text-main mt-1"
-              value={roomFilters.roomType ?? ""}
-              onChange={(e) => setRoomTypeFilter(e.target.value || null)}
-            >
-              <option value="">Alle</option>
-              {roomTypeOptions
-                .filter((opt) => allowedRoomTypes.includes(opt.value))
-                .map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-            </select>
-          </div>
-        )}
+          <select
+            className="px-4 py-2 rounded-md border text-sm bg-secondary-300 border-secondary-200 text-main mt-1"
+            value={roomFilters.roomType ?? ""}
+            onChange={(e) => setRoomTypeFilter(e.target.value || null)}
+          >
+            <option value="">Alle</option>
 
+            {roomTypeOptions
+              .filter((opt) => allowedRoomTypes.includes(opt.value))
+              .map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+          </select>
+        </div>
       </div>
 
       {/* RESET BUTTON */}
