@@ -16,7 +16,7 @@ export default function LanguageSettings() {
         
         {/* Dansk sprog*/}
         <div className="text-center">
-          <img src="/flag_of_denmark.svg" className="w-24 mx-auto mb-2"/>
+          <img src="/flag_of_denmark.svg" className="h-24 mx-auto mb-2"/>
           <label className="flex items-center gap-2 justify-center">
             <input
               type="radio"
@@ -29,7 +29,7 @@ export default function LanguageSettings() {
 
         {/* Engelsk sprog*/}
         <div className="text-center">
-          <img src="/Flag_of_the_United_Kingdom.svg" className="w-24 mx-auto mb-2"/>
+          <img src="/Flag_of_the_United_Kingdom.svg" className="h-24 mx-auto mb-2"/>
           <label className="flex items-center gap-2 justify-center">
             <input
               type="radio"

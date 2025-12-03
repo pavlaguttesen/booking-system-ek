@@ -1,7 +1,6 @@
 export default function SettingsSidebar({ activePage, setActivePage }: any) {
   const items = [
     { id: "apparance", label: "Udseende", icon: "🏠" },
-    { id: "profile", label: "Rediger profil", icon: "👤" },
     { id: "language", label: "Sprog", icon: "🌐" },
     { id: "rules", label: "Regler", icon: "📜" },
   ];

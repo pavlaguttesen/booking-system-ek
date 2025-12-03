@@ -4,11 +4,12 @@ import { useState } from "react";
 import SettingsSidebar from "./SettingsSidebar";
 import ApparanceSettings from "./ApparanceSettings";
 import LanguageSettings from "./LanguageSettings";
-import ProfileSettings from "./ProfileSettings";
 import RulesSettings from "./RulesSettings";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
 export default function SettingsOverlay({open, onClose}: any) {
-    const [activePage, setActivePage] = useState("profile");
+    const [activePage, setActivePage] = useState("apparance");
 
     if (!open) return null;
 
@@ -16,13 +17,12 @@ export default function SettingsOverlay({open, onClose}: any) {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
         <div className="bg-white w-[80%] h-[80%] rounded-xl flex shadow-xl relative">
         
-        <button onClick={onClose} className="absolute right-4 top-4 text-xl">x</button>
+        <button onClick={onClose} className="absolute right-4 top-4 text-xl"><FontAwesomeIcon icon={faCircleXmark} style={{color: "#bb271a",}} /></button>
 
         <SettingsSidebar activePage={activePage} setActivePage={setActivePage} />
 
         <div className="flex-1 p-8 overflow-y-auto">
         {activePage === "apparance" && <ApparanceSettings />}
-        {activePage === "profile" && <ProfileSettings />}
         {activePage === "language" && <LanguageSettings />}
         {activePage === "rules" && <RulesSettings />}
         </div>
