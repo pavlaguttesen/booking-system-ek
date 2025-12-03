@@ -157,7 +157,7 @@ export default function AdminRoomList({
             <div className="border-t border-secondary-200/60 mb-4" />
 
             <div className="flex flex-col divide-y divide-secondary-200/60">
-              {/** ⭐ SORTÉR RUM HER ⭐ */}
+              {/** SORTÉR RUM HER */}
               {roomsByFloor[floor]
                 .sort((a, b) => naturalSort(a.room_name, b.room_name))
                 .map((room) => (
@@ -183,7 +183,7 @@ export default function AdminRoomList({
                     </div>
 
                     {/* Right side */}
-                    <Group gap="md" wrap="wrap" className="flex-shrink-0">
+                    <Group gap="md" wrap="wrap" className="shrink-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-secondary-600">
                           {room.is_closed ? "Lukket" : "Åben"}
