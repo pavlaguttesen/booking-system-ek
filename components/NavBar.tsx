@@ -1,19 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import SettingsOverlay from "./settings/SettingsOverlay";
 
 export default function NavBar() {
   const { role } = useAuth();
+  const [openSettings, setOpenSettings] = useState(false);
 
   return (
+    <>
     <header className="w-full bg-secondary-200 px-10 py-4 flex justify-between items-center">
 
       {/* Logo */}
       <div className="flex items-center gap-4">
         <Image
-          src="/logo-ek.png"
+          src="/ek_logo_business-blue_rgb.png"
           alt="Erhvervsakademiet København"
           width={140}
           height={50}
@@ -30,9 +34,8 @@ export default function NavBar() {
           Min side
         </Link>
 
-        <Link href="/indstillinger" className="hover:underline">
-          Indstillinger
-        </Link>
+        <button onClick={() => setOpenSettings(true)} className="hover:underline">
+          Indstillinger</button>
 
         {/* ADMIN LINK — visible only for role === "admin" */}
         {role === "admin" && (
@@ -42,5 +45,9 @@ export default function NavBar() {
         )}
       </nav>
     </header>
+    <SettingsOverlay>
+      open={openSettings} onClose={() => setOpenSettings(false)}
+    </SettingsOverlay>
+    </>
   );
 }
