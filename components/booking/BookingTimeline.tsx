@@ -341,7 +341,7 @@ export function BookingTimeline({
                         className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center 
                                    rounded-full bg-white text-red-600 text-[10px] font-bold
                                    shadow-md cursor-pointer hover:bg-gray-100"
-                        style={{ zIndex: 50 }}
+                        style={{ zIndex: 20 }}
                       >
                         ×
                       </button>
@@ -357,7 +357,7 @@ export function BookingTimeline({
         {showNow && nowTop !== null && (
           <div
             className="absolute left-0 right-0 border-t-2 border-red-500 pointer-events-none"
-            style={{ top: nowTop, zIndex: 50 }}
+            style={{ top: nowTop, zIndex: 10 }}
           />
         )}
 

@@ -12,7 +12,7 @@ export function TimelineCurrentTime({
 }) {
   return (
     <div
-      className="absolute left-0 w-full z-40 pointer-events-none"
+      className="absolute left-0 w-full pointer-events-none"
       style={{
         top: `${topPercent}%`,
         borderTop: "2px solid red",
