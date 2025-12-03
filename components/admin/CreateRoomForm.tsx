@@ -1,6 +1,6 @@
 "use client";
 
-// Dansk kommentar: Formular til oprettelse af nye lokaler. Admin vælger navn,
+// Formular til oprettelse af nye lokaler. Admin vælger navn,
 // antal pladser, etage og faciliteter. Data sendes til Supabase.
 
 import { useState } from "react";
@@ -14,12 +14,12 @@ import {
 import { supabase } from "@/lib/supabaseClient";
 
 type CreateRoomFormProps = {
-  // Dansk kommentar: Kaldes efter succesfuld oprettelse, så parent kan genindlæse listen
+  // Kaldes efter succesfuld oprettelse, så parent kan genindlæse listen
   onRoomCreated?: () => void;
 };
 
 export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
-  // Dansk kommentar: Lokal state til formularfelter
+  // Lokal state til formularfelter
   const [roomName, setRoomName] = useState("");
   const [capacity, setCapacity] = useState<number | null>(null);
   const [floor, setFloor] = useState<number | null>(null);
@@ -30,7 +30,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
   const [roomType, setRoomType] = useState<string | null>(null);
   const [isClosed, setIsClosed] = useState(false);
 
-  // Dansk kommentar: UI state
+  // UI state
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -40,7 +40,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
     setSuccessMsg("");
     setErrorMsg("");
 
-    // Dansk kommentar: Simpel validering
+    // Simpel validering
     if (!roomName || !roomType) {
       setErrorMsg("Du skal udfylde både navn og type.");
       setLoading(false);
@@ -67,7 +67,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
       return;
     }
 
-    // Dansk kommentar: Kald parent callback så listen kan genindlæses
+    //Kald parent callback så listen kan genindlæses
     if (onRoomCreated) {
       onRoomCreated();
     }
@@ -75,7 +75,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
     setSuccessMsg("Lokalet blev oprettet.");
     setLoading(false);
 
-    // Dansk kommentar: Reset form
+    // Reset form
     setRoomName("");
     setCapacity(null);
     setFloor(null);
@@ -90,7 +90,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
   return (
     <div className="flex flex-col gap-6">
 
-      {/* Dansk kommentar: Fejl- og succesbeskeder */}
+      {/* Fejl- og succesbeskeder */}
       {errorMsg && (
         <p className="text-red-600 text-sm">{errorMsg}</p>
       )}
