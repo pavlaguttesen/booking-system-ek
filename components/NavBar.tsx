@@ -14,15 +14,15 @@ export default function NavBar() {
     <>
       <header className="w-full bg-secondary-200 px-10 py-4 flex justify-between items-center">
 
-        {/* Logo */}
-        <div className="flex items-center gap-4">
+        {/* Logo med link til kalenderen */}
+        <Link href="/" className="flex items-center gap-4">
           <Image
             src="/ek_logo_business-blue_rgb.png"
             alt="Erhvervsakademiet København"
             width={140}
             height={50}
           />
-        </div>
+        </Link>
 
         {/* Navigation */}
         <nav className="flex gap-10 text-primary-600 font-medium text-lg">
@@ -30,7 +30,7 @@ export default function NavBar() {
             Kalender
           </Link>
 
-          <Link href="/min-side" className="hover:underline">
+          <Link href="/mypage" className="hover:underline">
             Min side
           </Link>
 
@@ -41,7 +41,6 @@ export default function NavBar() {
             Indstillinger
           </button>
 
-          {/* ADMIN LINK — visible only for role === "admin" */}
           {role === "admin" && (
             <Link href="/admin" className="hover:underline">
               Admin

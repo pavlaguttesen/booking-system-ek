@@ -1,7 +1,11 @@
 "use client";
 
 // Dansk kommentar: Modal til oprettelse af booking
-// Indeholder validering på overlap, ugyldige tider og lokaletype-rolle checks.
+// Implementerer regler:
+// - Studerende må kun booke studierum
+// - Undervisere må ikke booke studierum
+// - Møderum → studierum (normaliseres)
+// - Dropdown viser kun lokaler brugeren må booke
 
 import {
   Modal,
@@ -15,7 +19,7 @@ import {
 import { DatePickerInput, TimeInput } from "@mantine/dates";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import type { Room, Booking } from "@/context/BookingContext";
+import type { Room } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
 import { useBookingContext } from "@/context/BookingContext";
 
@@ -52,9 +56,15 @@ export function CreateBookingOverlay({
   const [startTime, setStartTime] = useState<Date>(initialStart);
   const [endTime, setEndTime] = useState<Date>(initialEnd);
 
+  // Dansk: normaliserer møderum til studierum
+  function normalizeType(type: string | null): string | null {
+    if (!type) return null;
+    return type === "møderum" ? "studierum" : type;
+  }
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Reset når modal åbner
+  // Reset state ved open
   useEffect(() => {
     setRoomId(initialRoomId);
     setChosenDate(initialStart);
@@ -73,22 +83,26 @@ export function CreateBookingOverlay({
       .toDate();
   }
 
-  // Liste over hvilke lokaletyper en rolle må booke
+  // Liste over hvilke lokaletyper hver rolle må booke
   const allowedTypesForRole: Record<string, string[]> = {
-    student: ["studierum", "møderum"],
-    teacher: ["møderum", "klasseværelse", "auditorium"],
-    admin: ["studierum", "møderum", "klasseværelse", "auditorium"],
+    student: ["studierum"],
+    teacher: ["klasseværelse", "auditorium"],
+    admin: ["studierum", "klasseværelse", "auditorium"],
   };
 
-  // Dansk kommentar: Finder alle bookinger i det valgte lokale
+  // Drop-down filtrering baseret på rolle
+  const allowedRoomsForDropdown = rooms.filter((room) => {
+    const t = normalizeType(room.room_type);
+    return allowedTypesForRole[role ?? "student"].includes(t || "");
+  });
+
+  // Bookinger i samme lokale
   const bookingsInRoom = filteredBookings.filter((b) => b.room_id === roomId);
 
   // ------------------------------------------------------------------
-  // Dansk kommentar: Tjekker om valgt start/slut overlapper en booking
+  // Overlap validering
   // ------------------------------------------------------------------
   function validateOverlap(finalStart: Date, finalEnd: Date) {
-    if (!chosenDate) return null;
-
     for (const b of bookingsInRoom) {
       const bs = new Date(b.start_time);
       const be = new Date(b.end_time);
@@ -99,28 +113,16 @@ export function CreateBookingOverlay({
         (finalStart <= bs && finalEnd >= be);
 
       if (overlaps) {
-        const range = `${dayjs(bs).format("HH:mm")}–${dayjs(be).format(
+        return `Valgte tid overlapper en eksisterende booking: ${dayjs(bs).format(
           "HH:mm"
-        )}`;
-
-        // Returnér præcis fejlbesked:
-        if (finalStart >= bs && finalStart < be) {
-          return `Starttid overlapper eksisterende booking kl. ${range}`;
-        }
-
-        if (finalEnd > bs && finalEnd <= be) {
-          return `Sluttid overlapper eksisterende booking kl. ${range}`;
-        }
-
-        return `Valgte tidsrum overlapper eksisterende booking kl. ${range}`;
+        )}–${dayjs(be).format("HH:mm")}`;
       }
     }
-
     return null;
   }
 
   // ------------------------------------------------------------------
-  // Dansk kommentar: Hoved-validering
+  // Hovedvalidering
   // ------------------------------------------------------------------
   function validate() {
     const finalStart = combine(chosenDate, startTime);
@@ -130,11 +132,13 @@ export function CreateBookingOverlay({
       return "Sluttid skal være senere end starttid.";
     }
 
+    // Lokaletype tjek
     const selectedRoom = rooms.find((r) => r.id === roomId);
-    if (selectedRoom && selectedRoom.room_type) {
-      const allowed = allowedTypesForRole[role ?? "student"];
-      if (!allowed.includes(selectedRoom.room_type)) {
-        return `Du har ikke adgang til at booke denne type lokale: ${selectedRoom.room_type}`;
+    if (selectedRoom) {
+      const t = normalizeType(selectedRoom.room_type);
+
+      if (!allowedTypesForRole[role ?? "student"].includes(t || "")) {
+        return `Du har ikke adgang til at booke denne type lokale (${t}).`;
       }
     }
 
@@ -145,7 +149,7 @@ export function CreateBookingOverlay({
   }
 
   // ------------------------------------------------------------------
-  // Dansk kommentar: Håndtering af klik på "Opret booking"
+  // Når "Opret booking" klikkes
   // ------------------------------------------------------------------
   function handleSubmit() {
     const err = validate();
@@ -167,21 +171,22 @@ export function CreateBookingOverlay({
     onClose();
   }
 
-  // Book-knap deaktiveret hvis der er fejl
   const isDisabled = !!validate();
 
   return (
     <Modal opened={opened} onClose={onClose} title="Opret booking" centered>
       <Stack gap="md">
+        {/* Fejlbesked */}
         {validate() && (
           <Text c="red" size="sm">
             {validate()}
           </Text>
         )}
 
+        {/* Lokalevalg — filtreret efter rolle */}
         <Select
           label="Lokale"
-          data={rooms.map((r) => ({
+          data={allowedRoomsForDropdown.map((r) => ({
             value: r.id,
             label: r.room_name,
           }))}
@@ -194,7 +199,7 @@ export function CreateBookingOverlay({
 
         <TextInput
           label="Titel"
-          placeholder="Fx 'Gruppeøvelse i UX'"
+          placeholder="Fx 'Gruppearbejde'"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -204,14 +209,7 @@ export function CreateBookingOverlay({
           value={chosenDate}
           valueFormat="DD-MM-YYYY"
           onChange={(value) => {
-            if (value === null) {
-              setChosenDate(null);
-            } else {
-              // Dansk kommentar: Mantine kan returnere både Date og string.
-              // Vi parser altid til en gyldig Date via dayjs.
-              const parsed = dayjs(value).toDate();
-              setChosenDate(parsed);
-            }
+            setChosenDate(value ? dayjs(value).toDate() : null);
             setErrorMessage(null);
           }}
         />
@@ -221,11 +219,8 @@ export function CreateBookingOverlay({
             label="Starttid"
             value={dayjs(startTime).format("HH:mm")}
             onChange={(event) => {
-              const val = event.currentTarget.value;
-              if (val) {
-                const [h, m] = val.split(":");
-                setStartTime(dayjs(startTime).hour(+h).minute(+m).toDate());
-              }
+              const [h, m] = event.currentTarget.value.split(":");
+              setStartTime(dayjs(startTime).hour(+h).minute(+m).toDate());
               setErrorMessage(null);
             }}
           />
@@ -234,23 +229,12 @@ export function CreateBookingOverlay({
             label="Sluttid"
             value={dayjs(endTime).format("HH:mm")}
             onChange={(event) => {
-              const val = event.currentTarget.value;
-              if (val) {
-                const [h, m] = val.split(":");
-                setEndTime(dayjs(endTime).hour(+h).minute(+m).toDate());
-              }
+              const [h, m] = event.currentTarget.value.split(":");
+              setEndTime(dayjs(endTime).hour(+h).minute(+m).toDate());
               setErrorMessage(null);
             }}
           />
         </Group>
-
-        <Text size="sm">
-          <b>Start:</b>{" "}
-          {dayjs(combine(chosenDate, startTime)).format("DD/MM/YYYY HH:mm")}
-          <br />
-          <b>Slut:</b>{" "}
-          {dayjs(combine(chosenDate, endTime)).format("DD/MM/YYYY HH:mm")}
-        </Text>
 
         <Button fullWidth onClick={handleSubmit} disabled={isDisabled}>
           Opret booking

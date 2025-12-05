@@ -9,78 +9,55 @@ import {
 } from "react";
 import { createClient } from "@supabase/supabase-js";
 import dayjs from "dayjs";
-import { useAuth } from "@/context/AuthContext"; // ← NYT
+import { useAuth } from "@/context/AuthContext";
 
-// Env
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error(
-    "Supabase URL eller KEY mangler. Tjek .env.local (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_KEY)."
-  );
-}
-
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// -------------------------------
-// Typer
-// -------------------------------
+// Typer -----------------------------------------------------
+
+export type RoomFilterKey = "whiteboard" | "screen" | "board";
+
 export type Room = {
   id: string;
   room_name: string;
   nr_of_seats: number | null;
   floor: number | null;
-  created_at: string | null;
   has_whiteboard: boolean | null;
   has_screen: boolean | null;
   has_board: boolean | null;
   capacity: number | null;
-  room_type?: string | null;
-  is_closed?: boolean | null;
+  room_type: string | null;
 };
 
 export type Booking = {
   id: string;
   room_id: string;
   user_id: string | null;
-  title: string | null;
-  description: string | null;
   start_time: string;
   end_time: string;
-  created_at: string | null;
-  booking_type: string | null;
+  title: string | null;
 };
 
 export type Profile = {
   id: string;
   full_name: string | null;
-  role: "student" | "teacher" | "admin" | null;
+  role: "student" | "teacher" | "admin";
 };
 
-// -------------------------------
-// Context Type
-// -------------------------------
+// Context ----------------------------------------------------
+
 type BookingContextValue = {
   rooms: Room[];
-  profiles: Profile[];
   bookings: Booking[];
-  filteredBookings: Booking[];
-  filteredRooms: Room[];
+  profiles: Profile[];
 
-  loading: boolean;
-  errorMsg: string | null;
+  filteredRooms: Room[];
+  filteredBookings: Booking[];
 
   selectedDate: string | null;
-  selectedRoomId: string;
-  bookingTypeFilter: "all" | "normal" | "exam";
-
   setSelectedDate: (v: string | null) => void;
-  setSelectedRoomId: (v: string) => void;
-  setBookingTypeFilter: (v: "all" | "normal" | "exam") => void;
-
-  reloadBookings: () => Promise<void>;
-  reloadRooms: () => Promise<void>;
 
   roomFilters: {
     whiteboard: boolean;
@@ -91,80 +68,66 @@ type BookingContextValue = {
     roomType: string | null;
   };
 
-  toggleRoomFilter: (key: "whiteboard" | "screen" | "board") => void;
-  setCapacityFilter: (value: number | null) => void;
-  setFloorFilter: (value: number | null) => void;
-  setRoomTypeFilter: (value: string | null) => void;
+  toggleRoomFilter: (key: RoomFilterKey) => void;
+  setCapacityFilter: (v: number | null) => void;
+  setFloorFilter: (v: number | null) => void;
+  setRoomTypeFilter: (v: string | null) => void;
   resetRoomFilters: () => void;
 };
 
 const BookingContext = createContext<BookingContextValue | null>(null);
 
-// -------------------------------
-// Provider
-// -------------------------------
-export function BookingProvider({ children }: { children: ReactNode }) {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+// Provider ---------------------------------------------------
 
+export function BookingProvider({ children }: { children: ReactNode }) {
+  const { role } = useAuth();
+
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(
     dayjs().format("YYYY-MM-DD")
   );
-  const [selectedRoomId, setSelectedRoomId] = useState("all");
-  const [bookingTypeFilter, setBookingTypeFilter] = useState<
-    "all" | "normal" | "exam"
-  >("all");
 
-  const { role } = useAuth(); // ← NYT
-
-  // Hvem må SE hvilke typer lokaler
-  const allowedTypesForRole: Record<string, string[]> = {
-    student: ["studierum", "møderum"],
-    teacher: ["møderum", "klasseværelse", "auditorium"],
-    admin: ["studierum", "møderum", "klasseværelse", "auditorium"],
-  };
-
-  // -------------------------------
-  // Filters
-  // -------------------------------
+  // ⭐ DEFAULT FILTERS — admin starts on floor 1
   const [roomFilters, setRoomFilters] = useState({
     whiteboard: false,
     screen: false,
     board: false,
     capacity: null as number | null,
-    floor: null as number | null,
+    floor: role === "admin" ? 1 : null,   // ⭐ FIX HERE
     roomType: null as string | null,
   });
 
-  function toggleRoomFilter(key: "whiteboard" | "screen" | "board") {
-    setRoomFilters((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+  // If role changes (e.g. after login), update floor filter
+  useEffect(() => {
+    if (role === "admin") {
+      setRoomFilters((prev) => ({ ...prev, floor: 1 }));
+    } else {
+      setRoomFilters((prev) => ({ ...prev, floor: null }));
+    }
+  }, [role]);
+
+  // Normaliser "møderum"
+  function normalizeType(type: string | null): string | null {
+    return type === "møderum" ? "studierum" : type;
+  }
+
+  // Filter setters
+  function toggleRoomFilter(key: RoomFilterKey) {
+    setRoomFilters((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
   function setCapacityFilter(value: number | null) {
-    setRoomFilters((prev) => ({
-      ...prev,
-      capacity: value,
-    }));
+    setRoomFilters((prev) => ({ ...prev, capacity: value }));
   }
 
   function setFloorFilter(value: number | null) {
-    setRoomFilters((prev) => ({
-      ...prev,
-      floor: value,
-    }));
+    setRoomFilters((prev) => ({ ...prev, floor: value }));
   }
 
   function setRoomTypeFilter(value: string | null) {
-    setRoomFilters((prev) => ({
-      ...prev,
-      roomType: value,
-    }));
+    setRoomFilters((prev) => ({ ...prev, roomType: value }));
   }
 
   function resetRoomFilters() {
@@ -173,122 +136,80 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       screen: false,
       board: false,
       capacity: null,
-      floor: null,
+      floor: role === "admin" ? 1 : null, // ⭐ keep default
       roomType: null,
     });
   }
 
-  // -------------------------------
-  // Loaders
-  // -------------------------------
+  // LOADERS --------------------------------------------------------
+
   async function loadRooms() {
-    const { data, error } = await supabase.from("rooms").select("*");
-    if (error) return setErrorMsg(error.message);
-    setRooms((data as Room[]) || []);
-  }
-
-  async function reloadRooms() {
-    await loadRooms();
-  }
-
-  async function loadProfiles() {
-    const { data, error } = await supabase.from("profiles").select("*");
-    if (error) return setErrorMsg(error.message);
-    setProfiles((data as Profile[]) || []);
+    const { data } = await supabase.from("rooms").select("*");
+    setRooms((data || []).map((r) => ({ ...r, room_type: normalizeType(r.room_type) })));
   }
 
   async function loadBookings() {
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("*")
-      .order("start_time", { ascending: true });
-
-    if (error) return setErrorMsg(error.message);
-    setBookings((data as Booking[]) || []);
+    const { data } = await supabase.from("bookings").select("*");
+    setBookings(data || []);
   }
 
-  async function reloadBookings() {
-    await loadBookings();
+  async function loadProfiles() {
+    const { data } = await supabase.from("profiles").select("*");
+    setProfiles(data || []);
   }
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      await Promise.all([loadRooms(), loadProfiles(), loadBookings()]);
-      setLoading(false);
-    })();
+    loadRooms();
+    loadBookings();
+    loadProfiles();
   }, []);
 
-  // -------------------------------
-  // Room filtering (MED ROLLECHECK)
-  // -------------------------------
+  // FILTERING --------------------------------------------------------
+
+  const allowedTypesForRole: Record<string, string[]> = {
+    student: ["studierum"],
+    teacher: ["klasseværelse", "auditorium"],
+    admin: ["studierum", "klasseværelse", "auditorium"],
+  };
+
   const filteredRooms = rooms.filter((room) => {
-    // 1️⃣ Rollebaseret filtrering
-    if (role) {
-      const allowed = allowedTypesForRole[role] || [];
-      if (room.room_type && !allowed.includes(room.room_type)) {
-        return false;
-      }
+    const t = normalizeType(room.room_type);
+
+    // Rollefilter
+    if (!allowedTypesForRole[role ?? "student"].includes(t || "")) return false;
+
+    // Etagefilter — now works correctly!
+    if (roomFilters.floor !== null && room.floor !== roomFilters.floor) {
+      return false;
     }
 
-    // 2️⃣ Eksisterende filtre
     if (roomFilters.whiteboard && !room.has_whiteboard) return false;
     if (roomFilters.screen && !room.has_screen) return false;
     if (roomFilters.board && !room.has_board) return false;
 
-    if (roomFilters.capacity !== null) {
-      if (!room.capacity || room.capacity < roomFilters.capacity) return false;
-    }
+    if (roomFilters.capacity && room.capacity! < roomFilters.capacity)
+      return false;
 
-    if (roomFilters.floor !== null) {
-      if (room.floor !== roomFilters.floor) return false;
-    }
-
-    if (roomFilters.roomType !== null) {
-      if (room.room_type !== roomFilters.roomType) return false;
-    }
+    if (roomFilters.roomType && roomFilters.roomType !== t) return false;
 
     return true;
   });
 
-  // -------------------------------
-  // Booking filtering
-  // -------------------------------
   const filteredBookings = bookings.filter((b) => {
-    if (selectedRoomId !== "all" && b.room_id !== selectedRoomId) return false;
-    if (
-      bookingTypeFilter !== "all" &&
-      (b.booking_type || "normal") !== bookingTypeFilter
-    )
-      return false;
-    if (selectedDate && !dayjs(b.start_time).isSame(selectedDate, "day"))
-      return false;
-    return true;
+    if (!selectedDate) return true;
+    return dayjs(b.start_time).isSame(selectedDate, "day");
   });
 
-  // -------------------------------
-  // Value Object
-  // -------------------------------
   const value: BookingContextValue = {
     rooms,
-    profiles,
     bookings,
-    filteredBookings,
-    filteredRooms,
+    profiles,
 
-    loading,
-    errorMsg,
+    filteredRooms,
+    filteredBookings,
 
     selectedDate,
-    selectedRoomId,
-    bookingTypeFilter,
-
     setSelectedDate,
-    setSelectedRoomId,
-    setBookingTypeFilter,
-
-    reloadBookings,
-    reloadRooms,
 
     roomFilters,
     toggleRoomFilter,
@@ -305,13 +226,8 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// -------------------------------
-// Hook
-// -------------------------------
 export function useBookingContext() {
   const ctx = useContext(BookingContext);
-  if (!ctx) {
-    throw new Error("useBookingContext must be used inside BookingProvider");
-  }
+  if (!ctx) throw new Error("useBookingContext must be used inside BookingProvider");
   return ctx;
 }
