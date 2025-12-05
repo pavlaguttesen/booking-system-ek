@@ -46,20 +46,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="da" className={inter.variable}>
       <body className="bg-page text-main font-sans">
-        <MantineProvider theme={theme} defaultColorScheme="light">
 
-          {/* DO NOT USE usePathname HERE — only Client Components */}
+        {/* 🔥 MantineProvider + Auth + LayoutClient */}
+        <MantineProvider theme={theme} defaultColorScheme="light">
           <AuthProvider>
             <LayoutClient>
               {children}
             </LayoutClient>
           </AuthProvider>
-
-          <div id="overlay-root"></div>
-
         </MantineProvider>
+
+        {/* 🔥🔥 MÅ IKKE LIGGE INDE I MantineProvider */}
+        <div id="overlay-root"></div>
+
       </body>
     </html>
   );
 }
-  

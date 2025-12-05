@@ -31,6 +31,7 @@ export type Room = {
   has_board: boolean | null;
   capacity: number | null;
   room_type: string | null;
+  is_closed: boolean | null;
 };
 
 export type Booking = {
@@ -49,7 +50,7 @@ export type Profile = {
 };
 
 // --------------------------------------------------
-// Context Type
+// Context Value Type
 // --------------------------------------------------
 
 type BookingContextValue = {
@@ -103,7 +104,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     screen: false,
     board: false,
     capacity: null as number | null,
-    floor: 1 as number | null, // 👈 DEFAULT FLOOR = 1 (fixer admin view)
+    floor: null as number | null, // ⭐ Students/Teachers -> alle etager
     roomType: null as string | null,
   });
 
@@ -112,12 +113,12 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   // --------------------------------------------------
   function normalizeRoomType(type: string | null): string | null {
     if (!type) return null;
-    if (type === "møderum") return "studierum";
-    return type;
+    const t = type.trim().toLowerCase();
+    return t === "møderum" ? "studierum" : t;
   }
 
   // --------------------------------------------------
-  // Filter functions
+  // Filter setters
   // --------------------------------------------------
 
   function toggleRoomFilter(key: RoomFilterKey) {
@@ -142,13 +143,13 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       screen: false,
       board: false,
       capacity: null,
-      floor: 1, // 👈 Reset → default til 1
+      floor: role === "admin" ? 1 : null, // ⭐ Reset afhænger af rolle
       roomType: null,
     });
   }
 
   // --------------------------------------------------
-  // LOADERS
+  // Data loaders
   // --------------------------------------------------
 
   async function reloadRooms() {
@@ -157,6 +158,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       (data || []).map((r) => ({
         ...r,
         room_type: normalizeRoomType(r.room_type),
+        is_closed: r.is_closed ?? false, // ⭐ vigtigt fallback
       }))
     );
   }
@@ -175,11 +177,32 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     setProfiles(data || []);
   }
 
+  // Load all initial data
   useEffect(() => {
-    reloadRooms();
-    reloadBookings();
-    loadProfiles();
+    Promise.all([reloadRooms(), reloadBookings(), loadProfiles()]);
   }, []);
+
+  // --------------------------------------------------
+  // ROLE → FLOOR HANDLING
+  // --------------------------------------------------
+
+  useEffect(() => {
+    if (!role) return;
+
+    if (role === "admin") {
+      // Admin: skal kun se én etage ad gangen
+      setRoomFilters((prev) => ({
+        ...prev,
+        floor: prev.floor ?? 1, // default til 1 hvis floor var null
+      }));
+    } else {
+      // Students & Teachers: se alt
+      setRoomFilters((prev) => ({
+        ...prev,
+        floor: null,
+      }));
+    }
+  }, [role]);
 
   // --------------------------------------------------
   // ROLE → ROOM ACCESS
@@ -196,24 +219,39 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   // --------------------------------------------------
 
   const filteredRooms = rooms.filter((room) => {
+    if (!role) return false; // vent på auth før filtrering
+
     const type = normalizeRoomType(room.room_type);
 
-    // rollebegrænsning
-    if (!allowedTypesForRole[role ?? "student"].includes(type || "")) return false;
+    // Rollebegrænsning
+    if (type && !allowedTypesForRole[role].includes(type)) return false;
 
+    // Facilities
     if (roomFilters.whiteboard && !room.has_whiteboard) return false;
     if (roomFilters.screen && !room.has_screen) return false;
     if (roomFilters.board && !room.has_board) return false;
 
-    if (roomFilters.capacity && room.capacity! < roomFilters.capacity)
+    // Capacity
+    if (
+      roomFilters.capacity !== null &&
+      (room.capacity === null || room.capacity < roomFilters.capacity)
+    ) {
+      return false;
+    }
+
+    // Floor (kun admin)
+    if (roomFilters.floor !== null && room.floor !== roomFilters.floor)
       return false;
 
-    if (roomFilters.floor && room.floor !== roomFilters.floor) return false;
-
+    // Room type filter
     if (roomFilters.roomType && roomFilters.roomType !== type) return false;
 
     return true;
   });
+
+  // --------------------------------------------------
+  // FILTER BOOKINGS BY DATE
+  // --------------------------------------------------
 
   const filteredBookings = bookings.filter((b) =>
     selectedDate ? dayjs(b.start_time).isSame(selectedDate, "day") : true
@@ -222,6 +260,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   // --------------------------------------------------
   // VALUE
   // --------------------------------------------------
+
   const value: BookingContextValue = {
     rooms,
     bookings,
@@ -253,6 +292,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
 export function useBookingContext() {
   const ctx = useContext(BookingContext);
-  if (!ctx) throw new Error("useBookingContext must be used inside BookingProvider");
+  if (!ctx)
+    throw new Error("useBookingContext must be used inside BookingProvider");
   return ctx;
 }

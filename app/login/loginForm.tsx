@@ -10,16 +10,22 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
+  const [remember, setRemember] = useState(false); // Dansk: endnu ikke implementeret
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // -------------------------------------------------------
+  // Dansk kommentar: Login-funktion der bruger Supabase-session
+  // -------------------------------------------------------
   async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    console.log("LOGIN SUBMITTED"); // ← Debug
+
     e.preventDefault();
     setLoading(true);
     setErrorMsg("");
 
-    // 1️⃣ Log in
+    // 1️⃣ Forsøg login – Supabase opretter automatisk session + refresh token
     const { data: loginData, error: loginError } =
       await supabase.auth.signInWithPassword({
         email,
@@ -39,7 +45,7 @@ export default function LoginForm() {
       return;
     }
 
-    // 2️⃣ Fetch profile row
+    // 2️⃣ Hent profil – dette påvirker ikke session
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("*")
@@ -52,20 +58,9 @@ export default function LoginForm() {
       return;
     }
 
-    const role = profileData.role ?? "student";
+    // ❗ 3️⃣ Fjernet: ingen localStorage, AuthContext håndterer alt
 
-    // 3️⃣ Store in localStorage (temporary state until context is used)
-    localStorage.setItem(
-      "booking_profile",
-      JSON.stringify({
-        id: user.id,
-        email: user.email,
-        role,
-        full_name: profileData.full_name ?? "",
-      })
-    );
-
-    // 4️⃣ Redirect user
+    // 4️⃣ Redirect
     router.push("/");
 
     setLoading(false);
@@ -75,9 +70,7 @@ export default function LoginForm() {
     <form onSubmit={handleLogin} className="w-full max-w-md">
       <Logo />
 
-      <h2 className="text-main text-sm mb-1">
-        Velkommen til bookingsystemet
-      </h2>
+      <h2 className="text-main text-sm mb-1">Velkommen til bookingsystemet</h2>
 
       <p className="text-secondary-300 text-sm mb-8">
         Her kan du nemt booke lokaler, udstyr og studiepladser. <br />

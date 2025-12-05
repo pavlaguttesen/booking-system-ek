@@ -172,6 +172,7 @@ export function BookingTimeline({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
+    // Klik skal ligge i selve tidsområdet
     if (y < TOP_MARGIN || y > TOP_MARGIN + minutesToPx(MINUTES)) return;
     if (x < TIME_COL_WIDTH) return;
 
@@ -183,9 +184,9 @@ export function BookingTimeline({
 
     const type = normalizeType(room.room_type);
 
-    // ⭐ ROLLE-BASERET BOOKINGBLOCKERING
+    // Rolle-baseret begrænsning
     if (!roleCanBook(type)) {
-      return; // Klik ignoreres hvis rollen ikke må booke dette rum
+      return;
     }
 
     const minuteOffset = (y - TOP_MARGIN) / PX_PER_MINUTE;
@@ -193,13 +194,31 @@ export function BookingTimeline({
       DAY_START_HOUR * 60 + minuteOffset - DAY_START_HOUR * 60;
 
     const roundedStart = roundToQuarter(rawStartMin);
-    const start = selected.hour(DAY_START_HOUR).minute(roundedStart);
+    let start = selected.hour(DAY_START_HOUR).minute(roundedStart);
 
-    if (selected.isSame(today, "day") && start.isBefore(today)) return;
+    const todayDayjs = dayjs();
+    if (selected.isSame(todayDayjs, "day") && start.isBefore(todayDayjs)) {
+      return;
+    }
 
+    // Absolut dags-slut (16:00)
+    const hardEnd = selected.hour(DAY_END_HOUR).minute(0);
+
+    // Hvis start er efter eller lig med slut-tid → ingen booking
+    if (start.isSame(hardEnd) || start.isAfter(hardEnd)) {
+      return;
+    }
+
+    // Default varighed = 60 minutter
     let end = start.add(60, "minute");
-    const next = getNextBooking(room.id, start);
 
+    // Må ikke gå efter dagens sluttid
+    if (end.isAfter(hardEnd)) {
+      end = hardEnd;
+    }
+
+    // Må ikke gå efter næste booking
+    const next = getNextBooking(room.id, start);
     if (next && end.isAfter(next.s)) {
       end = next.s;
     }
@@ -309,8 +328,9 @@ export function BookingTimeline({
           return (
             <div
               key={room.id}
-              className={`relative border-l border-gray-300 ${blocked ? "bg-gray-200 cursor-not-allowed" : "bg-transparent"
-                }`}
+              className={`relative border-l border-gray-300 ${
+                blocked ? "bg-gray-200 cursor-not-allowed" : "bg-transparent"
+              }`}
             >
               {/* Gridlinjer */}
               {hours.map((hour) => {

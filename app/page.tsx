@@ -14,6 +14,8 @@ import { DeleteBookingOverlay } from "@/app/overlays/DeleteBookingsOverlay";
 import { createClient } from "@supabase/supabase-js";
 import TopFilterBar from "@/components/booking/TopFilterBar";
 import dayjs from "dayjs";
+import { useAuth } from "@/context/AuthContext";
+import { validateBookingLimits } from "@/context/BookingRules";
 
 /* ---------------------------------------------------------
    SUPABASE CLIENT
@@ -22,10 +24,16 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+/* Skal matche BookingTimeline */
+const DAY_START_HOUR = 8;
+const DAY_END_HOUR = 16;
+
 /* ---------------------------------------------------------
    PAGE CONTENT
 --------------------------------------------------------- */
 function PageContent() {
+  const { role } = useAuth();
+
   const {
     rooms,
     profiles,
@@ -230,7 +238,7 @@ function PageContent() {
   }
 
   /* ---------------------------------------------------------
-     SUBMIT BOOKING
+     SUBMIT BOOKING (MED ALLE REGLER)
   --------------------------------------------------------- */
   async function handleSubmitBooking(formData: {
     roomId: string;
@@ -270,6 +278,40 @@ function PageContent() {
         return setError({
           title: "Lukket",
           message: "Studierum kan ikke bookes i weekenden.",
+        });
+      }
+
+      // Åbningstider (skal matche BookingTimeline)
+      const sh = start.getHours() + start.getMinutes() / 60;
+      const eh = end.getHours() + end.getMinutes() / 60;
+
+      if (sh < DAY_START_HOUR || eh > DAY_END_HOUR) {
+        return setError({
+          title: "Udenfor åbningstid",
+          message: `Du kan kun booke mellem kl. ${DAY_START_HOUR}:00 og ${DAY_END_HOUR}:00.`,
+        });
+      }
+
+      // Fremtidige bookinger for denne bruger
+      const now = new Date();
+      const futureBookingsForUser = bookings.filter(
+        (b) =>
+          b.user_id === user.id &&
+          new Date(b.end_time).getTime() > now.getTime()
+      );
+
+      const limits = validateBookingLimits(
+        role ?? "student",
+        futureBookingsForUser,
+        start,
+        end
+      );
+
+      if (!limits.ok) {
+        return setError({
+          title: "Begrænsning",
+          message:
+            limits.message ?? "Du opfylder ikke reglerne for booking.",
         });
       }
 
@@ -332,7 +374,7 @@ function PageContent() {
         <div className="flex-1 space-y-6">
           <BookingTimeline
             onCreateBooking={handleCreateBookingRequest}
-            onDeleteBooking={handleDeleteBookingRequest} // ← NYT
+            onDeleteBooking={handleDeleteBookingRequest}
           />
           <BookingList />
         </div>

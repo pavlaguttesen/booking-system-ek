@@ -4,6 +4,9 @@ import dayjs from "dayjs";
 import "dayjs/locale/da";
 import { createClient } from "@supabase/supabase-js";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
+
 dayjs.locale("da");
 
 const supabase = createClient(
@@ -21,36 +24,34 @@ export default function BookingItem({ booking, reload }: any) {
   const end = dayjs(booking.end_time);
 
   return (
-    <div className="bg-[#e5f2ff] p-4 rounded-lg flex justify-between items-center shadow-sm">
+    <div className="bg-white p-4 rounded-lg flex justify-between items-center shadow-sm border border-secondary-200">
 
-      {/* Venstre booking info */}
+      {/* VENSTRE INFO */}
       <div className="flex items-center gap-8">
-
-        {/* Dansk datoformat */}
-        <div className="text-sm text-gray-600 font-medium w-44">
+        <div className="text-sm text-main/80 font-medium w-44">
           {start.format("dddd [d.] DD/MM-YY")}
         </div>
 
-        {/* Lokale */}
-        <div className="font-semibold w-40">
+        <div className="font-semibold w-40 text-main">
           Lokale {booking.rooms?.room_name}
         </div>
 
-        {/* Tidsrum */}
-        <div className="w-32">
+        <div className="w-32 text-main/80">
           {start.format("HH.mm")}–{end.format("HH.mm")}
         </div>
 
-        {/* Type */}
-        <div className="w-32">Studierum</div>
+        <div className="w-32 text-main/80">Studierum</div>
       </div>
 
-      {/* Slet knap */}
+      {/* SLET KNAP — FONT AWESOME */}
       <button
         onClick={deleteBooking}
-        className="bg-red-500 text-white p-3 rounded-full text-lg"
+        className="cursor-pointer hover:opacity-80 transition"
       >
-        ×
+        <FontAwesomeIcon
+          icon={faCircleXmark}
+          className="text-red-500 text-2xl"
+        />
       </button>
     </div>
   );

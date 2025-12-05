@@ -10,13 +10,16 @@ export default function LayoutClient({ children }: { children: React.ReactNode }
 
   return (
     <>
-      <div style={{ display: isLoginPage ? "none" : "block" }}>
+      {!isLoginPage && (
         <NavbarWrapper>
           <NavBar />
         </NavbarWrapper>
-      </div>
+      )}
 
       {children}
+
+     
+      <div id="overlay-root"></div>
     </>
   );
 }
