@@ -6,6 +6,10 @@ import "@mantine/dates/styles.css";
 
 import { MantineProvider, createTheme } from "@mantine/core";
 import { Inter } from "next/font/google";
+import { ThemeProvider } from "next-themes";
+import { LanguageProvider } from "@/context/LanguageContext";
+import {SettingsProvider}from "@/context/SettingsContext";
+
 
 import NavBar from "@/components/NavBar";
 import NavbarWrapper from "@/components/NavbarWrapper";
@@ -14,7 +18,7 @@ import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-sans", // 🔥 korrekt
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -64,9 +68,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="da" className={inter.variable} data-theme="light">
       <body className="bg-page text-main font-sans">
-
+        <ThemeProvider>
+          <LanguageProvider>
         <MantineProvider theme={theme} defaultColorScheme="light">
           <AuthProvider>
+            <SettingsProvider>
             <AuthGate>
 
               <NavbarWrapper>
@@ -76,11 +82,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {children}
 
             </AuthGate>
+            </SettingsProvider>
           </AuthProvider>
 
           {/* OVERLAY ROOT */}
           <div id="overlay-root"></div>
         </MantineProvider>
+        </LanguageProvider>
+        </ThemeProvider>
 
       </body>
     </html>
