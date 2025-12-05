@@ -15,7 +15,9 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Typer -----------------------------------------------------
+// --------------------------------------------------
+// Types
+// --------------------------------------------------
 
 export type RoomFilterKey = "whiteboard" | "screen" | "board";
 
@@ -46,7 +48,9 @@ export type Profile = {
   role: "student" | "teacher" | "admin";
 };
 
-// Context ----------------------------------------------------
+// --------------------------------------------------
+// Context Type
+// --------------------------------------------------
 
 type BookingContextValue = {
   rooms: Room[];
@@ -58,6 +62,9 @@ type BookingContextValue = {
 
   selectedDate: string | null;
   setSelectedDate: (v: string | null) => void;
+
+  reloadRooms: () => Promise<void>;
+  reloadBookings: () => Promise<void>;
 
   roomFilters: {
     whiteboard: boolean;
@@ -77,7 +84,9 @@ type BookingContextValue = {
 
 const BookingContext = createContext<BookingContextValue | null>(null);
 
-// Provider ---------------------------------------------------
+// --------------------------------------------------
+// Provider
+// --------------------------------------------------
 
 export function BookingProvider({ children }: { children: ReactNode }) {
   const { role } = useAuth();
@@ -89,31 +98,28 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     dayjs().format("YYYY-MM-DD")
   );
 
-  // ⭐ DEFAULT FILTERS — admin starts on floor 1
   const [roomFilters, setRoomFilters] = useState({
     whiteboard: false,
     screen: false,
     board: false,
     capacity: null as number | null,
-    floor: role === "admin" ? 1 : null,   // ⭐ FIX HERE
+    floor: 1 as number | null, // 👈 DEFAULT FLOOR = 1 (fixer admin view)
     roomType: null as string | null,
   });
 
-  // If role changes (e.g. after login), update floor filter
-  useEffect(() => {
-    if (role === "admin") {
-      setRoomFilters((prev) => ({ ...prev, floor: 1 }));
-    } else {
-      setRoomFilters((prev) => ({ ...prev, floor: null }));
-    }
-  }, [role]);
-
-  // Normaliser "møderum"
-  function normalizeType(type: string | null): string | null {
-    return type === "møderum" ? "studierum" : type;
+  // --------------------------------------------------
+  // Normaliser lokaletype
+  // --------------------------------------------------
+  function normalizeRoomType(type: string | null): string | null {
+    if (!type) return null;
+    if (type === "møderum") return "studierum";
+    return type;
   }
 
-  // Filter setters
+  // --------------------------------------------------
+  // Filter functions
+  // --------------------------------------------------
+
   function toggleRoomFilter(key: RoomFilterKey) {
     setRoomFilters((prev) => ({ ...prev, [key]: !prev[key] }));
   }
@@ -136,20 +142,31 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       screen: false,
       board: false,
       capacity: null,
-      floor: role === "admin" ? 1 : null, // ⭐ keep default
+      floor: 1, // 👈 Reset → default til 1
       roomType: null,
     });
   }
 
-  // LOADERS --------------------------------------------------------
+  // --------------------------------------------------
+  // LOADERS
+  // --------------------------------------------------
 
-  async function loadRooms() {
+  async function reloadRooms() {
     const { data } = await supabase.from("rooms").select("*");
-    setRooms((data || []).map((r) => ({ ...r, room_type: normalizeType(r.room_type) })));
+    setRooms(
+      (data || []).map((r) => ({
+        ...r,
+        room_type: normalizeRoomType(r.room_type),
+      }))
+    );
   }
 
-  async function loadBookings() {
-    const { data } = await supabase.from("bookings").select("*");
+  async function reloadBookings() {
+    const { data } = await supabase
+      .from("bookings")
+      .select("*")
+      .order("start_time", { ascending: true });
+
     setBookings(data || []);
   }
 
@@ -159,12 +176,14 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    loadRooms();
-    loadBookings();
+    reloadRooms();
+    reloadBookings();
     loadProfiles();
   }, []);
 
-  // FILTERING --------------------------------------------------------
+  // --------------------------------------------------
+  // ROLE → ROOM ACCESS
+  // --------------------------------------------------
 
   const allowedTypesForRole: Record<string, string[]> = {
     student: ["studierum"],
@@ -172,16 +191,15 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     admin: ["studierum", "klasseværelse", "auditorium"],
   };
 
+  // --------------------------------------------------
+  // FILTER ROOMS
+  // --------------------------------------------------
+
   const filteredRooms = rooms.filter((room) => {
-    const t = normalizeType(room.room_type);
+    const type = normalizeRoomType(room.room_type);
 
-    // Rollefilter
-    if (!allowedTypesForRole[role ?? "student"].includes(t || "")) return false;
-
-    // Etagefilter — now works correctly!
-    if (roomFilters.floor !== null && room.floor !== roomFilters.floor) {
-      return false;
-    }
+    // rollebegrænsning
+    if (!allowedTypesForRole[role ?? "student"].includes(type || "")) return false;
 
     if (roomFilters.whiteboard && !room.has_whiteboard) return false;
     if (roomFilters.screen && !room.has_screen) return false;
@@ -190,16 +208,20 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     if (roomFilters.capacity && room.capacity! < roomFilters.capacity)
       return false;
 
-    if (roomFilters.roomType && roomFilters.roomType !== t) return false;
+    if (roomFilters.floor && room.floor !== roomFilters.floor) return false;
+
+    if (roomFilters.roomType && roomFilters.roomType !== type) return false;
 
     return true;
   });
 
-  const filteredBookings = bookings.filter((b) => {
-    if (!selectedDate) return true;
-    return dayjs(b.start_time).isSame(selectedDate, "day");
-  });
+  const filteredBookings = bookings.filter((b) =>
+    selectedDate ? dayjs(b.start_time).isSame(selectedDate, "day") : true
+  );
 
+  // --------------------------------------------------
+  // VALUE
+  // --------------------------------------------------
   const value: BookingContextValue = {
     rooms,
     bookings,
@@ -210,6 +232,9 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
     selectedDate,
     setSelectedDate,
+
+    reloadRooms,
+    reloadBookings,
 
     roomFilters,
     toggleRoomFilter,

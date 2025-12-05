@@ -7,21 +7,19 @@ import "@mantine/dates/styles.css";
 import { MantineProvider, createTheme } from "@mantine/core";
 import { Inter } from "next/font/google";
 
-import NavBar from "@/components/NavBar";
-import NavbarWrapper from "@/components/NavbarWrapper";
-import AuthGate from "@/components/AuthGate";
 import { AuthProvider } from "@/context/AuthContext";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans", // 🔥 korrekt
-  display: "swap",
-});
+import LayoutClient from "@/components/LayoutClient";
 
 export const metadata: Metadata = {
   title: "Booking system",
   description: "Book lokaler til undervisning og eksamen",
 };
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 const theme = createTheme({
   colors: {
@@ -37,52 +35,31 @@ const theme = createTheme({
       "#1F327D",
       "#0038A7",
     ],
-    error: [
-      "#FFECEC",
-      "#FFCECE",
-      "#FFABAB",
-      "#FF8888",
-      "#FF6565",
-      "#F94B4B",
-      "#E83333",
-      "#D21C1C",
-      "#B80000",
-      "#F11B1B",
-    ],
   },
   primaryColor: "primary",
   primaryShade: 9,
-
-  // 🔥 Inter aktiveres globalt i Mantine
   fontFamily: "var(--font-sans), Inter, sans-serif",
-  headings: {
-    fontFamily: "var(--font-sans), Inter, sans-serif",
-  },
+  headings: { fontFamily: "var(--font-sans), Inter, sans-serif" },
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="da" className={inter.variable} data-theme="light">
+    <html lang="da" className={inter.variable}>
       <body className="bg-page text-main font-sans">
-
         <MantineProvider theme={theme} defaultColorScheme="light">
+
+          {/* DO NOT USE usePathname HERE — only Client Components */}
           <AuthProvider>
-            <AuthGate>
-
-              <NavbarWrapper>
-                <NavBar />
-              </NavbarWrapper>
-
+            <LayoutClient>
               {children}
-
-            </AuthGate>
+            </LayoutClient>
           </AuthProvider>
 
-          {/* OVERLAY ROOT */}
           <div id="overlay-root"></div>
-        </MantineProvider>
 
+        </MantineProvider>
       </body>
     </html>
   );
 }
+  

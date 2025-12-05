@@ -1,35 +1,24 @@
-// Dansk kommentar: Profilkort med navn, email og rolle på dansk.
+"use client";
 
-export default function ProfileCard({ user }: any) {
+// Dansk kommentar: Profilkort henter selv user fra AuthContext
+import { useAuth } from "@/context/AuthContext";
+
+export default function ProfileCard() {
+  const { profile, user, logout } = useAuth();
+
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="w-full flex flex-col items-center text-center">
 
-      {/* Profilbillede */}
-      <img
-        src={user.avatar_url || "/default-avatar.png"}
-        alt="Profilbillede"
-        className="w-40 h-40 rounded-full object-cover mb-4"
-      />
-
-      {/* Navn */}
-      <div className="w-full bg-[#e5f2ff] text-center py-2 rounded-md font-medium">
-        {user.full_name}
-      </div>
-
-      {/* Email */}
-      <div className="w-full bg-[#e5f2ff] text-center py-2 rounded-md text-sm mt-3">
-        {user.email}
-      </div>
-
-      {/* Rolle - på dansk */}
-      <div className="w-full bg-[#e5f2ff] text-center py-2 rounded-md text-sm mt-3">
-        {user.role === "student" && "Studerende"}
-        {user.role === "teacher" && "Underviser"}
-        {user.role === "admin" && "Administrator"}
-      </div>
+      {/* Dansk kommentar: Viser navn eller fallback */}
+      <h2 className="text-xl font-semibold">
+        {profile?.full_name ?? user?.email ?? "Ukendt bruger"}
+      </h2>
 
       {/* Log ud knap */}
-      <button className="mt-6 bg-[#2e74ff] hover:bg-[#1865ff] text-white px-6 py-2 rounded-md">
+      <button
+        onClick={logout}
+        className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
+      >
         Log ud
       </button>
     </div>
