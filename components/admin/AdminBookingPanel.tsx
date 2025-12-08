@@ -207,7 +207,13 @@ export default function AdminBookingPanel() {
                   <Text size="sm">{user?.full_name || t("unknown.unknownUser")}</Text>
                 </div>
 
-                <Button color="red" onClick={() => deleteBooking(b.id)}>
+                <Button
+                  color="red"
+                  onClick={() => {
+                    setBookingToDelete(b);
+                    setDeleteOpen(true);
+                  }}
+                >
                   {t("admin.delete")}
                 </Button>
               </Group>

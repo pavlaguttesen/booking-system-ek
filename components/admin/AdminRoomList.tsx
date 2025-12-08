@@ -200,8 +200,10 @@ export default function AdminRoomList({
                       <Button
                         color="red"
                         variant="outline"
-                        onClick={() => onDelete(room)}
                         onClick={async () => {
+                          // First run the original callback if needed
+                          onDelete?.(room);
+
                           const ok = window.confirm(
                             `${t("admin.deletebookingtext")} ${room.room_name}?`
                           );
@@ -218,6 +220,7 @@ export default function AdminRoomList({
                       >
                         Slet
                       </Button>
+
                     </Group>
                   </div>
                 ))}
