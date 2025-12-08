@@ -12,6 +12,7 @@ import {
   Select,
 } from "@mantine/core";
 import { supabase } from "@/lib/supabaseClient";
+import { useTranslation } from "react-i18next";
 
 type CreateRoomFormProps = {
   // Dansk kommentar: Kaldes efter succesfuld oprettelse, så parent kan genindlæse listen
@@ -29,6 +30,8 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
   const [hasBoard, setHasBoard] = useState(false);
   const [roomType, setRoomType] = useState<string | null>(null);
   const [isClosed, setIsClosed] = useState(false);
+
+  const { t } = useTranslation();
 
   // Dansk kommentar: UI state
   const [loading, setLoading] = useState(false);
@@ -101,7 +104,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
       {/* Lokalenavn */}
       <TextInput
-        label="Lokalenavn"
+        label={t("admin.Roomname")}
         placeholder="Fx 3.14 eller 'Studierum 5'"
         value={roomName}
         onChange={(e) => setRoomName(e.target.value)}
@@ -109,21 +112,21 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
       {/* Lokaletype */}
       <Select
-        label="Lokaletype"
+        label={t("admin.roomtype")}
         placeholder="Vælg type"
         value={roomType}
         onChange={setRoomType}
         data={[
-          { value: "studierum", label: "Studierum" },
-          { value: "møderum", label: "Møderum" },
-          { value: "klasseværelse", label: "Klasselokale" },
+          { value: "studierum", label: t("booking.studyroom") },
+          { value: "møderum", label: t("booking.meetingroom") },
+          { value: "klasseværelse", label: t("booking.classroom") },
           { value: "auditorium", label: "Auditorium" },
         ]}
       />
 
       {/* Kapacitet */}
       <NumberInput
-        label="Kapacitet"
+        label={t("booking.capacity")}
         placeholder="Fx 24"
         value={capacity ?? undefined}
         onChange={(value) =>
@@ -134,7 +137,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
       {/* Antal sæder */}
       <NumberInput
-        label="Antal sæder"
+        label={t("admin.amoutofseats")}
         placeholder="Fx 16"
         value={nrOfSeats ?? undefined}
         onChange={(value) =>
@@ -145,7 +148,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
       {/* Etage */}
       <NumberInput
-        label="Etage"
+        label={t("admin.floor")}
         placeholder="Fx 1, 2, 3..."
         value={floor ?? undefined}
         onChange={(value) =>
@@ -163,19 +166,19 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
         />
 
         <Checkbox
-          label="Skærm"
+          label={t("admin.screen")}
           checked={hasScreen}
           onChange={(e) => setHasScreen(e.currentTarget.checked)}
         />
 
         <Checkbox
-          label="Opslagstavle"
+          label={t("admin.bulletinboard")}
           checked={hasBoard}
           onChange={(e) => setHasBoard(e.currentTarget.checked)}
         />
 
         <Checkbox
-          label="Lukket lokale"
+          label={t("admin.closedroom")}
           checked={isClosed}
           onChange={(e) => setIsClosed(e.currentTarget.checked)}
         />
@@ -183,7 +186,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
       {/* Submit-knap */}
       <Button loading={loading} onClick={handleSubmit}>
-        Opret lokale
+      {t("admin.createRoom")}
       </Button>
     </div>
   );

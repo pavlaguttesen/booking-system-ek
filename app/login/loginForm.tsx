@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Logo from "./logo";
+import { useTranslation } from "react-i18next";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function LoginForm() {
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const { t } = useTranslation();
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -76,12 +78,11 @@ export default function LoginForm() {
       <Logo />
 
       <h2 className="text-main text-sm mb-1">
-        Velkommen til bookingsystemet
+        {t("welcome.title")}
       </h2>
 
       <p className="text-secondary-300 text-sm mb-8">
-        Her kan du nemt booke lokaler, udstyr og studiepladser. <br />
-        Log ind med dit EK København-login.
+      {t("welcome.subtitle")}
       </p>
 
       <label className="block mb-2 text-main font-medium">E-mail:</label>
@@ -93,7 +94,7 @@ export default function LoginForm() {
         required
       />
 
-      <label className="block mb-2 text-main font-medium">Kodeord:</label>
+      <label className="block mb-2 text-main font-medium">{t("welcome.password")}:</label>
       <input
         type="password"
         className="border border-secondary-200 bg-card text-main rounded w-full p-2 mb-2"
@@ -111,7 +112,7 @@ export default function LoginForm() {
         disabled={loading}
         className="bg-primary-600 text-invert hover:opacity-90 font-bold py-2 px-4 rounded w-full"
       >
-        {loading ? "Logger ind..." : "Log ind"}
+        {loading ? t("welcome.loggingIn") : t("welcome.login")}
       </button>
 
       <label className="flex items-center mt-4 text-main">
@@ -121,7 +122,7 @@ export default function LoginForm() {
           onChange={() => setRemember(!remember)}
           className="mr-2"
         />
-        Husk mig
+        {t("welcome.remember")}
       </label>
     </form>
   );

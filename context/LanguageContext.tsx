@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { supabase } from "@/lib/supabaseClient";
+import i18n from "@/translate";
 
 type Lang = "da" | "en";
 
@@ -28,6 +29,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const updateLanguage = async (newLang: Lang) => {
     setLanguageState(newLang);
+
+    i18n.changeLanguage(newLang);
 
     if (user) {
       await supabase.from("profiles").update({ language: newLang }).eq("id", user.id);

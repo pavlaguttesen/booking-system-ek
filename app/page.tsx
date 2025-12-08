@@ -14,6 +14,7 @@ import { DeleteBookingOverlay } from "@/app/overlays/DeleteBookingsOverlay";
 import { createClient } from "@supabase/supabase-js";
 import TopFilterBar from "@/components/booking/TopFilterBar";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 /* ---------------------------------------------------------
    SUPABASE CLIENT
@@ -316,11 +317,13 @@ function PageContent() {
       });
     }
   }
+  const { t } = useTranslation();
 
   /* ---------------------------------------------------------
      RENDER
   --------------------------------------------------------- */
   return (
+  
     <div className="w-full max-w-[1600px] mx-auto px-6 py-6 space-y-8">
       {/* TOP FILTRE */}
       <div className="flex items-center justify-between">

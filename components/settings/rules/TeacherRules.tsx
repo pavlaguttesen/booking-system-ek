@@ -1,11 +1,13 @@
+import { useTranslation } from "react-i18next";
 export default function TeacherRules() {
+    const { t } = useTranslation();
     return (
       <div>
-        <p className="mb-4">Som underviser kan man booke undervisningslokaler til at undervise i. Lokalerne er tilgængelige på EK i lyngby på Firskovsvej. </p>
-        <p className="mb-4">1. Som underviser kan man <strong>IKKE</strong> booke studierum.</p>
-        <p className="mb-4">2. Som underviser kan man booke klasselokaler. </p>
-        <p className="mb-4">3. Som underviser er der ingen begrænsning på bookinger.</p>
-        <p className="mb-4">4. Som underviser kan man kun booke et studierum, hvis det skal benyttes til en eksamen.</p>
+        <p className="mb-4">{t("settings.teacher_description")}</p>
+        <p className="mb-4">{t("settings.rules_teacher1")}</p>
+        <p className="mb-4">{t("settings.rules_teacher2")} </p>
+        <p className="mb-4">{t("settings.rules_teacher3")}</p>
+        <p className="mb-4">{t("settings.rules_teacher4")}</p>
       </div>
     );
   }

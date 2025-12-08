@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Button, Group } from "@mantine/core";
 import SmoothSwitch from "@/components/admin/SmoothSwitch";
 import EditRoomOverlay from "@/app/overlays/EditRoomOverlay";
+import { useTranslation } from "react-i18next";
 
 // ------------------------------
 // ⭐ NATURAL SORT FUNCTION
@@ -69,6 +70,8 @@ export default function AdminRoomList({
 
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
 
+  const { t } = useTranslation();
+
   async function loadRooms() {
     setLoading(true);
 
@@ -117,7 +120,7 @@ export default function AdminRoomList({
   }, [rooms, search, typeFilter, floorFilter, statusFilter]);
 
   if (loading) {
-    return <p className="text-main text-sm">Henter lokaler...</p>;
+    return <p className="text-main text-sm">{t("layout.retrievesrooms")}</p>;
   }
 
   return (
@@ -151,7 +154,7 @@ export default function AdminRoomList({
             "
           >
             <h3 className="text-lg font-semibold text-main mb-4">
-              Etage {floor}
+              {t("admin.floor")} {floor}
             </h3>
 
             <div className="border-t border-secondary-200/60 mb-4" />
@@ -172,12 +175,12 @@ export default function AdminRoomList({
                       </span>
 
                       <span className="text-sm text-secondary-600">
-                        {room.room_type} • {room.capacity} pladser
+                        {room.room_type} • {room.capacity} {t("booking.seats")}
                       </span>
 
                       {room.is_closed && (
                         <span className="text-sm text-red-600 mt-1">
-                          Dette lokale er midlertidigt lukket
+                          {t("booking.roomclosed")}
                         </span>
                       )}
                     </div>
@@ -186,7 +189,7 @@ export default function AdminRoomList({
                     <Group gap="md" wrap="wrap" className="flex-shrink-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-secondary-600">
-                          {room.is_closed ? "Lukket" : "Åben"}
+                          {room.is_closed ? t("booking.closed") : t("booking.open")}
                         </span>
 
                         <SmoothSwitch
@@ -222,7 +225,7 @@ export default function AdminRoomList({
                         variant="outline"
                         onClick={async () => {
                           const ok = window.confirm(
-                            `Er du sikker på, at du vil slette ${room.room_name}?`
+                            `${t("admin.deletebookingtext")} ${room.room_name}?`
                           );
 
                           if (!ok) return;

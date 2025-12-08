@@ -1,9 +1,13 @@
 "use client";
 
 import { useSettings } from "@/context/SettingsContext";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ApparanceSettings() {
   const { theme, setTheme } = useSettings();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
 
   return (
     <div>
@@ -18,7 +22,7 @@ export default function ApparanceSettings() {
               checked={theme === "dark"}
               onChange={() => setTheme("dark")}
             />
-            Mørk tilstand
+            {t("settings.appearance_mode_dark")}
           </label>
         </div>
 
@@ -30,14 +34,14 @@ export default function ApparanceSettings() {
               checked={theme === "light"}
               onChange={() => setTheme("light")}
             />
-            Lys tilstand
+            {t("settings.appearance_mode_light")}
           </label>
         </div>
 
       </div>
 
       <p className="mt-6 font-medium">
-        Du har nu: {theme === "light" ? "Lys tilstand" : "Mørk tilstand"} slået til
+        {t("settings.language_mode")} {theme === "light" ? t("settings.appearance_mode_light") : t("settings.appearance_mode_dark")}
       </p>
     </div>
   );

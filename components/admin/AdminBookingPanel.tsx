@@ -6,6 +6,7 @@ import { Button, Select, Group, Card, Text } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import dayjs from "dayjs";
 import "dayjs/locale/da";
+import { useTranslation } from "react-i18next";
 
 // Dansk: Alt i ISO-format fordi Mantine v6 håndterer dette stabilt
 const ISO = "YYYY-MM-DD";
@@ -18,6 +19,8 @@ export default function AdminBookingPanel() {
   const [roomFilter, setRoomFilter] = useState<string | null>(null);
   const [userFilter, setUserFilter] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
+
+  const { t } = useTranslation();
 
   // VIGTIGT → Mantine v6 bruger string | null
   const [dateFrom, setDateFrom] = useState<string | null>(null);
@@ -97,13 +100,13 @@ export default function AdminBookingPanel() {
       {/* FILTERS */}
       <Group grow>
         <Select
-          label="Rum"
+          label={t("admin.room")}
           value={roomFilter}
           onChange={setRoomFilter}
           data={rooms.map((r) => ({ value: r.id, label: r.room_name }))}
         />
         <Select
-          label="Bruger"
+          label={t("admin.user")}
           value={userFilter}
           onChange={setUserFilter}
           data={profiles.map((p) => ({
@@ -117,7 +120,7 @@ export default function AdminBookingPanel() {
           onChange={setTypeFilter}
           data={[
             { value: "normal", label: "Normal booking" },
-            { value: "exam", label: "Eksamensbooking" },
+            { value: "exam", label: t("admin.exambooking") },
           ]}
         />
       </Group>
@@ -126,7 +129,7 @@ export default function AdminBookingPanel() {
       <Group grow>
         <DatePickerInput
           locale="da"
-          label="Fra dato"
+          label={t("admin.fromDate")}
           value={dateFrom}
           onChange={setDateFrom}
           valueFormat="DD-MM-YYYY"
@@ -135,7 +138,7 @@ export default function AdminBookingPanel() {
 
         <DatePickerInput
           locale="da"
-          label="Til dato"
+          label={t("admin.toDate")}
           value={dateTo}
           onChange={setDateTo}
           valueFormat="DD-MM-YYYY"
@@ -145,10 +148,10 @@ export default function AdminBookingPanel() {
 
       {/* SHORTCUT BUTTONS */}
       <Group>
-        <Button onClick={pickToday}>I dag</Button>
-        <Button onClick={pickTomorrow}>I morgen</Button>
-        <Button onClick={pickThisWeek}>Denne uge</Button>
-        <Button onClick={pickNextWeek}>Næste uge</Button>
+        <Button onClick={pickToday}>{t("booking.today")}</Button>
+        <Button onClick={pickTomorrow}>{t("booking.tomorrow")}</Button>
+        <Button onClick={pickThisWeek}>{t("admin.thisWeek")}</Button>
+        <Button onClick={pickNextWeek}>{t("admin.nextWeek")}</Button>
         <Button variant="outline" onClick={() => { setDateFrom(null); setDateTo(null); }}>
           Reset
         </Button>
@@ -166,15 +169,15 @@ export default function AdminBookingPanel() {
                 <div>
                   <Text fw={600}>{b.title || "Booking"}</Text>
                   <Text size="sm">
-                    {room?.room_name ?? "Ukendt lokale"} •{" "}
+                    {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
                     {dayjs(b.start_time).format("DD/MM/YYYY HH:mm")} –{" "}
                     {dayjs(b.end_time).format("HH:mm")}
                   </Text>
-                  <Text size="sm">{user?.full_name || "Ukendt bruger"}</Text>
+                  <Text size="sm">{user?.full_name || t("unknown.unknownUser")}</Text>
                 </div>
 
                 <Button color="red" onClick={() => deleteBooking(b.id)}>
-                  Slet
+                  {t("admin.delete")}
                 </Button>
               </Group>
             </Card>

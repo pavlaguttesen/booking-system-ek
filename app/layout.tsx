@@ -9,6 +9,7 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/context/LanguageContext";
 import {SettingsProvider}from "@/context/SettingsContext";
+import "../translate/index";
 
 
 import NavBar from "@/components/NavBar";
