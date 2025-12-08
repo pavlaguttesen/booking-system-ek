@@ -12,7 +12,7 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false); // Dansk: endnu ikke implementeret
+  const [remember, setRemember] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -73,13 +73,9 @@ export default function LoginForm() {
     <form onSubmit={handleLogin} className="w-full max-w-md">
       <Logo />
 
-      <h2 className="text-main text-sm mb-1">
-        {t("welcome.title")}
-      </h2>
+      <h2 className="text-main text-sm mb-1">{t("welcome.title")}</h2>
 
-      <p className="text-secondary-300 text-sm mb-8">
-        {t("welcome.subtitle")}
-      </p>
+      <p className="text-secondary-300 text-sm mb-8">{t("welcome.subtitle")}</p>
 
       <label className="block mb-2 text-main font-medium">E-mail:</label>
       <input
@@ -90,7 +86,9 @@ export default function LoginForm() {
         required
       />
 
-      <label className="block mb-2 text-main font-medium">{t("welcome.password")}:</label>
+      <label className="block mb-2 text-main font-medium">
+        {t("welcome.password")}:
+      </label>
       <input
         type="password"
         className="border border-secondary-200 bg-card text-main rounded w-full p-2 mb-2"

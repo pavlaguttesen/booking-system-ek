@@ -1,6 +1,6 @@
 "use client";
 
-// Dansk kommentar: Overlay til bekræftelse af sletning af et lokale
+// Overlay til bekræftelse af sletning af et lokale
 
 import { Modal, Text, Button, Stack, Group } from "@mantine/core";
 
@@ -8,7 +8,7 @@ type DeleteRoomOverlayProps = {
   opened: boolean;
   onClose: () => void;
   room: any;
-  onConfirm: () => void; // Dansk: kaldes når admin bekræfter sletning
+  onConfirm: () => void; // kaldes når admin bekræfter sletning
 };
 
 export default function DeleteRoomOverlay({
