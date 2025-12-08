@@ -1,14 +1,17 @@
 "use client";
 
-// Dansk kommentar: Timeline med visualisering af bookinger,
-// grå fortid, afrunding til kvarter, popup-information og kliklogik.
+// Dansk kommentar: Timeline med rolle-baserede begrænsninger:
+// - Studerende kan kun klikke i studierum
+// - Undervisere kan IKKE klikke i studierum
+// - Admin kan klikke i alle rum
+// - "Møderum" → "studierum"
 
 import { useMemo, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { useBookingContext } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
 
-import BookingInfoPopup from "./BookingInfoPopup"; // ← VIGTIGT: popup component
+import BookingInfoPopup from "./BookingInfoPopup";
 import "./BookingTimeline.css";
 
 const DAY_START_HOUR = 8;
@@ -23,9 +26,20 @@ const BOTTOM_MARGIN = 16;
 const TIME_COL_WIDTH = 55;
 
 type BookingTimelineProps = {
-  onCreateBooking: (data: { roomId: string; start: Date; end: Date }) => void;
+  onCreateBooking: (data: {
+    roomId: string;
+    start: Date;
+    end: Date;
+  }) => void;
   onDeleteBooking?: (booking: any) => void;
 };
+
+// Normalisering: møderum → studierum
+function normalizeType(type: string | null): string | null {
+  if (!type) return null;
+  if (type === "møderum") return "studierum";
+  return type;
+}
 
 export function BookingTimeline({
   onCreateBooking,
@@ -35,9 +49,20 @@ export function BookingTimeline({
     useBookingContext();
   const { user, role } = useAuth();
 
+  // Rolle → tilladte typer
+  const allowedTypesForRole: Record<string, string[]> = {
+    student: ["studierum"],
+    teacher: ["klasseværelse", "auditorium"],
+    admin: ["studierum", "klasseværelse", "auditorium"],
+  };
+
+  function roleCanBook(roomType: string | null): boolean {
+    const t = normalizeType(roomType);
+    return allowedTypesForRole[role ?? "student"].includes(t || "");
+  }
+
   const timelineRef = useRef<HTMLDivElement | null>(null);
 
-  // Dansk kommentar: Liste over aktive infopopups (flere muligt).
   const [infoPopups, setInfoPopups] = useState<
     { id: string; booking: any; x: number; y: number }[]
   >([]);
@@ -51,9 +76,7 @@ export function BookingTimeline({
     []
   );
 
-  /* ----------------------------------------------------------
-     🟦 SORTÉR RUM I KORREKT ORDEN (C.1.1 → C.4.5)
-  ---------------------------------------------------------- */
+  // Sortér rum korrekt
   const sortedRooms = useMemo(() => {
     return [...filteredRooms].sort((a, b) => {
       const fa = a.floor ?? 0;
@@ -80,25 +103,23 @@ export function BookingTimeline({
   const today = dayjs();
   const selected = dayjs(selectedDate);
 
-  // Forbud mod fortid
   if (selected.isBefore(today, "day")) {
     return (
-      <div className="text-center py-14 bg-secondary-300 rounded-xl border border-secondary-200">
+      <div className="text-center py-12 bg-secondary-300 rounded-xl border border-secondary-200">
         <p className="text-main text-lg font-semibold">
-          Du kan ikke booke lokaler for tidligere datoer
+          Du kan ikke booke for tidligere datoer.
         </p>
       </div>
     );
   }
 
-  // For sent på dagen
   if (selected.isSame(today, "day") && today.hour() >= DAY_END_HOUR) {
     return (
       <div className="text-center py-14 bg-secondary-300 rounded-xl border border-secondary-200">
         <p className="text-main text-lg font-semibold">
-          Du kan ikke booke lokaler for i dag længere
+          Tidsrummet for i dag er udløbet.
         </p>
-        <p className="text-main/70 text-sm mt-1">Prøv en kommende dag.</p>
+        <p className="text-main/70 text-sm mt-1">Vælg en kommende dag.</p>
       </div>
     );
   }
@@ -107,13 +128,16 @@ export function BookingTimeline({
     return (
       <div className="text-center py-16 px-4 bg-secondary-300 rounded-xl border border-secondary-200">
         <p className="text-lg font-semibold text-main">
-          Ingen rum matcher dine filtre
+          Ingen rum matcher dine filtre.
         </p>
       </div>
     );
   }
 
-  // Omregninger
+  //----------------------------------------
+  // Hjælpefunktioner
+  //----------------------------------------
+
   function minutesToPx(min: number) {
     return min * PX_PER_MINUTE;
   }
@@ -126,7 +150,6 @@ export function BookingTimeline({
     return Math.round(mins / 15) * 15;
   }
 
-  // Find næste booking
   function getNextBooking(roomId: string, start: dayjs.Dayjs) {
     const bookings = filteredBookings
       .filter((b) => b.room_id === roomId)
@@ -138,7 +161,10 @@ export function BookingTimeline({
     return bookings.find((b) => b.s.isAfter(start));
   }
 
-  // Klik på timeline → opret booking
+  //----------------------------------------
+  // Håndtering af klik i timeline → opret booking
+  //----------------------------------------
+
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     if (!timelineRef.current) return;
 
@@ -146,28 +172,52 @@ export function BookingTimeline({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (y < TOP_MARGIN) return;
-    if (y > TOP_MARGIN + minutesToPx(MINUTES)) return;
+    // Klik skal ligge i selve tidsområdet
+    if (y < TOP_MARGIN || y > TOP_MARGIN + minutesToPx(MINUTES)) return;
     if (x < TIME_COL_WIDTH) return;
 
+    // Hvilket rum klikkes der på?
     const colWidth = (rect.width - TIME_COL_WIDTH) / sortedRooms.length;
     const roomIndex = Math.floor((x - TIME_COL_WIDTH) / colWidth);
     const room = sortedRooms[roomIndex];
     if (!room) return;
 
-    const minuteOffset = (y - TOP_MARGIN) / PX_PER_MINUTE;
+    const type = normalizeType(room.room_type);
 
+    // Rolle-baseret begrænsning
+    if (!roleCanBook(type)) {
+      return;
+    }
+
+    const minuteOffset = (y - TOP_MARGIN) / PX_PER_MINUTE;
     const rawStartMin =
       DAY_START_HOUR * 60 + minuteOffset - DAY_START_HOUR * 60;
 
     const roundedStart = roundToQuarter(rawStartMin);
+    let start = selected.hour(DAY_START_HOUR).minute(roundedStart);
 
-    const start = selected.hour(DAY_START_HOUR).minute(roundedStart);
+    const todayDayjs = dayjs();
+    if (selected.isSame(todayDayjs, "day") && start.isBefore(todayDayjs)) {
+      return;
+    }
 
-    if (selected.isSame(today, "day") && start.isBefore(today)) return;
+    // Absolut dags-slut (16:00)
+    const hardEnd = selected.hour(DAY_END_HOUR).minute(0);
 
+    // Hvis start er efter eller lig med slut-tid → ingen booking
+    if (start.isSame(hardEnd) || start.isAfter(hardEnd)) {
+      return;
+    }
+
+    // Default varighed = 60 minutter
     let end = start.add(60, "minute");
 
+    // Må ikke gå efter dagens sluttid
+    if (end.isAfter(hardEnd)) {
+      end = hardEnd;
+    }
+
+    // Må ikke gå efter næste booking
     const next = getNextBooking(room.id, start);
     if (next && end.isAfter(next.s)) {
       end = next.s;
@@ -189,27 +239,37 @@ export function BookingTimeline({
       ? TOP_MARGIN + minutesToPx(nowOffsetMinutes)
       : null;
 
+  //----------------------------------------
+  //   RENDER
+  //----------------------------------------
+
   return (
     <div className="relative">
       {/* Header */}
       <div
-        className="grid border border-gray-300 rounded-t-lg overflow-hidden bg-gray-100"
+        className="grid border border-gray-300 rounded-t-lg bg-gray-100"
         style={{
           gridTemplateColumns: `${TIME_COL_WIDTH}px repeat(${sortedRooms.length}, 1fr)`,
         }}
       >
         <div></div>
-        {sortedRooms.map((room) => (
-          <div
-            key={room.id}
-            className="text-center py-2 font-semibold text-gray-800 border-l border-gray-300"
-          >
-            {room.room_name}
-          </div>
-        ))}
+        {sortedRooms.map((room) => {
+          const t = normalizeType(room.room_type);
+          const blocked = !roleCanBook(t);
+
+          return (
+            <div
+              key={room.id}
+              className={`text-center py-2 font-semibold border-l border-gray-300 
+              ${blocked ? "text-gray-400 bg-gray-200" : "text-gray-800"}`}
+            >
+              {room.room_name}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Timeline */}
+      {/* TIMELINE */}
       <div
         ref={timelineRef}
         className="booking-timeline grid border border-t-0 border-gray-300 bg-[#d4dcf4] cursor-pointer rounded-b-lg relative"
@@ -230,7 +290,7 @@ export function BookingTimeline({
           />
         )}
 
-        {/* Hatch zones */}
+        {/* Hatch top/bund */}
         <div
           className="diagonal-hatch pointer-events-none"
           style={{ top: 0, height: TOP_MARGIN }}
@@ -240,7 +300,7 @@ export function BookingTimeline({
           style={{ bottom: 0, height: BOTTOM_MARGIN }}
         />
 
-        {/* Time labels */}
+        {/* Tid */}
         <div className="relative bg-white">
           {hours.map((hour) => {
             const top = TOP_MARGIN + minutesToPx((hour - DAY_START_HOUR) * 60);
@@ -258,6 +318,9 @@ export function BookingTimeline({
 
         {/* Rumkolonner */}
         {sortedRooms.map((room) => {
+          const t = normalizeType(room.room_type);
+          const blocked = !roleCanBook(t);
+
           const roomBookings = filteredBookings.filter(
             (b) => b.room_id === room.id
           );
@@ -265,9 +328,11 @@ export function BookingTimeline({
           return (
             <div
               key={room.id}
-              className="relative border-l border-gray-300 bg-transparent"
+              className={`relative border-l border-gray-300 ${
+                blocked ? "bg-gray-200 cursor-not-allowed" : "bg-transparent"
+              }`}
             >
-              {/* Grid lines */}
+              {/* Gridlinjer */}
               {hours.map((hour) => {
                 const top =
                   TOP_MARGIN + minutesToPx((hour - DAY_START_HOUR) * 60);
@@ -339,9 +404,7 @@ export function BookingTimeline({
                           onDeleteBooking?.(b);
                         }}
                         className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center 
-                                   rounded-full bg-white text-red-600 text-[10px] font-bold
-                                   shadow-md cursor-pointer hover:bg-gray-100"
-                        style={{ zIndex: 20 }}
+                        rounded-full bg-white text-red-600 text-[10px] font-bold shadow-md hover:bg-gray-100"
                       >
                         ×
                       </button>
@@ -357,11 +420,11 @@ export function BookingTimeline({
         {showNow && nowTop !== null && (
           <div
             className="absolute left-0 right-0 border-t-2 border-red-500 pointer-events-none"
-            style={{ top: nowTop, zIndex: 10 }}
+            style={{ top: nowTop }}
           />
         )}
 
-        {/* POPUPS */}
+        {/* Info-popups */}
         {infoPopups.map((p) => {
           const owner = profiles.find((pr) => pr.id === p.booking.user_id);
           const room = sortedRooms.find((r) => r.id === p.booking.room_id);

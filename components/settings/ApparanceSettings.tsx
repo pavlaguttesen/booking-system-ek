@@ -1,49 +1,48 @@
-"use client"
+"use client";
 
-import {useState} from "react";
+import { useSettings } from "@/context/SettingsContext";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ApparanceSettings() {
-    const [mode, setMode] = useState("light");
+  const { theme, setTheme } = useSettings();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
 
-    return (
-        <div>
-      <h2 className="text-2xl font-semibold mb-4">Udseende</h2>
-      <p className="mb-6">
-        Du kan ændre udseende mellem lys og mørk tilstand.
-      </p>
+  return (
+    <div>
 
-      <div className="flex gap-16">
+      <div className="flex gap-16 mt-8">
 
-        {/* Mørk tilstand */}
-      <div className="text-center">
+        <div className="text-center">
           <div className="w-32 h-20 bg-gray-700 rounded mb-2"></div>
           <label className="flex items-center gap-2 justify-center">
             <input
               type="radio"
-              checked={mode === "dark"}
-              onChange={() => setMode("dark")}
+              checked={theme === "dark"}
+              onChange={() => setTheme("dark")}
             />
-            Mørk tilstand
+            {t("settings.appearance_mode_dark")}
           </label>
         </div>
 
-        {/* Lys tilstand */}
         <div className="text-center">
           <div className="w-32 h-20 border border-gray-400 rounded mb-2"></div>
           <label className="flex items-center gap-2 justify-center">
             <input
               type="radio"
-              checked={mode === "light"}
-              onChange={() => setMode("light")}
+              checked={theme === "light"}
+              onChange={() => setTheme("light")}
             />
-            Lys tilstand
+            {t("settings.appearance_mode_light")}
           </label>
         </div>
-        </div>
 
-        <p className="mt-6 font-medium">
-        Du har nu: {mode === "light" ? "Lys" : "Mørk"} tilstand slået til
+      </div>
+
+      <p className="mt-6 font-medium">
+        {t("settings.language_mode")} {theme === "light" ? t("settings.appearance_mode_light") : t("settings.appearance_mode_dark")}
       </p>
     </div>
-    );
+  );
 }

@@ -5,9 +5,10 @@ import { supabase } from "@/lib/supabaseClient";
 import { Button, Group } from "@mantine/core";
 import SmoothSwitch from "@/components/admin/SmoothSwitch";
 import EditRoomOverlay from "@/app/overlays/EditRoomOverlay";
+import { useTranslation } from "react-i18next";
 
 // ------------------------------
-// ⭐ NATURAL SORT FUNCTION
+// NATURAL SORT FUNCTION
 // ------------------------------
 function naturalSort(a: string, b: string) {
   const ax: any[] = [];
@@ -28,7 +29,6 @@ function naturalSort(a: string, b: string) {
 
     const numA = Number(an[0]);
     const numB = Number(bn[0]);
-
     if (numA !== numB) return numA - numB;
 
     if (an[1] !== bn[1]) return an[1].localeCompare(bn[1]);
@@ -55,6 +55,8 @@ type AdminRoomListProps = {
   floorFilter: string | null;
   statusFilter: string | null;
   reloadKey: number;
+  onEdit: (room: Room) => void;   // ← NYT
+  onDelete: (room: Room) => void; // ← NYT
 };
 
 export default function AdminRoomList({
@@ -63,11 +65,15 @@ export default function AdminRoomList({
   floorFilter,
   statusFilter,
   reloadKey,
+  onEdit,
+  onDelete,
 }: AdminRoomListProps) {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
+
+  const { t } = useTranslation();
 
   async function loadRooms() {
     setLoading(true);
@@ -82,7 +88,7 @@ export default function AdminRoomList({
     setLoading(false);
   }
 
-  // Avoid double fetch in Strict Mode
+  // Avoid double-fetch in strict mode
   const [didLoad, setDidLoad] = useState(false);
 
   useEffect(() => {
@@ -117,47 +123,26 @@ export default function AdminRoomList({
   }, [rooms, search, typeFilter, floorFilter, statusFilter]);
 
   if (loading) {
-    return <p className="text-main text-sm">Henter lokaler...</p>;
+    return <p className="text-main text-sm">{t("layout.retrievesrooms")}</p>;
   }
 
   return (
     <div className="space-y-10">
-      {/* Edit Overlay */}
-      {editingRoom && (
-        <EditRoomOverlay
-          room={editingRoom}
-          onClose={() => setEditingRoom(null)}
-          onSave={async () => {
-            setEditingRoom(null);
-            await loadRooms();
-          }}
-        />
-      )}
-
       {Object.keys(roomsByFloor)
         .map(Number)
         .sort((a, b) => a - b)
         .map((floor) => (
           <div
             key={floor}
-            className="
-              bg-white 
-              rounded-xl 
-              shadow-sm 
-              border 
-              border-secondary-200 
-              px-8 
-              py-6
-            "
+            className="bg-white rounded-xl shadow-sm border border-secondary-200 px-8 py-6"
           >
             <h3 className="text-lg font-semibold text-main mb-4">
-              Etage {floor}
+              {t("admin.floor")} {floor}
             </h3>
 
             <div className="border-t border-secondary-200/60 mb-4" />
 
             <div className="flex flex-col divide-y divide-secondary-200/60">
-              {/** ⭐ SORTÉR RUM HER ⭐ */}
               {roomsByFloor[floor]
                 .sort((a, b) => naturalSort(a.room_name, b.room_name))
                 .map((room) => (
@@ -165,34 +150,33 @@ export default function AdminRoomList({
                     key={room.id}
                     className="py-4 flex justify-between items-start gap-6"
                   >
-                    {/* Left side */}
+                    {/* LEFT SIDE */}
                     <div className="flex flex-col">
                       <span className="font-medium text-main text-lg">
                         {room.room_name}
                       </span>
 
                       <span className="text-sm text-secondary-600">
-                        {room.room_type} • {room.capacity} pladser
+                        {room.room_type} • {room.capacity} {t("booking.seats")}
                       </span>
 
                       {room.is_closed && (
                         <span className="text-sm text-red-600 mt-1">
-                          Dette lokale er midlertidigt lukket
+                          {t("booking.roomclosed")}
                         </span>
                       )}
                     </div>
 
-                    {/* Right side */}
-                    <Group gap="md" wrap="wrap" className="flex-shrink-0">
+                    {/* RIGHT SIDE */}
+                    <Group gap="md" wrap="wrap" className="shrink-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-secondary-600">
-                          {room.is_closed ? "Lukket" : "Åben"}
+                          {room.is_closed ? t("booking.closed") : t("booking.open")}
                         </span>
 
                         <SmoothSwitch
                           checked={!!room.is_closed}
                           onChange={async () => {
-                            // Optimistic update – UI opdateres med det samme
                             setRooms((prev) =>
                               prev.map((r) =>
                                 r.id === room.id
@@ -201,7 +185,6 @@ export default function AdminRoomList({
                               )
                             );
 
-                            // Supabase update i baggrunden
                             await supabase
                               .from("rooms")
                               .update({ is_closed: !room.is_closed })
@@ -210,10 +193,7 @@ export default function AdminRoomList({
                         />
                       </div>
 
-                      <Button
-                        variant="outline"
-                        onClick={() => setEditingRoom(room)}
-                      >
+                      <Button variant="outline" onClick={() => onEdit(room)}>
                         Rediger
                       </Button>
 
@@ -221,8 +201,11 @@ export default function AdminRoomList({
                         color="red"
                         variant="outline"
                         onClick={async () => {
+                          // First run the original callback if needed
+                          onDelete?.(room);
+
                           const ok = window.confirm(
-                            `Er du sikker på, at du vil slette ${room.room_name}?`
+                            `${t("admin.deletebookingtext")} ${room.room_name}?`
                           );
 
                           if (!ok) return;
@@ -237,6 +220,7 @@ export default function AdminRoomList({
                       >
                         Slet
                       </Button>
+
                     </Group>
                   </div>
                 ))}

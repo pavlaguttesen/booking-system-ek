@@ -20,7 +20,7 @@ type RoomForEdit = {
 type EditRoomOverlayProps = {
   room: RoomForEdit;
   onClose: () => void;
-  onSave: () => void; // Dansk: signalér til parent at der skal reloades
+  onSave: () => void;
 };
 
 export default function EditRoomOverlay({
@@ -28,15 +28,12 @@ export default function EditRoomOverlay({
   onClose,
   onSave,
 }: EditRoomOverlayProps) {
-  // 🔹 Hooks skal ALTID køre i samme rækkefølge
   const [mounted, setMounted] = useState(false);
 
   const [roomName, setRoomName] = useState(room.room_name);
   const [capacity, setCapacity] = useState(room.capacity ?? 0);
   const [seats, setSeats] = useState(room.nr_of_seats ?? 0);
-  const [hasWhiteboard, setHasWhiteboard] = useState(
-    room.has_whiteboard ?? false
-  );
+  const [hasWhiteboard, setHasWhiteboard] = useState(room.has_whiteboard ?? false);
   const [hasScreen, setHasScreen] = useState(room.has_screen ?? false);
   const [hasBoard, setHasBoard] = useState(room.has_board ?? false);
 
@@ -44,7 +41,6 @@ export default function EditRoomOverlay({
     setMounted(true);
   }, []);
 
-  // Dansk: gemmer ændringer direkte til Supabase
   async function handleSave() {
     const { error } = await supabase
       .from("rooms")
@@ -59,12 +55,11 @@ export default function EditRoomOverlay({
       .eq("id", room.id);
 
     if (error) {
-      console.error("Fejl ved opdatering:", error);
-      alert("Noget gik galt — ændringerne blev ikke gemt.");
+      console.error("Update error:", error);
+      alert("Der skete en fejl — ændringerne blev ikke gemt.");
       return;
     }
 
-    // Dansk: fortæl parent at der er gemt, så den kan reloade listen
     onSave();
     onClose();
   }
@@ -72,11 +67,25 @@ export default function EditRoomOverlay({
   if (!mounted) return null;
 
   const overlay = (
-    <div className="overlay-root bg-black/40 flex justify-center items-start py-10">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 border border-secondary-200">
-        <h2 className="text-xl font-semibold text-main mb-5">Rediger lokale</h2>
+    <div className="fixed inset-0 bg-black/40 z-[9999] flex justify-center items-center p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-xl border border-secondary-200">
 
-        <div className="space-y-4 mb-4">
+        {/* HEADER */}
+        <div className="flex justify-between items-center px-6 py-4 border-b border-secondary-200">
+          <h2 className="text-xl font-semibold text-main">Rediger lokale</h2>
+
+          {/* Close button to match other overlays */}
+          <button
+            onClick={onClose}
+            className="text-2xl leading-none text-secondary-600 hover:text-main"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* CONTENT */}
+        <div className="px-6 py-6 space-y-6">
+
           {/* Lokalenavn */}
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -85,7 +94,7 @@ export default function EditRoomOverlay({
             <input
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
-              className="w-full border border-secondary-300 rounded-lg px-3 py-2"
+              className="w-full border border-secondary-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:outline-none"
             />
           </div>
 
@@ -98,7 +107,7 @@ export default function EditRoomOverlay({
               type="number"
               value={capacity}
               onChange={(e) => setCapacity(Number(e.target.value))}
-              className="w-full border border-secondary-300 rounded-lg px-3 py-2"
+              className="w-full border border-secondary-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:outline-none"
             />
           </div>
 
@@ -111,7 +120,7 @@ export default function EditRoomOverlay({
               type="number"
               value={seats}
               onChange={(e) => setSeats(Number(e.target.value))}
-              className="w-full border border-secondary-300 rounded-lg px-3 py-2"
+              className="w-full border border-secondary-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:outline-none"
             />
           </div>
 
@@ -149,22 +158,23 @@ export default function EditRoomOverlay({
           </div>
         </div>
 
-        {/* KNAPPER */}
-        <div className="mt-8 w-full flex justify-end gap-3 pt-2">
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-600/90"
-          >
-            Bekræft ændringer
-          </button>
-
+        {/* FOOTER */}
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-secondary-200 bg-secondary-50 rounded-b-xl">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-lg bg-secondary-200 text-secondary-700 hover:bg-secondary-300"
           >
             Annuller
           </button>
+
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-600/90"
+          >
+            Gem ændringer
+          </button>
         </div>
+
       </div>
     </div>
   );

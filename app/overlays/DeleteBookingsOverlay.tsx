@@ -2,14 +2,16 @@
 
 import { Modal, Text, Button, Stack, Group } from "@mantine/core";
 import dayjs from "dayjs";
-import type { Booking, Room, Profile } from "@/context/BookingContext";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
 type DeleteBookingOverlayProps = {
   opened: boolean;
   onClose: () => void;
-  booking: Booking;
-  room: Room | null;
-  profile: Profile | null;
+  booking: any;
+  room: any;
+  profile: any;
   onConfirm: () => void;
 };
 
@@ -25,34 +27,44 @@ export function DeleteBookingOverlay({
   const end = new Date(booking.end_time);
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Slet booking" centered>
-      <Stack gap="md">
+    <Modal opened={opened} onClose={onClose} centered title={null}>
+      {/* NY FONT AWESOME LUK-KNAP */}
+      <button
+        onClick={onClose}
+        className="absolute top-3 right-3 text-gray-500 hover:text-red-500 cursor-pointer transition"
+      >
+        <FontAwesomeIcon icon={faCircleXmark} className="text-2xl" />
+      </button>
+
+      <Stack gap="md" className="mt-2">
+        <Text size="xl" fw={700}>
+          Slet booking
+        </Text>
 
         <Text size="sm" c="red" fw={600}>
-          Er du sikker på at du vil slette denne booking?
+          Er du sikker på, at du vil slette denne booking?
         </Text>
 
         <Stack gap={4}>
           <Text>
             <b>Titel:</b> {booking.title || "(ingen titel)"}
           </Text>
+
           <Text>
             <b>Lokale:</b> {room?.room_name ?? "Ukendt"}
           </Text>
+
           <Text>
             <b>Booker:</b> {profile?.full_name ?? "Ukendt bruger"}
           </Text>
+
           <Text>
-            <b>Dato:</b>{" "}
-            {start.toLocaleDateString("da-DK", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            })}
+            <b>Dato:</b> {start.toLocaleDateString("da-DK")}
           </Text>
+
           <Text>
-            <b>Tid:</b>{" "}
-            {start.toLocaleTimeString("da-DK", { timeStyle: "short" })} –{" "}
+            <b>Tid:</b> {start.toLocaleTimeString("da-DK", { timeStyle: "short" })}
+            {" – "}
             {end.toLocaleTimeString("da-DK", { timeStyle: "short" })}
           </Text>
         </Stack>

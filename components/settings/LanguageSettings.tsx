@@ -1,51 +1,49 @@
-"use client"
-
-import {useState} from "react";
+"use client";
+import { useLanguage } from "@/context/LanguageContext";
+import { useTranslation } from "react-i18next";
 
 export default function LanguageSettings() {
-    const [lang, setLang] = useState("da");
+  const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
 
-    return (
-        <div>
-      <h2 className="text-2xl font-semibold mb-4">Vælg sprog</h2>
-      <p className="mb-6">
-        Du kan ændre sproget på siden.
-      </p>
+  return (
+    <div>
+      <p className="mb-6">{t("settings.language_text")}</p>
 
       <div className="flex gap-16">
-        
+
         {/* Dansk sprog*/}
         <div className="text-center">
-          <img src="/flag_of_denmark.svg" className="h-24 mx-auto mb-2"/>
+          <img src="/flag_of_denmark.svg" className="h-24 mx-auto mb-2" />
           <label className="flex items-center gap-2 justify-center">
             <input
               type="radio"
-              checked={lang === "da"}
-              onChange={() => setLang("da")}
+              checked={language === "da"}
+              onChange={() => setLanguage("da")}
             />
-            Dansk
+            {t("settings.language_danish")}
           </label>
         </div>
 
         {/* Engelsk sprog*/}
         <div className="text-center">
-          <img src="/Flag_of_the_United_Kingdom.svg" className="h-24 mx-auto mb-2"/>
+          <img
+            src="/Flag_of_the_United_Kingdom.svg"
+            className="h-24 mx-auto mb-2"
+          />
           <label className="flex items-center gap-2 justify-center">
             <input
               type="radio"
-              checked={lang === "en"}
-              onChange={() => setLang("en")}
+              checked={language === "en"}
+              onChange={() => setLanguage("en")}
             />
-            Engelsk
+            {t("settings.language_english")}
           </label>
         </div>
-
       </div>
-
       <p className="mt-6 font-medium">
-        Du har nu: {lang === "da" ? "Dansk" : "Engelsk"} sprog slået til
+        {t("settings.language_mode")} : {""} {language === "da" ? t("settings.language_danish") : t("settings.language_english")}
       </p>
     </div>
   );
-
 }
