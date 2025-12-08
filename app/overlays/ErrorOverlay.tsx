@@ -19,7 +19,6 @@ export function ErrorOverlay({
 }: ErrorOverlayProps) {
   return (
     <Modal opened={opened} onClose={onClose} centered title={null} radius="md">
-      
       {/* LUK KNAP */}
       <button
         onClick={onClose}

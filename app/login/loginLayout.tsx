@@ -2,11 +2,14 @@
 
 import { MantineProvider } from "@mantine/core";
 
-export default function LoginLayout({ children }: { children: React.ReactNode }) {
+export default function LoginLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <MantineProvider>
       <div className="w-screen h-screen flex overflow-hidden">
-
         {/* LEFT SIDE */}
         <div
           className="
@@ -18,9 +21,7 @@ export default function LoginLayout({ children }: { children: React.ReactNode })
             px-[6vw]
           "
         >
-          <div className="w-full max-w-[420px]">
-            {children}
-          </div>
+          <div className="w-full max-w-[420px]">{children}</div>
         </div>
 
         {/* RIGHT SIDE */}
@@ -47,7 +48,6 @@ export default function LoginLayout({ children }: { children: React.ReactNode })
             "
           />
         </div>
-
       </div>
     </MantineProvider>
   );

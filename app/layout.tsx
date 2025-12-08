@@ -13,11 +13,8 @@ import "../translate/index";
 
 import { AuthProvider } from "@/context/AuthContext";
 
-
 import NavbarWrapper from "@/components/NavbarWrapper";
 import NavBar from "@/components/NavBar";
-
-
 
 export const metadata: Metadata = {
   title: "Booking system",
@@ -51,7 +48,11 @@ const theme = createTheme({
   headings: { fontFamily: "var(--font-sans), Inter, sans-serif" },
 });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="da" className={inter.variable}>
       <body className="bg-page text-main font-sans">
@@ -60,15 +61,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <MantineProvider theme={theme} defaultColorScheme="light">
               <AuthProvider>
                 <SettingsProvider>
-
-
                   <NavbarWrapper>
                     <NavBar />
                   </NavbarWrapper>
 
                   {children}
-
-
                 </SettingsProvider>
               </AuthProvider>
             </MantineProvider>
@@ -77,7 +74,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* 🔥🔥 MÅ IKKE LIGGE INDE I MantineProvider */}
         <div id="overlay-root"></div>
-
       </body>
     </html>
   );

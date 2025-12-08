@@ -42,10 +42,7 @@ export function SettingsProvider({ children }: any) {
     document.documentElement.setAttribute("data-theme", t);
 
     if (user)
-      await supabase
-        .from("profiles")
-        .update({ theme: t })
-        .eq("id", user.id);
+      await supabase.from("profiles").update({ theme: t }).eq("id", user.id);
   };
 
   // Save language
@@ -53,14 +50,13 @@ export function SettingsProvider({ children }: any) {
     setLanguageState(l);
 
     if (user)
-      await supabase
-        .from("profiles")
-        .update({ language: l })
-        .eq("id", user.id);
+      await supabase.from("profiles").update({ language: l }).eq("id", user.id);
   };
 
   return (
-    <SettingsContext.Provider value={{ theme, language, setTheme, setLanguage }}>
+    <SettingsContext.Provider
+      value={{ theme, language, setTheme, setLanguage }}
+    >
       {children}
     </SettingsContext.Provider>
   );

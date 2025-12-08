@@ -11,7 +11,6 @@ export default function LanguageSettings() {
       <p className="mb-6">{t("settings.language_text")}</p>
 
       <div className="flex gap-16">
-
         {/* Dansk sprog*/}
         <div className="text-center">
           <img src="/flag_of_denmark.svg" className="h-24 mx-auto mb-2" />
@@ -42,7 +41,10 @@ export default function LanguageSettings() {
         </div>
       </div>
       <p className="mt-6 font-medium">
-        {t("settings.language_mode")} : {""} {language === "da" ? t("settings.language_danish") : t("settings.language_english")}
+        {t("settings.language_mode")} : {""}{" "}
+        {language === "da"
+          ? t("settings.language_danish")
+          : t("settings.language_english")}
       </p>
     </div>
   );

@@ -1,7 +1,5 @@
 "use client";
 
-
-
 type SmoothSwitchProps = {
   checked: boolean;
   onChange: () => void;
@@ -21,7 +19,5 @@ export default function SmoothSwitch({ checked, onChange }: SmoothSwitchProps) {
         style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.35)" }}
       ></span>
     </button>
-    
   );
 }
-

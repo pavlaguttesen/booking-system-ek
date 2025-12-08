@@ -15,7 +15,6 @@ export default function NavBar() {
   return (
     <>
       <header className="w-full bg-secondary-200 px-10 py-4 flex justify-between items-center">
-
         {/* Logo med link til kalenderen */}
         <Link href="/" className="flex items-center gap-4">
           <Image
@@ -33,8 +32,6 @@ export default function NavBar() {
           </Link>
 
           <Link href="/mypage" className="hover:underline">
-            
-
             {t("navbar.mypage")}
           </Link>
 

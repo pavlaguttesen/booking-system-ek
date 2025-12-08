@@ -20,7 +20,12 @@ export function SelectRoomOverlay({
   onSelect,
 }: SelectRoomOverlayProps) {
   return (
-    <Modal opened={opened} onClose={onClose} title="Vælg et ledigt lokale" centered>
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title="Vælg et ledigt lokale"
+      centered
+    >
       <div className="space-y-3">
         {rooms.length === 0 && (
           <p className="text-center text-main">Ingen matchende rum fundet.</p>

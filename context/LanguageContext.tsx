@@ -33,7 +33,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     i18n.changeLanguage(newLang);
 
     if (user) {
-      await supabase.from("profiles").update({ language: newLang }).eq("id", user.id);
+      await supabase
+        .from("profiles")
+        .update({ language: newLang })
+        .eq("id", user.id);
     }
   };
 

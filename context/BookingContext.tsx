@@ -284,9 +284,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <BookingContext.Provider value={value}>
-      {children}
-    </BookingContext.Provider>
+    <BookingContext.Provider value={value}>{children}</BookingContext.Provider>
   );
 }
 

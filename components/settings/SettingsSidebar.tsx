@@ -19,7 +19,13 @@ export default function SettingsSidebar({
   ];
 
   return (
-    <div className="w-64 p-4 flex flex-col rounded-l-xl" style={{ backgroundColor: "var(--color-secondary-200", color:"var(--color-text-main"}}>
+    <div
+      className="w-64 p-4 flex flex-col rounded-l-xl"
+      style={{
+        backgroundColor: "var(--color-secondary-200",
+        color: "var(--color-text-main",
+      }}
+    >
       {items.map((item) => (
         <button
           key={item.id}
@@ -38,13 +44,15 @@ export default function SettingsSidebar({
         href="/min-side"
         className="mt-auto bg-white p-4 rounded-lg flex items-center gap-3 hover:bg-white/80 transition"
       >
-       {/* <img
+        {/* <img
           src={profile?.avatar_url || "/avatar.jpg"}
           className="w-10 h-10 rounded-full"
         /> */}
 
         <div>
-          <p className="font-xs text-gray-600">{profile?.full_name || "Bruger"}</p>
+          <p className="font-xs text-gray-600">
+            {profile?.full_name || "Bruger"}
+          </p>
           <p className="text-xs text-gray-500">{user?.email}</p>
         </div>
       </Link>

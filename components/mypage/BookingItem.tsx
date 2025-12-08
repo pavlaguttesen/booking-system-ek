@@ -25,7 +25,6 @@ export default function BookingItem({ booking, reload }: any) {
 
   return (
     <div className="bg-white p-4 rounded-lg flex justify-between items-center shadow-sm border border-secondary-200">
-
       {/* VENSTRE INFO */}
       <div className="flex items-center gap-8">
         <div className="text-sm text-main/80 font-medium w-44">

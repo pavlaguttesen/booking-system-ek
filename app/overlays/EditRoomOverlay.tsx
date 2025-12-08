@@ -33,7 +33,9 @@ export default function EditRoomOverlay({
   const [roomName, setRoomName] = useState(room.room_name);
   const [capacity, setCapacity] = useState(room.capacity ?? 0);
   const [seats, setSeats] = useState(room.nr_of_seats ?? 0);
-  const [hasWhiteboard, setHasWhiteboard] = useState(room.has_whiteboard ?? false);
+  const [hasWhiteboard, setHasWhiteboard] = useState(
+    room.has_whiteboard ?? false
+  );
   const [hasScreen, setHasScreen] = useState(room.has_screen ?? false);
   const [hasBoard, setHasBoard] = useState(room.has_board ?? false);
 
@@ -69,7 +71,6 @@ export default function EditRoomOverlay({
   const overlay = (
     <div className="fixed inset-0 bg-black/40 z-[9999] flex justify-center items-center p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-xl border border-secondary-200">
-
         {/* HEADER */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-secondary-200">
           <h2 className="text-xl font-semibold text-main">Rediger lokale</h2>
@@ -85,7 +86,6 @@ export default function EditRoomOverlay({
 
         {/* CONTENT */}
         <div className="px-6 py-6 space-y-6">
-
           {/* Lokalenavn */}
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -174,7 +174,6 @@ export default function EditRoomOverlay({
             Gem ændringer
           </button>
         </div>
-
       </div>
     </div>
   );

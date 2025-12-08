@@ -11,9 +11,7 @@ export default function ApparanceSettings() {
 
   return (
     <div>
-
       <div className="flex gap-16 mt-8">
-
         <div className="text-center">
           <div className="w-32 h-20 bg-gray-700 rounded mb-2"></div>
           <label className="flex items-center gap-2 justify-center">
@@ -37,11 +35,13 @@ export default function ApparanceSettings() {
             {t("settings.appearance_mode_light")}
           </label>
         </div>
-
       </div>
 
       <p className="mt-6 font-medium">
-        {t("settings.language_mode")} {theme === "light" ? t("settings.appearance_mode_light") : t("settings.appearance_mode_dark")}
+        {t("settings.language_mode")}{" "}
+        {theme === "light"
+          ? t("settings.appearance_mode_light")
+          : t("settings.appearance_mode_dark")}
       </p>
     </div>
   );

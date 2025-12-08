@@ -29,7 +29,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(newTheme);
 
     if (user) {
-      await supabase.from("profiles").update({ theme: newTheme }).eq("id", user.id);
+      await supabase
+        .from("profiles")
+        .update({ theme: newTheme })
+        .eq("id", user.id);
     }
   };
 
