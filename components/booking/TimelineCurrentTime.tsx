@@ -3,7 +3,6 @@
 // Rød tidslinje der viser nuværende tidspunkt i timeline.
 // Vises kun hvis valgt dato = i dag.
 
-import dayjs from "dayjs";
 
 export function TimelineCurrentTime({
   topPercent,
