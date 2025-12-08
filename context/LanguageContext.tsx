@@ -1,3 +1,5 @@
+// Håndterer sprogtilstand (dansk/engelsk). Gemmer brugervalg i databasen og ændrer i18n sprog.
+
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";

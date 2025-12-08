@@ -1,3 +1,5 @@
+// Modal til redigering af lokaleoplysninger. Admin kan ændre navn, kapacitet, etage, faciliteter og status.
+
 "use client";
 
 import { useEffect, useState } from "react";

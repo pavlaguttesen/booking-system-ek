@@ -1,3 +1,5 @@
+// Viser bookingsystemets regler for forskellige brugerroller (studerende, lærere, admin).
+
 import { useAuth } from "@/context/AuthContext";
 import AdminRules from "./rules/AdminRules";
 import StudentRules from "./rules/StudentRules";

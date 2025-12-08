@@ -1,3 +1,5 @@
+// Modal overlay til brugerindstillinger. Indeholder faner for udseende, sprog og regler.
+
 "use client";
 
 import { useState } from "react";

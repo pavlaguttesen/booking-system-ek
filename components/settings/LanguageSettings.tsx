@@ -1,3 +1,5 @@
+// Indstillinger for sprogtilstand (dansk/engelsk). Brugeren vælger sproget ved hjælp af radioknapper.
+
 "use client";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTranslation } from "react-i18next";

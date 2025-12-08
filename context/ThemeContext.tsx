@@ -1,3 +1,5 @@
+// Håndterer tema (lys/mørk tilstand). Gemmer brugervalg i databasen og anvender tema i DOM.
+
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";

@@ -1,3 +1,5 @@
+// Min side - viser brugerens profil og alle deres bookinger.
+
 "use client";
 
 import { useAuth } from "@/context/AuthContext";

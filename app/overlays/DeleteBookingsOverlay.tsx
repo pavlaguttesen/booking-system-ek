@@ -1,3 +1,5 @@
+// Modal til bekræftelse af sletning af en booking. Viser detaljer om booking og spørger om bekræftelse.
+
 "use client";
 
 import { Modal, Text, Button, Stack, Group } from "@mantine/core";

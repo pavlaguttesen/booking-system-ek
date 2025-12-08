@@ -1,3 +1,5 @@
+// Viser bookingsystemets regler specifikt for studerende.
+
 import { useTranslation } from "react-i18next";
 
 export default function StudentRules() {

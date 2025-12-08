@@ -1,3 +1,5 @@
+// Utility-funktioner til datohåndtering.
+
 import dayjs from "dayjs";
 
 // Returnerer om valgt dato matcher i dag

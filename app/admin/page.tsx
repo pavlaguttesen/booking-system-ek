@@ -1,3 +1,5 @@
+// Admin-side til håndtering af lokaler og bookinger. Kun tilgængelig for admin-brugere.
+
 "use client";
 
 import { useAuth } from "@/context/AuthContext";

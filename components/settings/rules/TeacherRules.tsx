@@ -1,3 +1,5 @@
+// Viser bookingsystemets regler specifikt for lærere.
+
 import { useTranslation } from "react-i18next";
 export default function TeacherRules() {
   const { t } = useTranslation();

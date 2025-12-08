@@ -1,3 +1,5 @@
+// Håndterer brugerauthentificering via Supabase. Leverer bruger, profil, rolle og logout-funktion.
+
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";

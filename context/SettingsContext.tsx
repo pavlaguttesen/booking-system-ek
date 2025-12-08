@@ -1,3 +1,5 @@
+// Kombineret kontekst for tema og sprog. Leverer mulighed for at gemme og ændre begge indstillinger.
+
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";

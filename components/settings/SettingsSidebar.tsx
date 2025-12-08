@@ -1,3 +1,5 @@
+// Sidebar i indstillinger modal med navigationsknapper mellem faner (udseende, sprog, regler) og brugerinfo.
+
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";

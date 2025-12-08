@@ -1,3 +1,5 @@
+// Viser bookingsystemets regler specifikt for administratorer.
+
 import { useTranslation } from "react-i18next";
 export default function AdminRules() {
   //Translation constant

@@ -1,3 +1,5 @@
+// Global kontekst for bookingsystemet. Håndterer lokaler, bookinger, profiler, filtre og datovalg.
+
 "use client";
 
 import {

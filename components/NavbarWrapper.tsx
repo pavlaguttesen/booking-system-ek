@@ -1,3 +1,5 @@
+// Wrapper der håndterer fixed positioning af navigationsbaren og giver indhold margin-top.
+
 "use client";
 
 import { usePathname } from "next/navigation";
