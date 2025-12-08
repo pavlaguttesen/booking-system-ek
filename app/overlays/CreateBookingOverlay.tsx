@@ -1,11 +1,11 @@
 "use client";
 
-// Dansk kommentar: Modal til oprettelse af booking.
+// Modal til oprettelse af booking.
 // Regler i UI:
-// - Rolle-baseret lokaletype (studierum/klasseværelse/auditorium)
-// - Booking skal ligge mellem 08:00 og 16:00
-// - Studerende: maks 4 timer pr. booking og maks 4 fremtidige bookinger
-// - Overlap-tjek i valgt lokale
+// - Rolle-baseret lokaletype (studierum/klasseværelse/auditorium).
+// - Booking skal ligge mellem 08:00 og 16:00.
+// - Studerende: maks 4 timer pr. booking og maks 4 fremtidige bookinger.
+// - Overlap-tjek i valgt lokale.
 
 import {
   Modal,
@@ -45,7 +45,7 @@ type CreateBookingOverlayProps = {
   }) => void;
 };
 
-// Dansk kommentar: Normalisering af lokaletype
+// Normalisering af lokaletype.
 function normalizeType(type: string | null): string | null {
   if (!type) return null;
   return type === "møderum" ? "studierum" : type;
@@ -63,7 +63,7 @@ export function CreateBookingOverlay({
   const { user, role } = useAuth();
   const { bookings, filteredBookings } = useBookingContext();
 
-  // Dansk kommentar: Sørg for at vi altid har en streng-rolle
+  // Sørg for at vi altid har en streng-rolle.
   const effectiveRole: string = role ?? "student";
 
   const [roomId, setRoomId] = useState<string>(initialRoomId);
@@ -73,7 +73,7 @@ export function CreateBookingOverlay({
   const [endTime, setEndTime] = useState<Date>(initialEnd);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Reset state hver gang overlay åbnes
+  // Reset state hver gang overlay åbnes.
   useEffect(() => {
     setRoomId(initialRoomId);
     setChosenDate(initialStart);
@@ -83,7 +83,7 @@ export function CreateBookingOverlay({
     setErrorMessage(null);
   }, [opened, initialRoomId, initialStart, initialEnd]);
 
-  // Kombinerer valgt dato og valgt tidspunkt
+  // Kombinerer valgt dato og valgt tidspunkt.
   function combine(date: Date | null, time: Date): Date {
     if (!date) return new Date();
     return dayjs(date)
@@ -93,23 +93,23 @@ export function CreateBookingOverlay({
       .toDate();
   }
 
-  // Rolle → tilladte typer
+  // Rolle → tilladte typer.
   const allowedTypesForRole: Record<string, string[]> = {
     student: ["studierum"],
     teacher: ["klasseværelse", "auditorium"],
     admin: ["studierum", "klasseværelse", "auditorium"],
   };
 
-  // Rum der må vælges i dropdown ud fra rollen
+  // Rum der må vælges i dropdown ud fra rollen.
   const allowedRoomsForDropdown = rooms.filter((room) => {
     const t = normalizeType(room.room_type);
     return allowedTypesForRole[effectiveRole].includes(t || "");
   });
 
-  // Bookinger i valgt lokale (til overlap)
+  // Bookinger i valgt lokale (til overlap).
   const bookingsInRoom = filteredBookings.filter((b) => b.room_id === roomId);
 
-  // Dansk kommentar: Tjekker overlap i samme lokale
+  // Tjekker overlap i samme lokale.
   function validateOverlap(finalStart: Date, finalEnd: Date) {
     for (const b of bookingsInRoom) {
       const bs = new Date(b.start_time);
@@ -121,15 +121,15 @@ export function CreateBookingOverlay({
         (finalStart <= bs && finalEnd >= be);
 
       if (overlaps) {
-        return `Valgte tid overlapper en eksisterende booking: ${dayjs(bs).format(
-          "HH:mm"
-        )}–${dayjs(be).format("HH:mm")}`;
+        return `Valgte tid overlapper en eksisterende booking: ${dayjs(
+          bs
+        ).format("HH:mm")}–${dayjs(be).format("HH:mm")}`;
       }
     }
     return null;
   }
 
-  // Dansk kommentar: Hoved-validering – returnerer evt. fejltekst
+  // Hoved-validering – returnerer evt. fejltekst.
   function validate(): string | null {
     const finalStart = combine(chosenDate, startTime);
     const finalEnd = combine(chosenDate, endTime);
@@ -138,7 +138,7 @@ export function CreateBookingOverlay({
       return "Sluttid skal være senere end starttid.";
     }
 
-    // Åbningstider – skal ligge mellem 08:00 og 16:00
+    // Åbningstider – skal ligge mellem 08:00 og 16:00.
     const startHour =
       dayjs(finalStart).hour() + dayjs(finalStart).minute() / 60;
     const endHour = dayjs(finalEnd).hour() + dayjs(finalEnd).minute() / 60;
@@ -147,7 +147,7 @@ export function CreateBookingOverlay({
       return `Booking skal ligge mellem kl. ${DAY_START_HOUR}:00 og ${DAY_END_HOUR}:00.`;
     }
 
-    // Rolle vs. lokaletype
+    // Rolle vs. lokaletype.
     const selectedRoom = rooms.find((r) => r.id === roomId);
     if (selectedRoom) {
       const t = normalizeType(selectedRoom.room_type);
@@ -157,7 +157,7 @@ export function CreateBookingOverlay({
       }
     }
 
-    // Studerende: maks 4 fremtidige bookinger + 4 timer
+    // Studerende: maks 4 fremtidige bookinger + 4 timer.
     if (user) {
       const now = new Date();
       const futureBookingsForUser = bookings.filter(
@@ -167,7 +167,7 @@ export function CreateBookingOverlay({
       );
 
       const limits = validateBookingLimits(
-        effectiveRole, // 👈 nu ren string, ingen undefined
+        effectiveRole,
         futureBookingsForUser,
         finalStart,
         finalEnd
@@ -184,7 +184,7 @@ export function CreateBookingOverlay({
     return null;
   }
 
-  // Når der trykkes "Opret booking"
+  // Når der trykkes "Opret booking".
   function handleSubmit() {
     const err = validate();
     if (err) {
