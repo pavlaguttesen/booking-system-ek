@@ -23,6 +23,7 @@ import type { Room } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
 import { useBookingContext } from "@/context/BookingContext";
 import { validateBookingLimits } from "@/context/BookingRules";
+import { useTranslation } from "react-i18next";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
@@ -62,6 +63,7 @@ export function CreateBookingOverlay({
 }: CreateBookingOverlayProps) {
   const { user, role } = useAuth();
   const { bookings, filteredBookings } = useBookingContext();
+  const { t } = useTranslation();
 
   // Sørg for at vi altid har en streng-rolle.
   const effectiveRole: string = role ?? "student";
@@ -121,7 +123,7 @@ export function CreateBookingOverlay({
         (finalStart <= bs && finalEnd >= be);
 
       if (overlaps) {
-        return `Valgte tid overlapper en eksisterende booking: ${dayjs(
+        return `${t("booking.overlappingbooking")} ${dayjs(
           bs
         ).format("HH:mm")}–${dayjs(be).format("HH:mm")}`;
       }
@@ -135,7 +137,7 @@ export function CreateBookingOverlay({
     const finalEnd = combine(chosenDate, endTime);
 
     if (finalEnd <= finalStart) {
-      return "Sluttid skal være senere end starttid.";
+      return t("booking.endtimebeforestarttime");
     }
 
     // Åbningstider – skal ligge mellem 08:00 og 16:00.
@@ -144,16 +146,16 @@ export function CreateBookingOverlay({
     const endHour = dayjs(finalEnd).hour() + dayjs(finalEnd).minute() / 60;
 
     if (startHour < DAY_START_HOUR || endHour > DAY_END_HOUR) {
-      return `Booking skal ligge mellem kl. ${DAY_START_HOUR}:00 og ${DAY_END_HOUR}:00.`;
+      return t("booking.bookingoutsideopeninghours");
     }
 
     // Rolle vs. lokaletype.
     const selectedRoom = rooms.find((r) => r.id === roomId);
     if (selectedRoom) {
-      const t = normalizeType(selectedRoom.room_type);
+      const t_type = normalizeType(selectedRoom.room_type);
 
-      if (!allowedTypesForRole[effectiveRole].includes(t || "")) {
-        return `Du har ikke adgang til at booke denne type lokale (${t}).`;
+      if (!allowedTypesForRole[effectiveRole].includes(t_type || "")) {
+        return t("booking.noaccesstoroom");
       }
     }
 
@@ -174,7 +176,7 @@ export function CreateBookingOverlay({
       );
 
       if (!limits.ok) {
-        return limits.message ?? "Du opfylder ikke reglerne for booking.";
+        return limits.message ?? t("booking.bookinglimitexceeded");
       }
     }
 
@@ -218,7 +220,7 @@ export function CreateBookingOverlay({
       </button>
 
       <Text fw={700} size="xl" className="mb-2">
-        Opret booking
+        {t("booking.createbooking")}
       </Text>
 
       <Stack gap="md">
@@ -231,7 +233,7 @@ export function CreateBookingOverlay({
 
         {/* Lokalevalg – kun lokaler som rollen må booke */}
         <Select
-          label="Lokale"
+          label={t("booking.room")}
           data={allowedRoomsForDropdown.map((r) => ({
             value: r.id,
             label: r.room_name,
@@ -244,14 +246,14 @@ export function CreateBookingOverlay({
         />
 
         <TextInput
-          label="Titel"
-          placeholder="Fx 'Gruppearbejde'"
+          label={t("booking.title")}
+          placeholder={t("booking.example")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
 
         <DatePickerInput
-          label="Dato"
+          label={t("booking.date")}
           value={chosenDate}
           valueFormat="DD-MM-YYYY"
           onChange={(value) => {
@@ -262,7 +264,7 @@ export function CreateBookingOverlay({
 
         <Group grow>
           <TimeInput
-            label="Starttid"
+            label={t("booking.starttime")}
             value={dayjs(startTime).format("HH:mm")}
             onChange={(event) => {
               const [h, m] = event.currentTarget.value.split(":");
@@ -272,7 +274,7 @@ export function CreateBookingOverlay({
           />
 
           <TimeInput
-            label="Sluttid"
+            label={t("booking.endtime")}
             value={dayjs(endTime).format("HH:mm")}
             onChange={(event) => {
               const [h, m] = event.currentTarget.value.split(":");
@@ -283,7 +285,7 @@ export function CreateBookingOverlay({
         </Group>
 
         <Button fullWidth onClick={handleSubmit} disabled={isDisabled}>
-          Opret booking
+          {t("booking.createbooking")}
         </Button>
       </Stack>
     </Modal>

@@ -1,3 +1,6 @@
+// Login-formular hvor brugere logger ind med email og kodeord. Håndterer autentificering
+// via Supabase og redirect til startside efter succesfuld login.
+
 "use client";
 
 import { useState } from "react";

@@ -3,6 +3,7 @@
 // Overlay til bekræftelse af sletning af et lokale
 
 import { Modal, Text, Button, Stack, Group } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 type DeleteRoomOverlayProps = {
   opened: boolean;
@@ -17,24 +18,25 @@ export default function DeleteRoomOverlay({
   room,
   onConfirm,
 }: DeleteRoomOverlayProps) {
+  const { t } = useTranslation();
   return (
-    <Modal opened={opened} onClose={onClose} title="Slet lokale" centered>
+    <Modal opened={opened} onClose={onClose} title={t("admin.deleteRoom")} centered>
       <Stack gap="md">
         <Text c="red" fw={600}>
-          Er du sikker på, at du vil slette dette lokale?
+          {t("admin.deleteRoomText")}
         </Text>
 
         <Text>
-          <b>Lokale:</b> {room?.room_name}
+          <b>{t("booking.room")}:</b> {room?.room_name}
         </Text>
 
         <Group justify="space-between" mt="md">
           <Button variant="default" onClick={onClose}>
-            Annuller
+            {t("common.cancel")}
           </Button>
 
           <Button color="red" onClick={onConfirm}>
-            Slet lokale
+            {t("admin.deleteRoom")}
           </Button>
         </Group>
       </Stack>

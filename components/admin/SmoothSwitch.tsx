@@ -1,3 +1,5 @@
+// Custom toggle switch komponent der bruges til at åbne/lukke lokaler.
+
 "use client";
 
 type SmoothSwitchProps = {

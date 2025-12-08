@@ -1,3 +1,5 @@
+// Indstillinger for tema (lys/mørk tilstand). Brugeren kan skifte mellem tilstandene og se preview.
+
 "use client";
 
 import { useSettings } from "@/context/SettingsContext";

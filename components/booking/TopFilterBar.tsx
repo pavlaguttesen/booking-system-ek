@@ -1,3 +1,5 @@
+// Filterbar øverst på bookingsiden. Viser faciliteter, kapacitet, etage og lokaletype. Admin ser ekstra etage-filter.
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -71,7 +73,7 @@ export default function TopFilterBar() {
   ];
 
   // ---------------------------------------------------------
-  // RENDER
+  // TEGNING
   // ---------------------------------------------------------
 
   return (

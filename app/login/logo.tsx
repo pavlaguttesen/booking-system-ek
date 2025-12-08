@@ -1,3 +1,5 @@
+// Viser EK København logoet på login-siden.
+
 export default function Logo() {
   return (
     <img

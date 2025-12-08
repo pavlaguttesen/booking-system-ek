@@ -1,3 +1,5 @@
+// Navigationslinje viser EK logo, links til kalender/min side, indstillinger og admin panel.
+
 "use client";
 
 import Link from "next/link";

@@ -118,7 +118,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   }
 
   // --------------------------------------------------
-  // Filter setters
+  // Filter indstillere
   // --------------------------------------------------
 
   function toggleRoomFilter(key: RoomFilterKey) {
@@ -149,7 +149,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   }
 
   // --------------------------------------------------
-  // Data loaders
+  // Dataindlæsere
   // --------------------------------------------------
 
   async function reloadRooms() {
@@ -215,7 +215,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   };
 
   // --------------------------------------------------
-  // FILTER ROOMS
+  // FILTRER RUM
   // --------------------------------------------------
 
   const filteredRooms = rooms.filter((room) => {
@@ -243,14 +243,14 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     if (roomFilters.floor !== null && room.floor !== roomFilters.floor)
       return false;
 
-    // Room type filter
+    // Rumtype filter
     if (roomFilters.roomType && roomFilters.roomType !== type) return false;
 
     return true;
   });
 
   // --------------------------------------------------
-  // FILTER BOOKINGS BY DATE
+  // FILTRER BOOKINGER EFTER DATO
   // --------------------------------------------------
 
   const filteredBookings = bookings.filter((b) =>

@@ -1,3 +1,5 @@
+// Klient-side layout wrapper som viser navigationsbaren på alle sider undtagen login-siden.
+
 "use client";
 
 import { usePathname } from "next/navigation";

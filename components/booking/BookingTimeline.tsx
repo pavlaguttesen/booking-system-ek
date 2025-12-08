@@ -9,6 +9,7 @@ import { useMemo, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { useBookingContext } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 import BookingInfoPopup from "./BookingInfoPopup";
 import "./BookingTimeline.css";
@@ -40,6 +41,7 @@ export function BookingTimeline({
   onCreateBooking,
   onDeleteBooking,
 }: BookingTimelineProps) {
+  const { t } = useTranslation();
   const { filteredRooms, filteredBookings, profiles, selectedDate } =
     useBookingContext();
   const { user, role } = useAuth();
@@ -102,7 +104,7 @@ export function BookingTimeline({
     return (
       <div className="text-center py-12 bg-secondary-300 rounded-xl border border-secondary-200">
         <p className="text-main text-lg font-semibold">
-          Du kan ikke booke for tidligere datoer.
+          {t("booking.earlybooking")}
         </p>
       </div>
     );
@@ -234,7 +236,7 @@ export function BookingTimeline({
       : null;
 
   //----------------------------------------
-  //   RENDER
+  //   TEGNING
   //----------------------------------------
 
   return (

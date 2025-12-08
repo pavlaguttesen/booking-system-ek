@@ -1,6 +1,6 @@
-"use client";
+// Admin-panel der viser alle bookinger med mulighed for at filtrere efter lokale, bruger, type og dato.
 
-// Admin-panel der viser alle bookinger med filtre
+"use client";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -35,7 +35,7 @@ export default function AdminBookingPanel() {
   const [bookingToDelete, setBookingToDelete] = useState<any | null>(null);
 
   // --------------------------------------------------------
-  // LOAD DATA
+  // INDLÆS DATA
   // --------------------------------------------------------
   async function loadData() {
     const [{ data: b }, { data: r }, { data: p }] = await Promise.all([
@@ -57,7 +57,7 @@ export default function AdminBookingPanel() {
   }, []);
 
   // --------------------------------------------------------
-  // CONFIRM DELETE VIA OVERLAY
+  // BEKRÆFT SLETNING VIA OVERLAY
   // --------------------------------------------------------
   async function handleConfirmDelete() {
     if (!bookingToDelete) return;
@@ -72,7 +72,7 @@ export default function AdminBookingPanel() {
   }
 
   // --------------------------------------------------------
-  // FILTERING
+  // FILTRERING
   // --------------------------------------------------------
   const filtered = bookings.filter((b) => {
     const start = dayjs(b.start_time);
@@ -88,7 +88,7 @@ export default function AdminBookingPanel() {
   });
 
   // --------------------------------------------------------
-  // DATE SHORTCUT BUTTONS
+  // DATO GENVEJSKNAPPER
   // --------------------------------------------------------
   const pickToday = () => {
     const d = dayjs().format(ISO);
@@ -117,11 +117,11 @@ export default function AdminBookingPanel() {
   };
 
   // --------------------------------------------------------
-  // RENDER
+  // TEGNING
   // --------------------------------------------------------
   return (
     <div className="flex flex-col gap-8">
-      <h2 className="text-xl font-semibold text-main">Alle bookinger</h2>
+      <h2 className="text-xl font-semibold text-main">{t("admin.allbookings")}</h2>
 
       {/* FILTERS */}
       <Group grow>
@@ -145,11 +145,11 @@ export default function AdminBookingPanel() {
         />
 
         <Select
-          label="Type"
+          label={t("booking.roomtype")}
           value={typeFilter}
           onChange={setTypeFilter}
           data={[
-            { value: "normal", label: "Normal booking" },
+            { value: "normal", label: t("admin.normalbooking") },
             { value: "exam", label: t("admin.exambooking") },
           ]}
           clearable

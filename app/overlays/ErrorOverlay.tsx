@@ -1,8 +1,11 @@
+// Modal til visning af fejlmeddelelser. Vises når der sker en fejl i bookingprocessen.
+
 "use client";
 
 import { Modal, Button, Text, Stack } from "@mantine/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
+import { useTranslation } from "react-i18next";
 
 type ErrorOverlayProps = {
   opened: boolean;
@@ -17,6 +20,7 @@ export function ErrorOverlay({
   title,
   message,
 }: ErrorOverlayProps) {
+  const { t } = useTranslation();
   return (
     <Modal opened={opened} onClose={onClose} centered title={null} radius="md">
       {/* LUK KNAP */}
@@ -35,7 +39,7 @@ export function ErrorOverlay({
         <Text size="md">{message}</Text>
 
         <Button onClick={onClose} mt="sm" fullWidth>
-          Tilbage
+          {t("booking.back")}
         </Button>
       </Stack>
     </Modal>

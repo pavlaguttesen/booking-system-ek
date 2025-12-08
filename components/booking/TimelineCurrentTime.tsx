@@ -1,5 +1,9 @@
 "use client";
 
+// Viser en rød linje i timeline der angiver det nuværende tidspunkt (kun når dagens dato er valgt).
+
+"use client";
+
 // Rød tidslinje der viser nuværende tidspunkt i timeline.
 // Vises kun hvis valgt dato = i dag.
 

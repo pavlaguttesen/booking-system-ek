@@ -1,3 +1,6 @@
+// Root layout for applikationen. Opsætter providers for autentificering, tema, sprog,
+// og indstillinger. Inkluderer globale stilark og navigationsbar.
+
 import type { Metadata } from "next";
 import "./globals.css";
 

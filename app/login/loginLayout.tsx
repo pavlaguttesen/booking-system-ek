@@ -1,3 +1,5 @@
+// Layout for login-side med to spalter: formular til venstre og dekorativt billede til højre.
+
 "use client";
 
 import { MantineProvider } from "@mantine/core";

@@ -4,6 +4,7 @@
 
 import { useEffect, useRef } from "react";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 type BookingInfoPopupProps = {
   booking: any;
@@ -23,6 +24,7 @@ export default function BookingInfoPopup({
   y,
   onClose,
 }: BookingInfoPopupProps) {
+  const { t } = useTranslation();
   const ref = useRef<HTMLDivElement | null>(null);
 
   // Luk hvis man klikker udenfor
@@ -59,11 +61,11 @@ export default function BookingInfoPopup({
         </div>
 
         <div className="text-secondary-700">
-          <strong>Lokale:</strong> {roomName}
+          <strong>{t("booking.room")}:</strong> {roomName}
         </div>
 
         <div className="text-secondary-700">
-          <strong>Booker:</strong> {ownerName}
+          <strong>{t("admin.user")}:</strong> {ownerName}
         </div>
 
         <div className="text-secondary-700">

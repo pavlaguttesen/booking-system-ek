@@ -2,6 +2,7 @@
 
 import { Modal, Text, Button, Stack, Group } from "@mantine/core";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
@@ -23,6 +24,7 @@ export function DeleteBookingOverlay({
   profile,
   onConfirm,
 }: DeleteBookingOverlayProps) {
+  const { t } = useTranslation();
   const start = new Date(booking.start_time);
   const end = new Date(booking.end_time);
 
@@ -37,32 +39,32 @@ export function DeleteBookingOverlay({
 
       <Stack gap="md" className="mt-2">
         <Text size="xl" fw={700}>
-          Slet booking
+          {t("booking.deletebooking")}
         </Text>
 
         <Text size="sm" c="red" fw={600}>
-          Er du sikker på, at du vil slette denne booking?
+          {t("booking.deletethisbooking")}
         </Text>
 
         <Stack gap={4}>
           <Text>
-            <b>Titel:</b> {booking.title || "(ingen titel)"}
+            <b>{t("booking.title")}:</b> {booking.title || t("booking.notitle")}
           </Text>
 
           <Text>
-            <b>Lokale:</b> {room?.room_name ?? "Ukendt"}
+            <b>{t("booking.room")}:</b> {room?.room_name ?? t("booking.unknownroom")}
           </Text>
 
           <Text>
-            <b>Booker:</b> {profile?.full_name ?? "Ukendt bruger"}
+            <b>{t("admin.user")}:</b> {profile?.full_name ?? t("unknown.unknownUser")}
           </Text>
 
           <Text>
-            <b>Dato:</b> {start.toLocaleDateString("da-DK")}
+            <b>{t("booking.date")}:</b> {start.toLocaleDateString("da-DK")}
           </Text>
 
           <Text>
-            <b>Tid:</b>{" "}
+            <b>{t("booking.time")}:</b>{" "}
             {start.toLocaleTimeString("da-DK", { timeStyle: "short" })}
             {" – "}
             {end.toLocaleTimeString("da-DK", { timeStyle: "short" })}
@@ -71,11 +73,11 @@ export function DeleteBookingOverlay({
 
         <Group justify="space-between" mt="md">
           <Button variant="default" onClick={onClose}>
-            Annuller
+            {t("common.cancel")}
           </Button>
 
           <Button color="red" onClick={onConfirm}>
-            Slet booking
+            {t("booking.deletebooking")}
           </Button>
         </Group>
       </Stack>

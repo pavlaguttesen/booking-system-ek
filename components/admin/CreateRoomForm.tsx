@@ -3,6 +3,8 @@
 // Formular til oprettelse af nye lokaler. Admin vælger navn,
 // antal pladser, etage og faciliteter. Data sendes til Supabase.
 
+"use client";
+
 import { useState } from "react";
 import {
   TextInput,
@@ -45,7 +47,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
     // Simpel validering
     if (!roomName || !roomType) {
-      setErrorMsg("Du skal udfylde både navn og type.");
+      setErrorMsg(t("admin.fillroomandtype"));
       setLoading(false);
       return;
     }
@@ -75,10 +77,10 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
       onRoomCreated();
     }
 
-    setSuccessMsg("Lokalet blev oprettet.");
+    setSuccessMsg(t("admin.roomcreated"));
     setLoading(false);
 
-    // Reset form
+    // Nulstil formular
     setRoomName("");
     setCapacity(null);
     setFloor(null);
@@ -108,7 +110,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
       {/* Lokaletype */}
       <Select
         label={t("admin.roomtype")}
-        placeholder="Vælg type"
+        placeholder={t("admin.choosetype")}
         value={roomType}
         onChange={setRoomType}
         data={[
@@ -153,7 +155,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
       {/* Faciliteter */}
       <div className="flex flex-col gap-2">
         <Checkbox
-          label="Whiteboard"
+          label={t("admin.whiteboard")}
           checked={hasWhiteboard}
           onChange={(e) => setHasWhiteboard(e.currentTarget.checked)}
         />

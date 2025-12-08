@@ -1,3 +1,5 @@
+// Liste over brugerens fremtidige bookinger med mulighed for at slette dem direkte.
+
 import { useEffect, useState } from "react";
 import BookingItem from "./BookingItem";
 import { createClient } from "@supabase/supabase-js";

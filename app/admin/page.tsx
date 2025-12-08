@@ -25,10 +25,10 @@ export default function AdminPage() {
 
   const [reloadRoomsKey, setReloadRoomsKey] = useState(0);
 
-  // EDIT OVERLAY STATE
+  // REDIGER OVERLAY TILSTAND
   const [roomToEdit, setRoomToEdit] = useState<any | null>(null);
 
-  // DELETE OVERLAY STATE
+  // SLET OVERLAY TILSTAND
   const [roomToDelete, setRoomToDelete] = useState<any | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
 

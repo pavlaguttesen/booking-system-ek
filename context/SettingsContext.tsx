@@ -36,7 +36,7 @@ export function SettingsProvider({ children }: any) {
       });
   }, [user]);
 
-  // Save theme
+  // Gem tema
   const setTheme = async (t: "light" | "dark") => {
     setThemeState(t);
     document.documentElement.setAttribute("data-theme", t);
@@ -45,7 +45,7 @@ export function SettingsProvider({ children }: any) {
       await supabase.from("profiles").update({ theme: t }).eq("id", user.id);
   };
 
-  // Save language
+  // Gem sprog
   const setLanguage = async (l: "da" | "en") => {
     setLanguageState(l);
 

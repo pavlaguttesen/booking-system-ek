@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabaseClient";
+import { useTranslation } from "react-i18next";
 
 type RoomForEdit = {
   id: string;
@@ -28,6 +29,7 @@ export default function EditRoomOverlay({
   onClose,
   onSave,
 }: EditRoomOverlayProps) {
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
 
   const [roomName, setRoomName] = useState(room.room_name);
@@ -58,7 +60,7 @@ export default function EditRoomOverlay({
 
     if (error) {
       console.error("Update error:", error);
-      alert("Der skete en fejl — ændringerne blev ikke gemt.");
+      alert(t("ErrorMsg.updateFailed"));
       return;
     }
 
@@ -73,7 +75,7 @@ export default function EditRoomOverlay({
       <div className="bg-white rounded-xl shadow-xl w-full max-w-xl border border-secondary-200">
         {/* HEADER */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-secondary-200">
-          <h2 className="text-xl font-semibold text-main">Rediger lokale</h2>
+          <h2 className="text-xl font-semibold text-main">{t("admin.editRoom")}</h2>
 
           {/* Close button to match other overlays */}
           <button
@@ -89,7 +91,7 @@ export default function EditRoomOverlay({
           {/* Lokalenavn */}
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">
-              Lokalenavn
+              {t("admin.Roomname")}
             </label>
             <input
               value={roomName}
@@ -101,7 +103,7 @@ export default function EditRoomOverlay({
           {/* Kapacitet */}
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">
-              Kapacitet
+              {t("admin.capacity")}
             </label>
             <input
               type="number"
@@ -114,7 +116,7 @@ export default function EditRoomOverlay({
           {/* Antal sæder */}
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">
-              Antal sæder
+              {t("admin.amountofseats")}
             </label>
             <input
               type="number"
@@ -133,7 +135,7 @@ export default function EditRoomOverlay({
                 onChange={() => setHasWhiteboard(!hasWhiteboard)}
                 className="h-4 w-4"
               />
-              Whiteboard
+              {t("admin.Roomname")} {/* TODO: Add whiteboard translation */}
             </label>
 
             <label className="flex items-center gap-2 text-secondary-700">
@@ -143,7 +145,7 @@ export default function EditRoomOverlay({
                 onChange={() => setHasBoard(!hasBoard)}
                 className="h-4 w-4"
               />
-              Tavle
+              {t("admin.seets")} {/* TODO: Add board translation */}
             </label>
 
             <label className="flex items-center gap-2 text-secondary-700">
@@ -153,7 +155,7 @@ export default function EditRoomOverlay({
                 onChange={() => setHasScreen(!hasScreen)}
                 className="h-4 w-4"
               />
-              Skærm
+              {t("admin.screen")}
             </label>
           </div>
         </div>
@@ -164,14 +166,14 @@ export default function EditRoomOverlay({
             onClick={onClose}
             className="px-4 py-2 rounded-lg bg-secondary-200 text-secondary-700 hover:bg-secondary-300"
           >
-            Annuller
+            {t("common.cancel")}
           </button>
 
           <button
             onClick={handleSave}
             className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-600/90"
           >
-            Gem ændringer
+            {t("common.save")}
           </button>
         </div>
       </div>

@@ -1,11 +1,15 @@
+// Viser oversigt over alle lokaler på hver etage med deres status (ledigt/optaget/snart optaget).
+
 "use client";
 
 import { Card, CardSection, Text, Stack, Group } from "@mantine/core";
 import dayjs from "dayjs";
 import { useBookingContext } from "@/context/BookingContext";
+import { useTranslation } from "react-i18next";
 
 export default function BookingList() {
   const { rooms, bookings, selectedDate } = useBookingContext();
+  const { t } = useTranslation();
   const now = dayjs();
 
   function getNextBooking(roomId: string) {
@@ -38,7 +42,7 @@ export default function BookingList() {
   return (
     <section className="w-full">
       <Text fw={700} size="xl" className="text-main mb-4">
-        Oversigt over lokaler
+        {t("booking.overviewrooms")}
       </Text>
 
       {/* ⭐ ALWAYS 4 columns → only collapse at VERY small widths */}
@@ -86,7 +90,7 @@ export default function BookingList() {
                     lineHeight: "1",
                   }}
                 >
-                  Etage {floor}
+                  {t("booking.floor")} {floor}
                 </Text>
               </div>
 
@@ -132,25 +136,25 @@ export default function BookingList() {
                               </Text>
 
                               <Text size="sm" className="text-main/70">
-                                {room.room_type} • {room.nr_of_seats} pladser
+                                {room.room_type} • {room.nr_of_seats} {t("booking.seats")}
                               </Text>
 
                               {room.is_closed ? (
                                 <Text size="sm" className="text-main/60">
-                                  Lokalet er midlertidigt lukket.
+                                  {t("booking.roomclosed")}
                                 </Text>
                               ) : occupied ? (
                                 <Text size="sm" className="text-main/60">
-                                  Optaget lige nu.
+                                  {t("booking.occupied")} {t("booking.now")}.
                                 </Text>
                               ) : next ? (
                                 <Text size="sm" className="text-main/60">
-                                  Ledigt nu — optaget fra{" "}
+                                  {t("booking.available")} {t("booking.now")} — {t("booking.occupied")} {t("booking.from")}{" "}
                                   {dayjs(next.start_time).format("HH:mm")}
                                 </Text>
                               ) : (
                                 <Text size="sm" className="text-main/60">
-                                  Ledigt resten af dagen.
+                                  {t("booking.roomavailable")}
                                 </Text>
                               )}
                             </Stack>

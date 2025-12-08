@@ -3,6 +3,7 @@
 import dayjs from "dayjs";
 import "dayjs/locale/da";
 import { createClient } from "@supabase/supabase-js";
+import { useTranslation } from "react-i18next";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
@@ -15,6 +16,8 @@ const supabase = createClient(
 );
 
 export default function BookingItem({ booking, reload }: any) {
+  const { t } = useTranslation();
+
   async function deleteBooking() {
     await supabase.from("bookings").delete().eq("id", booking.id);
     reload();
@@ -32,14 +35,14 @@ export default function BookingItem({ booking, reload }: any) {
         </div>
 
         <div className="font-semibold w-40 text-main">
-          Lokale {booking.rooms?.room_name}
+          {t("booking.room")} {booking.rooms?.room_name}
         </div>
 
         <div className="w-32 text-main/80">
           {start.format("HH.mm")}–{end.format("HH.mm")}
         </div>
 
-        <div className="w-32 text-main/80">Studierum</div>
+        <div className="w-32 text-main/80">{t("booking.studyroom")}</div>
       </div>
 
       {/* SLET KNAP — FONT AWESOME */}

@@ -1,3 +1,6 @@
+// Hovedside for bookingsystemet. Viser timeline, filtre og overlays til oprettelse,
+// redigering og sletning af bookinger. Håndterer valg af dato, tid og lokale.
+
 "use client";
 
 import { useState } from "react";
@@ -76,8 +79,8 @@ function PageContent() {
   }) {
     if (dayjs(data.start).isBefore(dayjs())) {
       return setError({
-        title: "For sent",
-        message: "Du kan ikke oprette en booking i fortiden.",
+        title: t("ErrorMsg.tooLate"),
+        message: t("ErrorMsg.cantCreatePastBooking"),
       });
     }
 
@@ -94,7 +97,7 @@ function PageContent() {
   }
 
   /* ---------------------------------------------------------
-     NYT: CONFIRM DELETE
+     NYT: BEKRÆFT SLETNING
   --------------------------------------------------------- */
   async function handleConfirmDelete() {
     if (!bookingToDelete) return;
@@ -106,8 +109,8 @@ function PageContent() {
 
     if (error) {
       return setError({
-        title: "Fejl",
-        message: "Kunne ikke slette booking.",
+        title: t("ErrorMsg.deletionError"),
+        message: t("ErrorMsg.supabaseError"),
       });
     }
 
@@ -131,15 +134,15 @@ function PageContent() {
   }) {
     if (!selectedDate) {
       return setError({
-        title: "Vælg dato",
-        message: "Du skal vælge en dato først.",
+        title: t("ErrorMsg.selectDate"),
+        message: t("ErrorMsg.mustSelectDate"),
       });
     }
 
     if (!filters.timeFrom || !filters.timeTo) {
       return setError({
-        title: "Manglende tid",
-        message: "Vælg både start- og sluttid.",
+        title: t("ErrorMsg.missingTime"),
+        message: t("ErrorMsg.bothTimes"),
       });
     }
 
@@ -148,8 +151,8 @@ function PageContent() {
 
     if (isNaN(fh) || isNaN(th)) {
       return setError({
-        title: "Tidsformat",
-        message: "Indtast venligst gyldige tidspunkter.",
+        title: t("ErrorMsg.timeFormat"),
+        message: t("ErrorMsg.validTimes"),
       });
     }
 
@@ -158,22 +161,22 @@ function PageContent() {
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return setError({
-        title: "Ugyldig tid",
-        message: "Kunne ikke tolke tidspunkt.",
+        title: t("ErrorMsg.invalidTime"),
+        message: t("ErrorMsg.couldNotParseTime"),
       });
     }
 
     if (end <= start) {
       return setError({
-        title: "Fejl i tidsrum",
-        message: "Sluttid skal være senere end starttid.",
+        title: t("ErrorMsg.timeRange"),
+        message: t("ErrorMsg.endAfterStart"),
       });
     }
 
     if (dayjs(start).isBefore(dayjs())) {
       return setError({
-        title: "For sent",
-        message: "Du kan ikke søge i et tidsrum der allerede er gået.",
+        title: t("ErrorMsg.tooLate"),
+        message: t("ErrorMsg.cantSearchPast"),
       });
     }
 
@@ -195,8 +198,8 @@ function PageContent() {
 
     if (featureMatched.length === 0) {
       return setError({
-        title: "Ingen match",
-        message: "Ingen rum opfylder dine filtre.",
+        title: t("ErrorMsg.noMatch"),
+        message: t("ErrorMsg.noRoomsMatch"),
       });
     }
 
@@ -220,8 +223,8 @@ function PageContent() {
 
     if (available.length === 0) {
       return setError({
-        title: "Ingen ledige rum",
-        message: "Der er ingen ledige rum i dette tidsrum.",
+        title: t("ErrorMsg.noAvailableRooms"),
+        message: t("ErrorMsg.noAvailableText"),
       });
     }
 
@@ -255,30 +258,30 @@ function PageContent() {
 
       if (!user) {
         return setError({
-          title: "Ikke logget ind",
-          message: "Du skal være logget ind for at oprette en booking.",
+          title: t("ErrorMsg.notLoggedIn"),
+          message: t("ErrorMsg.mustBeLoggedIn"),
         });
       }
 
       if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) {
         return setError({
-          title: "Ugyldig tid",
-          message: "Tidsdata kunne ikke læses korrekt.",
+          title: t("ErrorMsg.invalidTime"),
+          message: t("ErrorMsg.timeDataError"),
         });
       }
 
       if (dayjs(start).isBefore(dayjs())) {
         return setError({
-          title: "For sent",
-          message: "Du kan ikke booke et tidsrum der er gået.",
+          title: t("ErrorMsg.tooLate"),
+          message: t("ErrorMsg.cantBookPast"),
         });
       }
 
       const weekday = start.getDay();
       if (weekday === 0 || weekday === 6) {
         return setError({
-          title: "Lukket",
-          message: "Studierum kan ikke bookes i weekenden.",
+          title: t("ErrorMsg.closed"),
+          message: t("ErrorMsg.noWeekendBooking"),
         });
       }
 
@@ -288,8 +291,8 @@ function PageContent() {
 
       if (sh < DAY_START_HOUR || eh > DAY_END_HOUR) {
         return setError({
-          title: "Udenfor åbningstid",
-          message: `Du kan kun booke mellem kl. ${DAY_START_HOUR}:00 og ${DAY_END_HOUR}:00.`,
+          title: t("ErrorMsg.outsideHours"),
+          message: t("ErrorMsg.withinHours", { start: DAY_START_HOUR, end: DAY_END_HOUR }),
         });
       }
 
@@ -310,8 +313,8 @@ function PageContent() {
 
       if (!limits.ok) {
         return setError({
-          title: "Begrænsning",
-          message: limits.message ?? "Du opfylder ikke reglerne for booking.",
+          title: t("ErrorMsg.limitExceeded"),
+          message: limits.message ?? t("ErrorMsg.limitError"),
         });
       }
 
@@ -328,8 +331,8 @@ function PageContent() {
 
       if (hasConflict) {
         return setError({
-          title: "Optaget",
-          message: "Dette rum er optaget i valgt tidsrum.",
+          title: t("ErrorMsg.occupied"),
+          message: t("ErrorMsg.roomOccupied"),
         });
       }
 
@@ -353,15 +356,15 @@ function PageContent() {
     } catch (err) {
       console.error("RAW ERROR:", err);
       setError({
-        title: "Fejl",
-        message: "Der opstod en fejl. Prøv igen senere.",
+        title: t("ErrorMsg.error"),
+        message: t("ErrorMsg.generalError"),
       });
     }
   }
   const { t } = useTranslation();
 
   /* ---------------------------------------------------------
-     RENDER
+     TEGNING
   --------------------------------------------------------- */
   return (
     <div className="w-full max-w-[1600px] mx-auto px-6 py-6 space-y-8">
@@ -423,8 +426,8 @@ function PageContent() {
           onSelect={(roomId) => {
             if (dayjs(searchTimes.start).isBefore(dayjs())) {
               return setError({
-                title: "For sent",
-                message: "Dette tidsrum er allerede passeret.",
+                title: t("ErrorMsg.tooLate"),
+                message: t("ErrorMsg.timeAlreadyPassed"),
               });
             }
 

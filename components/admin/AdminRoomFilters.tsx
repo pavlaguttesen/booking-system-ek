@@ -1,3 +1,5 @@
+// Filterbar for admin panel. Tillader søgning og filtrering efter lokaletype, etage og status.
+
 "use client";
 
 import { Select, TextInput, Group } from "@mantine/core";
@@ -41,16 +43,16 @@ export default function AdminRoomFilters({
 
       <Group grow>
         <Select
-          label="Type"
+          label={t("booking.roomtype")}
           placeholder={t("admin.allTypes")}
           value={typeFilter}
           onChange={setTypeFilter}
           data={[
             { value: null, label: t("admin.allTypes") },
-            { value: "studierum", label: t("booking.stydyroom") },
+            { value: "studierum", label: t("booking.studyroom") },
             { value: "møderum", label: t("booking.meetingroom") },
             { value: "klasseværelse", label: t("booking.classroom") },
-            { value: "auditorium", label: "Auditorium" },
+            { value: "auditorium", label: t("admin.auditorium") },
           ].map((x) => ({ value: x.value ?? "", label: x.label }))}
         />
 
@@ -69,7 +71,7 @@ export default function AdminRoomFilters({
         />
 
         <Select
-          label="Status"
+          label={t("admin.status")}
           placeholder={t("admin.all")}
           value={statusFilter}
           onChange={setStatusFilter}

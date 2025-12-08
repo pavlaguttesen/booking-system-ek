@@ -1,3 +1,5 @@
+// Viser liste over alle lokaler sorteret efter etage. Admin kan redigere, slette og åbne/lukke lokaler.
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -8,7 +10,7 @@ import EditRoomOverlay from "@/app/overlays/EditRoomOverlay";
 import { useTranslation } from "react-i18next";
 
 // ------------------------------
-// NATURAL SORT FUNCTION
+// NATURLIG SORTERING
 // ------------------------------
 function naturalSort(a: string, b: string) {
   const ax: any[] = [];
@@ -195,14 +197,14 @@ export default function AdminRoomList({
                       </div>
 
                       <Button variant="outline" onClick={() => onEdit(room)}>
-                        Rediger
+                        {t("admin.edit")}
                       </Button>
 
                       <Button
                         color="red"
                         variant="outline"
                         onClick={async () => {
-                          // First run the original callback if needed
+                          // Kør først den oprindelige callback hvis nødvendigt
                           onDelete?.(room);
 
                           const ok = window.confirm(
@@ -219,7 +221,7 @@ export default function AdminRoomList({
                           loadRooms();
                         }}
                       >
-                        Slet
+                        {t("admin.delete")}
                       </Button>
                     </Group>
                   </div>

@@ -1,6 +1,9 @@
+// Modal til valg af ledigt lokale fra en liste når der er flere muligheder.
+
 "use client";
 
 import { Modal, Button } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 type SelectRoomOverlayProps = {
   opened: boolean;
@@ -19,16 +22,17 @@ export function SelectRoomOverlay({
   end,
   onSelect,
 }: SelectRoomOverlayProps) {
+  const { t } = useTranslation();
   return (
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Vælg et ledigt lokale"
+      title={t("booking.selectroom")}
       centered
     >
       <div className="space-y-3">
         {rooms.length === 0 && (
-          <p className="text-center text-main">Ingen matchende rum fundet.</p>
+          <p className="text-center text-main">{t("admin.lookforroom")}</p>
         )}
 
         {rooms.map((r) => (
@@ -38,7 +42,7 @@ export function SelectRoomOverlay({
             className="bg-primary-600 hover:bg-primary-700 text-invert"
             onClick={() => onSelect(r.id)}
           >
-            {r.room_name} (Kapacitet: {r.capacity ?? "ukendt"})
+            {r.room_name} ({t("admin.capacity")}: {r.capacity ?? t("booking.unknownroom")})
           </Button>
         ))}
       </div>
