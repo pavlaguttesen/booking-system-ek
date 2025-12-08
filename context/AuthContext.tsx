@@ -4,10 +4,18 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 
+/* ----------------------------------------------------
+   Profile type MUST include all DB fields 
+   used by ThemeContext + LanguageContext
+---------------------------------------------------- */
 export type Profile = {
   id: string;
   full_name: string | null;
   role: "student" | "teacher" | "admin";
+
+  // 🔥 Added fields
+  language?: "da" | "en" | null;
+  theme?: "light" | "dark" | null;
 };
 
 export type AuthContextType = {
@@ -32,9 +40,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ------------------------------
-  // LOAD PROFILE
-  // ------------------------------
+  /* ----------------------------------------------------
+     LOAD PROFILE FROM SUPABASE
+  ---------------------------------------------------- */
   async function loadProfile(userId: string) {
     const { data, error } = await supabase
       .from("profiles")
@@ -43,20 +51,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .single();
 
     if (!error && data) {
-      setProfile(data);
+      setProfile(data as Profile);
       setRole(data.role ?? "student");
     }
 
     setLoading(false);
   }
 
-  // ------------------------------
-  // INITIAL SESSION LOAD
-  // ------------------------------
+  /* ----------------------------------------------------
+     INITIAL SESSION LOAD
+  ---------------------------------------------------- */
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       const sessionUser = data.session?.user ?? null;
-
       setUser(sessionUser);
 
       if (sessionUser) {
@@ -66,9 +73,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
-    // ------------------------------
-    // AUTH STATE LISTENER
-    // ------------------------------
+    /* ----------------------------------------------------
+       LISTEN FOR LOGIN / LOGOUT
+    ---------------------------------------------------- */
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         const sessionUser = session?.user ?? null;
@@ -86,9 +93,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  // ------------------------------
-  // LOGOUT
-  // ------------------------------
+  /* ----------------------------------------------------
+     LOGOUT
+  ---------------------------------------------------- */
   async function logout() {
     await supabase.auth.signOut();
     setUser(null);
