@@ -6,7 +6,7 @@ import "@mantine/dates/styles.css";
 
 import { MantineProvider, createTheme } from "@mantine/core";
 import { Inter } from "next/font/google";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { SettingsProvider } from "@/context/SettingsContext";
 import "../translate/index";
