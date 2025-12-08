@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useBookingContext } from "@/context/BookingContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 // Hook som sikrer at inputs kun vises på klienten
 function useMounted() {
@@ -39,13 +40,17 @@ export default function TopFilterBar() {
 
   // NORMALIZED ROOM TYPES:
   // "møderum" → "studierum"
-  const normalizeType = (t: string | null) =>
-    t === "møderum" ? "studierum" : t;
+  const normalizeType = (type: string | null) =>
+    type === "møderum" ? "studierum" : type;
+
+
+  // Kalder på Translation
+  const { t } = useTranslation();
 
   // Lokaletype muligheder
   const roomTypeOptions = [
-    { value: "studierum", label: "Studierum" },
-    { value: "klasseværelse", label: "Klasselokale" },
+    { value: "studierum", label: t("booking.studyroom") },
+    { value: "klasseværelse", label: t("booking.classroom") },
     { value: "auditorium", label: "Auditorium" },
   ];
 
@@ -61,8 +66,8 @@ export default function TopFilterBar() {
   // Facilitet-knapper typed
   const facilityOptions: { key: "whiteboard" | "screen" | "board"; label: string }[] = [
     { key: "whiteboard", label: "Whiteboard" },
-    { key: "screen", label: "Skærm" },
-    { key: "board", label: "Opslagstavle" },
+    { key: "screen", label: t("admin.screen") },
+    { key: "board", label: t("admin.bulletinboard") },
   ];
 
   // ---------------------------------------------------------
@@ -77,7 +82,7 @@ export default function TopFilterBar() {
 
         {/* FACILITETER */}
         <div className="flex flex-col">
-          <label className="text-sm font-semibold text-main">Faciliteter</label>
+          <label className="text-sm font-semibold text-main">{t("booking.facilities")}</label>
 
           <div className="flex gap-3 mt-1">
             {facilityOptions.map((item) => (
@@ -99,7 +104,7 @@ export default function TopFilterBar() {
 
         {/* ANTAL PERSONER */}
         <div className="flex flex-col">
-          <label className="text-sm font-semibold text-main">Antal personer</label>
+          <label className="text-sm font-semibold text-main">{t("booking.number")}</label>
 
           {mounted ? (
             <input
@@ -117,7 +122,7 @@ export default function TopFilterBar() {
         {/* ETAGE — KUN ADMIN */}
         {role === "admin" && (
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-main">Etage</label>
+            <label className="text-sm font-semibold text-main">{t("admin.floor")}</label>
             <div className="flex gap-3 mt-1">
               {[1, 2, 3, 4].map((f) => (
                 <button
@@ -141,20 +146,20 @@ export default function TopFilterBar() {
 
         {/* LOKALETYPE */}
         <div className="flex flex-col">
-          <label className="text-sm font-semibold text-main">Lokaletype</label>
+          <label className="text-sm font-semibold text-main">{t("booking.roomtype")}</label>
 
           <select
             className="px-4 py-2 rounded-md border text-sm bg-secondary-300 border-secondary-200 text-main mt-1"
             value={roomFilters.roomType ?? ""}
             onChange={(e) => setRoomTypeFilter(e.target.value || null)}
           >
-            <option value="">Alle</option>
+            <option value="">{t("admin.all")}</option>
 
             {roomTypeOptions
-              .filter((opt) => allowedRoomTypes.includes(opt.value))
-              .map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+              .filter((o) => allowedRoomTypes.includes(o.value))
+              .map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
                 </option>
               ))}
           </select>
@@ -170,7 +175,7 @@ export default function TopFilterBar() {
         }}
         className="px-5 py-2 rounded-md border text-sm transition bg-secondary-300 border-secondary-200 text-main hover:bg-secondary-200 active:scale-[0.98] h-fit font-medium"
       >
-        Nulstil filtre
+        {t("booking.resetfilter")}
       </button>
     </div>
   );

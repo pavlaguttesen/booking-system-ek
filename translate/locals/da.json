@@ -135,7 +135,12 @@
 
     "unknown":{
     "unknownRoom":"Ukendt lokale",
-    "unknownUser":"Ukendt bruger"
-  }
+    "unknownUser":"Ukendt bruger"},
+
+    "ErrorMsg":{
+      "wrongEmail_Password":"Forkert email eller kodeord",
+      "loginFailed":"Login fejlede. Prøv igen senere.",
+      "noFindProfile":"Kunne ikke hente brugerprofil."
+    }
   }
   
