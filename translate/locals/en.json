@@ -1,0 +1,148 @@
+{
+    "common": {
+      "save": "save",
+      "cancel": "cancel"
+    },
+
+    "settings": {
+      "title": "Settings",
+      "appearance_title": "Look",
+      "appearance_text": "You can change the look of the site here.",
+      "appearance_mode_light": "Light mode",
+      "appearance_mode_dark": "Dark mode",
+      "language_title": "Language",
+      "language_text": "You can change the language between Danish and English of the site here.",
+      "language_mode": "You now have turned to:",
+      "language_danish": "Danish",
+      "language_english": "English",
+      "rules_title": "Rules",
+      "rules_admin1": "1. As an admin, you can pause all rooms.",
+      "rules_admin2": "2. As an admin, you can cancel all bookings.",
+      "rules_admin3": "3. As an admin, there are no time restrictions on bookings.",
+      "rules_admin4": "4. As an admin, you can cancel a student's booking if the room is to be used for an exam.",
+      "rules_teacher1": "1. As a teacher, you can't book study rooms.",
+      "rules_teacher2": "2. As a teacher, you can book class rooms.",
+      "rules_teacher3": "3. As a teacher, there are no restrictions on bookings.",
+      "rules_teacher4": "4. As a teacher, you can only book a study room if it is to be used for an exam.",
+      "rules_student1": "1. As a student, you have first priority in booking study rooms.",
+      "rules_student2": "2. As a student, you can book up to four study rooms at a time.",
+      "rules_student3": "3. As a student, you can book a study room up to four hours at a time.",
+      "rules_student4": "4. As a student, you can risk having your booking canceled if the room is to be used for an exam or under construction.",
+      "teacher_description": "As a teacher, you can book classrooms to teach in. The rooms are available at EK in Lyngby on Firskovsvej.",
+      "student_description": "As a student, you can book rooms to study in. The rooms are available at EK in Lyngby on Firskovsvej."
+    
+    },
+
+    "welcome": {
+        "title": "Welcome to the booking system",
+        "subtitle": "Here you can easily book rooms, equipment and study rooms. Log in with your EK Copenhagen login to get started.",
+        "password": "Password",
+        "login": "Login",
+        "remember": "Remember me",
+        "loggingIn": "Logging..."
+    },
+
+    "navbar":{
+        "calender": "Calender",
+        "mypage": "My page",
+        "settings": "Settings"
+    },
+    
+    "booking":{
+        "facilities": "Facilities",
+        "number": "Number of people",
+        "level": "Level",
+        "roomtype": "Lokaletype",
+        "all": "All",
+        "studyroom": "Studyroom",
+        "classroom": "Classroom",
+        "meetingroom": "Mettingroom",
+        "room": "Room",
+        "date": "Date",
+        "time": "Time",
+        "book": "Book",
+        "selectdate": "Select date",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "dayaftertomorrow": "Day after tomorrow",
+        "from": "From",
+        "to": "to",
+        "suggestion": "Suggestion",
+        "search": "Search",
+        "earlybooking":"You can't book from earlier dates",
+        "floor1":"Floor 1",
+        "floor2":"Floor 2",
+        "floor3":"Floor 3",
+        "floor4":"Floor 4",
+        "roomclosed":"The room is temporarily closed.",
+        "roomavailable":"Available for the rest of the day",
+        "seats":"Seats",
+        "unavailable":"UNAVAILABLE",
+        "available":"AVAILABLE",
+        "createbooking":"Creat booking",
+        "editbooking":"Edit booking",
+        "deletebooking":"Delete booking",
+        "deletebookingtext":"Are you sure, you want to delete",
+        "deletebookingcancel":"Cancel",
+        "example":"Fx 'UX Groupproject'",
+        "starttime":"Start time",
+        "endtime":"End time",
+        "end":"End",
+        "resetfilter":"Reset filter",
+        "overviewrooms":"Overview of rooms",
+        "bulletinboard": "Bulletinboard",
+        "Screen": "Screen"
+    },
+
+    "admin":{
+        "createnewRoom":"Create new room",
+        "editRoom":"Edit room",
+        "deleteRoom":"Delete room",
+        "deleteRoomCancel":"Cancel",
+        "delete":"Delete",
+        "manageRoom":"Administrate rooms",
+        "Roomname":"Room name",
+        "roomtype":"Room type",
+        "capacity":"Capacity",
+        "amountofseats":"Amount of seats",
+        "seets":"Seats",
+        "floor":"Floor",
+        "screen": "Screen",
+        "bulletinboard": "Bulletinboard",
+        "closedroom": "Closed room",
+        "isclosed":"The room is closed",
+        "createRoom":"Create room",
+        "lookforroom":"Look for room...",
+        "allTypes":"All type",
+        "allFloor":"All floor",
+        "all":"All",
+        "open": "Open",
+        "closed": "Closed",
+        "edit": "Edit",
+        "user": "User",
+        "fromDate": "From date",
+        "toDate": "To date",
+        "thisWeek": "This week",
+        "nextWeek": "Next week",
+        "room": "Room",
+        "examBooking": "Exams booking"
+    },
+
+    "layout":{
+      "title":"Booking system",
+      "description":"Book room for teaching and exams",
+      "retrievesrooms":"Henter lokaler..."
+  },
+
+  "unknown":{
+    "unknownRoom":"Unknown room",
+    "unknownUser":"Unknown user"
+  },
+
+  "ErrorMsg":{
+    "wrongEmail_Password":"Wrong email or password",
+    "loginFailed":"Login failed. Try again later",
+    "noFindProfile":"Could not find profile"
+  }
+  }
+  

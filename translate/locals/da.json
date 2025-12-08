@@ -1,0 +1,146 @@
+{
+    "common": {
+      "save": "Gem",
+      "cancel": "Annullér"
+    },
+
+    "settings": {
+      "title": "Indstillinger",
+      "appearance_title": "Udseende",
+      "appearance_text": "Her kan du ændre udseendet på siden.",
+      "appearance_mode_light": "Lys tilstand",
+      "appearance_mode_dark": "Mørk tilstand",
+      "language_title": "Sprog",
+      "language_text": "Her kan du ændre sproget mellem dansk og engelsk på siden.",
+      "language_mode": "Du er nu slået til:",
+      "language_danish": "Dansk",
+      "language_english": "Engelsk",
+      "rules_title": "Regler",
+      "rules_admin1": "1. Som admin kan man sætte alle rum på pause.",
+      "rules_admin2": "2. Som admin kan man annullere alle bookinger.",
+      "rules_admin3": "3. Som admin er der ingen tidsbegrænsninger på reservationer.",
+      "rules_admin4": "4. Som admin kan man annullere en studerendes booking hvis studierummet skal benyttes til eksamen.",
+      "rules_teacher1": "1. Som underviser kan man ikke booke studierum.",
+      "rules_teacher2": "2. Som underviser kan man booke klasselokaler.",
+      "rules_teacher3": "3. Som underviser er der ingen begrænsning på bookinger.",
+      "rules_teacher4": "4. Som underviser kan man kun booke et studierum, hvis det skal benyttes til en eksamen.",
+      "rules_student1": "1. Som elev har man førsteret til at booke studierum på skolen.",
+      "rules_student2": "2. Som elev kan man maks. booke fire studierum ad gangen.",
+      "rules_student3": "3. Som elev kan man booke et studierum maks. 4 timer ad gangen.",
+      "rules_student4": "4. Som elev kan du risikere at få annulleret sin booking. Dette kan se hvis lokalet skal benyttes til eksamen, eller er under renovering/defekt.",
+      "teacher_description": "Som underviser kan man booke undervisningslokaler til at undervise i. Lokalerne er tilgængelige på EK i lyngby på Firskovsvej.",
+      "student_description": "Som studerende kan man booke lokale til at studere i. Lokalerne er tilgængelige på EK i lyngby på Firskovsvej."
+    },
+
+    "welcome": {
+        "title": "Velkommen til bookingsystemet",
+        "subtitle": "Her kan du nemt booke lokaler, udstyr og studiepladser. Log ind med dit EA København-login for at komme i gang.",
+        "password": "Kodeord",
+        "login": "Log ind",
+        "remember": "Husk mig",
+        "loggingIn": "Logger ind..."
+    },
+
+    "navbar":{
+        "calender": "Kalender",
+        "mypage": "Min side",
+        "settings": "Indstillinger"
+    },
+    
+    "booking":{
+        "facilities": "Faciliteter",
+        "number": "Antal af personer",
+        "level": "Etage",
+        "roomtype": "Lokaletype",
+        "all": "Alle",
+        "studyroom": "Studierum",
+        "classroom": "Klasselokale",
+        "meetingroom": "Mødelokale",
+        "room": "Lokale",
+        "date": "Dato",
+        "time": "Tid",
+        "book": "Book",
+        "selectdate": "Vælg dato",
+        "today": "I dag",
+        "tomorrow": "I morgen",
+        "dayaftertomorrow": "I overmorgen",
+        "from": "fra",
+        "to": "til",
+        "suggestion": "Forslag",
+        "search": "Søg",
+        "earlybooking":"Du kan ikke booke lokaler for tidligere datoer",
+        "floor1":"Etage 1",
+        "floor2":"Etage 2",
+        "floor3":"Etage 3",
+        "floor4":"Etage 4",
+        "roomclosed":"Lokalet er midertidligt lukket",
+        "roomavailable":"Ledigt resten af dagen",
+        "seats":"Pladser",
+        "unavailable":"OPTAGET",
+        "available":"LEDIGT",
+        "createbooking":"Opret booking",
+        "editbooking":"Rediger booking",
+        "deletebooking":"Slet booking",
+        "deletebookingtext":"Er du sikker på at du vil slette",
+        "deletebookingcancel":"Annuller",
+        "example":"Fx 'Gruppeøvelse i UX",
+        "starttime":"Starttid",
+        "endtime":"Sluttid",
+        "end":"Slut",
+        "resetfilter":"Nulstil filter",
+        "overviewrooms":"Oversigt over lokaler",
+        "bulletinboard": "Oplagstavle",
+        "Screen": "Skærm"
+    },
+
+    "admin":{
+        "createnewRoom":"Opret ny lokale",
+        "editRoom":"Rediger lokale",
+        "deleteRoom":"Slet lokale",
+        "deleteRoomCancel":"Annuller",
+        "delete":"Slet",
+        "manageRoom":"Administrer lokaler",
+        "Roomname":"Lokalenavn",
+        "roomtype":"Lokaletype",
+        "capacity":"Kapacitet",
+        "amountofseats":"Antal sæder",
+        "seets":"Sæder",
+        "floor":"Etage",
+        "screen": "Skærm",
+        "bulletinboard": "Oplagstavle",
+        "closedroom": "Lukket lokale",
+        "isclosed":"Lokalet er lukket",
+        "createRoom":"Opret lokale",
+        "lookforroom":"Søg efter lokale...",
+        "allTypes":"Alle typer",
+        "allFloor":"Alle etager",
+        "all":"Alle",
+        "open": "Åben",
+        "closed": "Lukket",
+        "edit": "Rediger",
+        "user": "Bruger",
+        "fromDate": "Fra dato",
+        "toDate": "Til dato",
+        "thisWeek": "Denne uge",
+        "nextWeek": "Næste uge",
+        "room": "Rum",
+        "examBooking": "Eksamensbooking"
+    },
+
+    "layout":{
+        "title":"Bookingsystem",
+        "description":"Book lokaler til undervisning og eksamner",
+        "retrievesrooms":"Henter lokaler..."
+    },
+
+    "unknown":{
+    "unknownRoom":"Ukendt lokale",
+    "unknownUser":"Ukendt bruger"},
+
+    "ErrorMsg":{
+      "wrongEmail_Password":"Forkert email eller kodeord",
+      "loginFailed":"Login fejlede. Prøv igen senere.",
+      "noFindProfile":"Kunne ikke hente brugerprofil."
+    }
+  }
+  
