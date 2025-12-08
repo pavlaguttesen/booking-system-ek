@@ -1,4 +1,4 @@
-// Dansk kommentar: Viser en booking i dansk format og korrekt alignment.
+//Viser en booking i dansk format og korrekt alignment.
 
 import dayjs from "dayjs";
 import "dayjs/locale/da";

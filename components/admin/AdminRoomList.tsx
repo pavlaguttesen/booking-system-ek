@@ -55,8 +55,8 @@ type AdminRoomListProps = {
   floorFilter: string | null;
   statusFilter: string | null;
   reloadKey: number;
-  onEdit: (room: Room) => void;   // ← NYT
-  onDelete: (room: Room) => void; // ← NYT
+  onEdit: (room: Room) => void;
+  onDelete: (room: Room) => void;
 };
 
 export default function AdminRoomList({
@@ -88,7 +88,6 @@ export default function AdminRoomList({
     setLoading(false);
   }
 
-  // Avoid double-fetch in strict mode
   const [didLoad, setDidLoad] = useState(false);
 
   useEffect(() => {
@@ -171,7 +170,9 @@ export default function AdminRoomList({
                     <Group gap="md" wrap="wrap" className="shrink-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-secondary-600">
-                          {room.is_closed ? t("booking.closed") : t("booking.open")}
+                          {room.is_closed
+                            ? t("booking.closed")
+                            : t("booking.open")}
                         </span>
 
                         <SmoothSwitch
@@ -220,7 +221,6 @@ export default function AdminRoomList({
                       >
                         Slet
                       </Button>
-
                     </Group>
                   </div>
                 ))}

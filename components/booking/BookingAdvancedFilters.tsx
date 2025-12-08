@@ -14,7 +14,7 @@ function useMounted() {
 
 export function BookingAdvancedFilters({
   onSearch,
-  onError,    // <-- NY PROP
+  onError,
 }: {
   onSearch: (data: {
     timeFrom: string;
@@ -27,7 +27,7 @@ export function BookingAdvancedFilters({
     eightPersons: boolean;
   }) => void;
 
-  onError: (title: string, message: string) => void; // <-- NY PROP
+  onError: (title: string, message: string) => void;
 }) {
   const mounted = useMounted();
 
@@ -103,7 +103,9 @@ export function BookingAdvancedFilters({
     if (times.length > 0) {
       const first = times[0];
       setTimeFrom(first);
-      setTimeTo(`${String(Number(first.split(":")[0]) + 1).padStart(2, "0")}:00`);
+      setTimeTo(
+        `${String(Number(first.split(":")[0]) + 1).padStart(2, "0")}:00`
+      );
     } else {
       setTimeFrom("");
       setTimeTo("");
@@ -155,7 +157,6 @@ export function BookingAdvancedFilters({
   ----------------------------------------------------- */
   return (
     <div className="bg-card p-5 rounded-lg shadow-sm space-y-4">
-
       {/* Dato */}
       <DateInput
         label="Dato"

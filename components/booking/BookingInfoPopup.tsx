@@ -1,7 +1,6 @@
 "use client";
 
-// Dansk kommentar: Lille flydende infoboks til booking-information.
-// Kan være flere åbne ad gangen. Positioneres relativt til klikpunktet.
+// Lille flydende infoboks til booking-information.
 
 import { useEffect, useRef } from "react";
 import dayjs from "dayjs";
@@ -10,7 +9,8 @@ type BookingInfoPopupProps = {
   booking: any;
   ownerName: string;
   roomName: string;
-  x: number;         // pixel koordinater fra timeline
+  // pixel koordinater fra timeline
+  x: number;
   y: number;
   onClose: () => void;
 };
@@ -67,7 +67,8 @@ export default function BookingInfoPopup({
         </div>
 
         <div className="text-secondary-700">
-          <strong>Tid:</strong><br/>
+          <strong>Tid:</strong>
+          <br />
           {dayjs(booking.start_time).format("HH:mm")} –{" "}
           {dayjs(booking.end_time).format("HH:mm")}
         </div>

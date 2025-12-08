@@ -60,7 +60,7 @@ export default function BookingList() {
               withBorder
               p={0}
               style={{
-                width: "100%", // Card fills cell completely
+                width: "100%",
                 borderColor: "#d0d7ea",
                 backgroundColor: "white",
               }}
@@ -103,7 +103,7 @@ export default function BookingList() {
                       let badgeText = "LEDIGT";
 
                       if (room.is_closed || occupied) {
-                        badgeColor = "#b80000";
+                        badgeColor = "#b8000";
                         badgeText = "OPTAGET";
                       } else if (
                         next &&

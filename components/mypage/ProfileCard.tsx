@@ -7,7 +7,6 @@ export default function ProfileCard() {
 
   return (
     <div className="w-full flex flex-col items-center text-center space-y-3">
-
       <h2 className="text-xl font-semibold text-main">
         {profile?.full_name ?? user?.email ?? "Ukendt bruger"}
       </h2>

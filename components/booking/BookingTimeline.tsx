@@ -1,10 +1,9 @@
 "use client";
-
-// Dansk kommentar: Timeline med rolle-baserede begrænsninger:
-// - Studerende kan kun klikke i studierum
-// - Undervisere kan IKKE klikke i studierum
-// - Admin kan klikke i alle rum
-// - "Møderum" → "studierum"
+// Timeline med rolle-baserede begrænsninger:
+// Studerende kan kun klikke i studierum
+// Undervisere kan IKKE klikke i studierum
+// Admin kan klikke i alle rum
+// "Møderum" → "studierum"
 
 import { useMemo, useRef, useState } from "react";
 import dayjs from "dayjs";
@@ -26,11 +25,7 @@ const BOTTOM_MARGIN = 16;
 const TIME_COL_WIDTH = 55;
 
 type BookingTimelineProps = {
-  onCreateBooking: (data: {
-    roomId: string;
-    start: Date;
-    end: Date;
-  }) => void;
+  onCreateBooking: (data: { roomId: string; start: Date; end: Date }) => void;
   onDeleteBooking?: (booking: any) => void;
 };
 
@@ -201,7 +196,6 @@ export function BookingTimeline({
       return;
     }
 
-    // Absolut dags-slut (16:00)
     const hardEnd = selected.hour(DAY_END_HOUR).minute(0);
 
     // Hvis start er efter eller lig med slut-tid → ingen booking
@@ -369,8 +363,7 @@ export function BookingTimeline({
                     onClick={(ev) => {
                       ev.stopPropagation();
 
-                      const rect =
-                        timelineRef.current?.getBoundingClientRect();
+                      const rect = timelineRef.current?.getBoundingClientRect();
                       const clickX = ev.clientX - (rect?.left ?? 0);
                       const clickY = ev.clientY - (rect?.top ?? 0);
 

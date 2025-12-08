@@ -27,8 +27,9 @@ export default function AdminRoomFilters({
   statusFilter,
   setStatusFilter,
 }: Props) {
-  //Translation constant
+  //Oversættelses konstant
   const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-4 mb-12">
       <TextInput

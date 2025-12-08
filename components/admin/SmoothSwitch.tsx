@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+
 
 type SmoothSwitchProps = {
   checked: boolean;
@@ -21,5 +21,7 @@ export default function SmoothSwitch({ checked, onChange }: SmoothSwitchProps) {
         style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.35)" }}
       ></span>
     </button>
+    
   );
 }
+

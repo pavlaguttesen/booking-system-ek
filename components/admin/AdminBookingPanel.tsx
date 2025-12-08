@@ -1,7 +1,6 @@
 "use client";
 
-// Dansk kommentar: Admin-panel der viser alle bookinger med filtre
-// og mulighed for at slette bookinger via et "er du sikker?" overlay.
+// Admin-panel der viser alle bookinger med filtre
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -12,7 +11,7 @@ import "dayjs/locale/da";
 import { DeleteBookingOverlay } from "@/app/overlays/DeleteBookingsOverlay";
 import { useTranslation } from "react-i18next";
 
-// Dansk kommentar: Vi bruger ISO-string som intern repræsentation for dato-filtre
+// ISO-string som intern repræsentation for dato-filtre
 const ISO = "YYYY-MM-DD";
 
 export default function AdminBookingPanel() {
@@ -24,15 +23,14 @@ export default function AdminBookingPanel() {
   const [userFilter, setUserFilter] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
 
-  // VIGTIGT: Vi holder fast i string | null som du allerede har brugt,
-  // for ikke at ødelægge eksisterende logik.
+  //Oversættelses konstant
   const { t } = useTranslation();
 
-  // VIGTIGT → Mantine v6 bruger string | null
+  // VIGTIGT! Mantine v6 bruger string | null
   const [dateFrom, setDateFrom] = useState<string | null>(null);
   const [dateTo, setDateTo] = useState<string | null>(null);
 
-  // Dansk kommentar: State til slet-booking overlay
+  //State til slet-booking overlay
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<any | null>(null);
 
@@ -41,7 +39,10 @@ export default function AdminBookingPanel() {
   // --------------------------------------------------------
   async function loadData() {
     const [{ data: b }, { data: r }, { data: p }] = await Promise.all([
-      supabase.from("bookings").select("*").order("start_time", { ascending: true }),
+      supabase
+        .from("bookings")
+        .select("*")
+        .order("start_time", { ascending: true }),
       supabase.from("rooms").select("*"),
       supabase.from("profiles").select("*"),
     ]);
@@ -63,7 +64,7 @@ export default function AdminBookingPanel() {
 
     await supabase.from("bookings").delete().eq("id", bookingToDelete.id);
 
-    // Dansk kommentar: Reload alle data, så panel og øvrige views er i sync
+    // Reload alle data, så panel og øvrige views er i sync
     await loadData();
 
     setDeleteOpen(false);
@@ -182,7 +183,13 @@ export default function AdminBookingPanel() {
         <Button onClick={pickTomorrow}>{t("booking.tomorrow")}</Button>
         <Button onClick={pickThisWeek}>{t("admin.thisWeek")}</Button>
         <Button onClick={pickNextWeek}>{t("admin.nextWeek")}</Button>
-        <Button variant="outline" onClick={() => { setDateFrom(null); setDateTo(null); }}>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setDateFrom(null);
+            setDateTo(null);
+          }}
+        >
           Reset
         </Button>
       </Group>
@@ -204,7 +211,9 @@ export default function AdminBookingPanel() {
                     {dayjs(b.start_time).format("DD/MM/YYYY HH:mm")} –{" "}
                     {dayjs(b.end_time).format("HH:mm")}
                   </Text>
-                  <Text size="sm">{user?.full_name || t("unknown.unknownUser")}</Text>
+                  <Text size="sm">
+                    {user?.full_name || t("unknown.unknownUser")}
+                  </Text>
                 </div>
 
                 <Button
@@ -229,7 +238,9 @@ export default function AdminBookingPanel() {
           onClose={() => setDeleteOpen(false)}
           booking={bookingToDelete}
           room={rooms.find((r) => r.id === bookingToDelete.room_id) || null}
-          profile={profiles.find((p) => p.id === bookingToDelete.user_id) || null}
+          profile={
+            profiles.find((p) => p.id === bookingToDelete.user_id) || null
+          }
           onConfirm={handleConfirmDelete}
         />
       )}

@@ -33,7 +33,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
   const { t } = useTranslation();
 
-  // Dansk kommentar: UI state
+  // UI state
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -92,15 +92,10 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
   return (
     <div className="flex flex-col gap-6">
-
       {/* Fejl- og succesbeskeder */}
-      {errorMsg && (
-        <p className="text-red-600 text-sm">{errorMsg}</p>
-      )}
+      {errorMsg && <p className="text-red-600 text-sm">{errorMsg}</p>}
 
-      {successMsg && (
-        <p className="text-green-700 text-sm">{successMsg}</p>
-      )}
+      {successMsg && <p className="text-green-700 text-sm">{successMsg}</p>}
 
       {/* Lokalenavn */}
       <TextInput
@@ -151,9 +146,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
         label={t("admin.floor")}
         placeholder="Fx 1, 2, 3..."
         value={floor ?? undefined}
-        onChange={(value) =>
-          setFloor(typeof value === "number" ? value : null)
-        }
+        onChange={(value) => setFloor(typeof value === "number" ? value : null)}
         min={1}
       />
 
@@ -186,7 +179,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
       {/* Submit-knap */}
       <Button loading={loading} onClick={handleSubmit}>
-      {t("admin.createRoom")}
+        {t("admin.createRoom")}
       </Button>
     </div>
   );

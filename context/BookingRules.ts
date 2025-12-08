@@ -1,4 +1,3 @@
-// Dansk kommentar:
 // Fælles regler for bookinger:
 // - Studerende må maks have 4 fremtidige bookinger i alt
 // - Studerende må maks booke 4 timer ad gangen
@@ -23,8 +22,7 @@ export function validateBookingLimits(
   }
 
   // Beregn varighed i timer
-  const durationHours =
-    (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+  const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
 
   if (durationHours > 4) {
     return {
