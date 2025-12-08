@@ -12,8 +12,6 @@ export type Profile = {
   id: string;
   full_name: string | null;
   role: "student" | "teacher" | "admin";
-
-  // 🔥 Added fields
   language?: "da" | "en" | null;
   theme?: "light" | "dark" | null;
 };
@@ -31,7 +29,7 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   role: null,
   loading: true,
-  logout: async () => {},
+  logout: async () => { },
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
