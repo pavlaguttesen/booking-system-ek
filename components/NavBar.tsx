@@ -27,7 +27,7 @@ export default function NavBar() {
         </Link>
 
         {/* Navigation */}
-        <nav className="flex gap-10 text-primary-600 font-medium text-lg">
+        <nav className="flex gap-10 text-primary-600 font-sm text-lg">
           <Link href="/" className="hover:underline">
             {t("navbar.calender")}
           </Link>

@@ -38,14 +38,14 @@ export default function SettingsSidebar({
         href="/min-side"
         className="mt-auto bg-white p-4 rounded-lg flex items-center gap-3 hover:bg-white/80 transition"
       >
-        {/* <img
+       {/* <img
           src={profile?.avatar_url || "/avatar.jpg"}
           className="w-10 h-10 rounded-full"
         /> */}
 
         <div>
-          <p className="font-medium">{profile?.full_name || "Bruger"}</p>
-          <p className="text-sm text-gray-500">{user?.email}</p>
+          <p className="font-xs text-gray-600">{profile?.full_name || "Bruger"}</p>
+          <p className="text-xs text-gray-500">{user?.email}</p>
         </div>
       </Link>
     </div>
