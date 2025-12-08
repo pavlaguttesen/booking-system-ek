@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Logo from "./logo";
 import { useTranslation } from "react-i18next";
+import { error } from "console";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -16,12 +17,14 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   // -------------------------------------------------------
-  // Dansk kommentar: Login-funktion der bruger Supabase-session
+  // Login-funktion der bruger Supabase-session
   // -------------------------------------------------------
+  // Translation constant
   const { t } = useTranslation();
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    console.log("LOGIN SUBMITTED"); // ← Debug
+    // console.log("LOGIN SUBMITTED"); // ← Debug
 
     e.preventDefault();
     setLoading(true);
@@ -35,7 +38,7 @@ export default function LoginForm() {
       });
 
     if (loginError) {
-      setErrorMsg("Forkert e-mail eller kodeord");
+      setErrorMsg(t("ErrorMsg.wrongEmail_Password"));
       setLoading(false);
       return;
     }
@@ -55,14 +58,12 @@ export default function LoginForm() {
       .single();
 
     if (profileError || !profileData) {
-      setErrorMsg("Kunne ikke hente brugerprofil.");
+      setErrorMsg(t("wrongEmail_Password"));
       setLoading(false);
       return;
     }
 
-    // ❗ 3️⃣ Fjernet: ingen localStorage, AuthContext håndterer alt
-
-    // 4️⃣ Redirect
+    // 3️⃣ Redirect
     router.push("/");
 
     setLoading(false);
@@ -77,7 +78,7 @@ export default function LoginForm() {
       </h2>
 
       <p className="text-secondary-300 text-sm mb-8">
-      {t("welcome.subtitle")}
+        {t("welcome.subtitle")}
       </p>
 
       <label className="block mb-2 text-main font-medium">E-mail:</label>

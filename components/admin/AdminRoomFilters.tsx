@@ -26,8 +26,8 @@ export default function AdminRoomFilters({
   setFloorFilter,
   statusFilter,
   setStatusFilter,
-}: Props) 
-{
+}: Props) {
+  //Translation constant
   const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-4 mb-12">
