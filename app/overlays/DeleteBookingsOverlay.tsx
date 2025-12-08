@@ -28,7 +28,6 @@ export function DeleteBookingOverlay({
 
   return (
     <Modal opened={opened} onClose={onClose} centered title={null}>
-      {/* NY FONT AWESOME LUK-KNAP */}
       <button
         onClick={onClose}
         className="absolute top-3 right-3 text-gray-500 hover:text-red-500 cursor-pointer transition"
@@ -63,7 +62,8 @@ export function DeleteBookingOverlay({
           </Text>
 
           <Text>
-            <b>Tid:</b> {start.toLocaleTimeString("da-DK", { timeStyle: "short" })}
+            <b>Tid:</b>{" "}
+            {start.toLocaleTimeString("da-DK", { timeStyle: "short" })}
             {" – "}
             {end.toLocaleTimeString("da-DK", { timeStyle: "short" })}
           </Text>
