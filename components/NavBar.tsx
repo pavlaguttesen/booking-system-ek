@@ -33,7 +33,7 @@ export default function NavBar() {
           </Link>
 
           <Link href="/mypage" className="hover:underline">
-            Min side
+            
 
             {t("navbar.mypage")}
           </Link>
