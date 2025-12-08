@@ -39,7 +39,7 @@ export default function BookingInfoPopup({
   return (
     <div
       ref={ref}
-      className="absolute z-[9999] bg-white border border-secondary-200 shadow-lg rounded-lg p-3 w-64"
+      className="absolute z-9999 bg-white border border-secondary-200 shadow-lg rounded-lg p-3 w-64"
       style={{
         top: y + 8,
         left: x + 8,

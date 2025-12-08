@@ -4,22 +4,30 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Logo from "./logo";
+import { useTranslation } from "react-i18next";
 
 export default function LoginForm() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
+  const [remember, setRemember] = useState(false); // Dansk: endnu ikke implementeret
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // -------------------------------------------------------
+  // Dansk kommentar: Login-funktion der bruger Supabase-session
+  // -------------------------------------------------------
+  const { t } = useTranslation();
   async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    console.log("LOGIN SUBMITTED"); // ← Debug
+
     e.preventDefault();
     setLoading(true);
     setErrorMsg("");
 
-    // 1️⃣ Log in
+    // 1️⃣ Forsøg login – Supabase opretter automatisk session + refresh token
     const { data: loginData, error: loginError } =
       await supabase.auth.signInWithPassword({
         email,
@@ -39,7 +47,7 @@ export default function LoginForm() {
       return;
     }
 
-    // 2️⃣ Fetch profile row
+    // 2️⃣ Hent profil – dette påvirker ikke session
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("*")
@@ -52,20 +60,9 @@ export default function LoginForm() {
       return;
     }
 
-    const role = profileData.role ?? "student";
+    // ❗ 3️⃣ Fjernet: ingen localStorage, AuthContext håndterer alt
 
-    // 3️⃣ Store in localStorage (temporary state until context is used)
-    localStorage.setItem(
-      "booking_profile",
-      JSON.stringify({
-        id: user.id,
-        email: user.email,
-        role,
-        full_name: profileData.full_name ?? "",
-      })
-    );
-
-    // 4️⃣ Redirect user
+    // 4️⃣ Redirect
     router.push("/");
 
     setLoading(false);
@@ -76,12 +73,11 @@ export default function LoginForm() {
       <Logo />
 
       <h2 className="text-main text-sm mb-1">
-        Velkommen til bookingsystemet
+        {t("welcome.title")}
       </h2>
 
       <p className="text-secondary-300 text-sm mb-8">
-        Her kan du nemt booke lokaler, udstyr og studiepladser. <br />
-        Log ind med dit EK København-login.
+      {t("welcome.subtitle")}
       </p>
 
       <label className="block mb-2 text-main font-medium">E-mail:</label>
@@ -93,7 +89,7 @@ export default function LoginForm() {
         required
       />
 
-      <label className="block mb-2 text-main font-medium">Kodeord:</label>
+      <label className="block mb-2 text-main font-medium">{t("welcome.password")}:</label>
       <input
         type="password"
         className="border border-secondary-200 bg-card text-main rounded w-full p-2 mb-2"
@@ -111,7 +107,7 @@ export default function LoginForm() {
         disabled={loading}
         className="bg-primary-600 text-invert hover:opacity-90 font-bold py-2 px-4 rounded w-full"
       >
-        {loading ? "Logger ind..." : "Log ind"}
+        {loading ? t("welcome.loggingIn") : t("welcome.login")}
       </button>
 
       <label className="flex items-center mt-4 text-main">
@@ -121,7 +117,7 @@ export default function LoginForm() {
           onChange={() => setRemember(!remember)}
           className="mr-2"
         />
-        Husk mig
+        {t("welcome.remember")}
       </label>
     </form>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { Select, TextInput, Group } from "@mantine/core";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   search: string;
@@ -25,12 +26,14 @@ export default function AdminRoomFilters({
   setFloorFilter,
   statusFilter,
   setStatusFilter,
-}: Props) {
+}: Props) 
+{
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-4 mb-12">
       <TextInput
-        label="Søg"
-        placeholder="Søg efter lokale…"
+        label={t("booking.search")}
+        placeholder={t("admin.lookforroom")}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -38,25 +41,25 @@ export default function AdminRoomFilters({
       <Group grow>
         <Select
           label="Type"
-          placeholder="Alle typer"
+          placeholder={t("admin.allTypes")}
           value={typeFilter}
           onChange={setTypeFilter}
           data={[
-            { value: null, label: "Alle typer" },
-            { value: "studierum", label: "Studierum" },
-            { value: "møderum", label: "Møderum" },
-            { value: "klasseværelse", label: "Klasselokale" },
+            { value: null, label: t("admin.allTypes") },
+            { value: "studierum", label: t("booking.stydyroom") },
+            { value: "møderum", label: t("booking.meetingroom") },
+            { value: "klasseværelse", label: t("booking.classroom") },
             { value: "auditorium", label: "Auditorium" },
           ].map((x) => ({ value: x.value ?? "", label: x.label }))}
         />
 
         <Select
-          label="Etage"
-          placeholder="Alle etager"
+          label={t("booking.floor")}
+          placeholder={t("admin.allFloor")}
           value={floorFilter}
           onChange={setFloorFilter}
           data={[
-            { value: "", label: "Alle etager" },
+            { value: "", label: t("admin.allFloor") },
             { value: "0", label: "0" },
             { value: "1", label: "1" },
             { value: "2", label: "2" },
@@ -66,13 +69,13 @@ export default function AdminRoomFilters({
 
         <Select
           label="Status"
-          placeholder="Alle"
+          placeholder={t("admin.all")}
           value={statusFilter}
           onChange={setStatusFilter}
           data={[
-            { value: "", label: "Alle" },
-            { value: "open", label: "Åbne" },
-            { value: "closed", label: "Lukkede" },
+            { value: "", label: t("admin.all") },
+            { value: "open", label: t("admin.open") },
+            { value: "closed", label: t("admin.closed") },
           ]}
         />
       </Group>

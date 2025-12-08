@@ -15,7 +15,7 @@ export default function SettingsOverlay({open, onClose}: any) {
 
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-        <div className="bg-white w-[80%] h-[80%] rounded-xl flex shadow-xl relative">
+        <div className="w-[80%] h-[80%] rounded-xl flex shadow-xl relative" style={{ backgroundColor: "var(--color-surface-card)", color: "var(--color-text-main)" }}>
         
         {/* En rød luk knaap */}
         <button onClick={onClose} className="absolute right-4 top-4 text-xl"><FontAwesomeIcon icon={faCircleXmark} style={{color: "#bb271a",}} /></button> {/* En rød luk knap */}

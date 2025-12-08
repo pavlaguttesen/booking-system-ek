@@ -1,13 +1,18 @@
 "use client";
 
+// Dansk kommentar: Admin-panel der viser alle bookinger med filtre
+// og mulighed for at slette bookinger via et "er du sikker?" overlay.
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Button, Select, Group, Card, Text } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import dayjs from "dayjs";
 import "dayjs/locale/da";
+import { DeleteBookingOverlay } from "@/app/overlays/DeleteBookingsOverlay";
+import { useTranslation } from "react-i18next";
 
-// Dansk: Alt i ISO-format fordi Mantine v6 håndterer dette stabilt
+// Dansk kommentar: Vi bruger ISO-string som intern repræsentation for dato-filtre
 const ISO = "YYYY-MM-DD";
 
 export default function AdminBookingPanel() {
@@ -19,13 +24,24 @@ export default function AdminBookingPanel() {
   const [userFilter, setUserFilter] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
 
+  // VIGTIGT: Vi holder fast i string | null som du allerede har brugt,
+  // for ikke at ødelægge eksisterende logik.
+  const { t } = useTranslation();
+
   // VIGTIGT → Mantine v6 bruger string | null
   const [dateFrom, setDateFrom] = useState<string | null>(null);
   const [dateTo, setDateTo] = useState<string | null>(null);
 
+  // Dansk kommentar: State til slet-booking overlay
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState<any | null>(null);
+
+  // --------------------------------------------------------
+  // LOAD DATA
+  // --------------------------------------------------------
   async function loadData() {
     const [{ data: b }, { data: r }, { data: p }] = await Promise.all([
-      supabase.from("bookings").select("*"),
+      supabase.from("bookings").select("*").order("start_time", { ascending: true }),
       supabase.from("rooms").select("*"),
       supabase.from("profiles").select("*"),
     ]);
@@ -39,14 +55,24 @@ export default function AdminBookingPanel() {
     void loadData();
   }, []);
 
-  async function deleteBooking(id: string) {
-    await supabase.from("bookings").delete().eq("id", id);
-    setBookings((prev) => prev.filter((b) => b.id !== id));
+  // --------------------------------------------------------
+  // CONFIRM DELETE VIA OVERLAY
+  // --------------------------------------------------------
+  async function handleConfirmDelete() {
+    if (!bookingToDelete) return;
+
+    await supabase.from("bookings").delete().eq("id", bookingToDelete.id);
+
+    // Dansk kommentar: Reload alle data, så panel og øvrige views er i sync
+    await loadData();
+
+    setDeleteOpen(false);
+    setBookingToDelete(null);
   }
 
-  // -----------------------
+  // --------------------------------------------------------
   // FILTERING
-  // -----------------------
+  // --------------------------------------------------------
   const filtered = bookings.filter((b) => {
     const start = dayjs(b.start_time);
 
@@ -60,10 +86,9 @@ export default function AdminBookingPanel() {
     return true;
   });
 
-  // -----------------------
-  // SHORTCUT BUTTONS
-  // -----------------------
-
+  // --------------------------------------------------------
+  // DATE SHORTCUT BUTTONS
+  // --------------------------------------------------------
   const pickToday = () => {
     const d = dayjs().format(ISO);
     setDateFrom(d);
@@ -90,6 +115,9 @@ export default function AdminBookingPanel() {
     setDateTo(end.format(ISO));
   };
 
+  // --------------------------------------------------------
+  // RENDER
+  // --------------------------------------------------------
   return (
     <div className="flex flex-col gap-8">
       <h2 className="text-xl font-semibold text-main">Alle bookinger</h2>
@@ -97,36 +125,41 @@ export default function AdminBookingPanel() {
       {/* FILTERS */}
       <Group grow>
         <Select
-          label="Rum"
+          label={t("admin.room")}
           value={roomFilter}
           onChange={setRoomFilter}
           data={rooms.map((r) => ({ value: r.id, label: r.room_name }))}
+          clearable
         />
+
         <Select
-          label="Bruger"
+          label={t("admin.user")}
           value={userFilter}
           onChange={setUserFilter}
           data={profiles.map((p) => ({
             value: p.id,
             label: p.full_name ?? "Ukendt",
           }))}
+          clearable
         />
+
         <Select
           label="Type"
           value={typeFilter}
           onChange={setTypeFilter}
           data={[
             { value: "normal", label: "Normal booking" },
-            { value: "exam", label: "Eksamensbooking" },
+            { value: "exam", label: t("admin.exambooking") },
           ]}
+          clearable
         />
       </Group>
 
-      {/* DATEPICKERS */}
+      {/* DATE PICKERS */}
       <Group grow>
         <DatePickerInput
           locale="da"
-          label="Fra dato"
+          label={t("admin.fromDate")}
           value={dateFrom}
           onChange={setDateFrom}
           valueFormat="DD-MM-YYYY"
@@ -135,7 +168,7 @@ export default function AdminBookingPanel() {
 
         <DatePickerInput
           locale="da"
-          label="Til dato"
+          label={t("admin.toDate")}
           value={dateTo}
           onChange={setDateTo}
           valueFormat="DD-MM-YYYY"
@@ -145,10 +178,10 @@ export default function AdminBookingPanel() {
 
       {/* SHORTCUT BUTTONS */}
       <Group>
-        <Button onClick={pickToday}>I dag</Button>
-        <Button onClick={pickTomorrow}>I morgen</Button>
-        <Button onClick={pickThisWeek}>Denne uge</Button>
-        <Button onClick={pickNextWeek}>Næste uge</Button>
+        <Button onClick={pickToday}>{t("booking.today")}</Button>
+        <Button onClick={pickTomorrow}>{t("booking.tomorrow")}</Button>
+        <Button onClick={pickThisWeek}>{t("admin.thisWeek")}</Button>
+        <Button onClick={pickNextWeek}>{t("admin.nextWeek")}</Button>
         <Button variant="outline" onClick={() => { setDateFrom(null); setDateTo(null); }}>
           Reset
         </Button>
@@ -165,22 +198,41 @@ export default function AdminBookingPanel() {
               <Group justify="space-between">
                 <div>
                   <Text fw={600}>{b.title || "Booking"}</Text>
+
                   <Text size="sm">
-                    {room?.room_name ?? "Ukendt lokale"} •{" "}
+                    {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
                     {dayjs(b.start_time).format("DD/MM/YYYY HH:mm")} –{" "}
                     {dayjs(b.end_time).format("HH:mm")}
                   </Text>
-                  <Text size="sm">{user?.full_name || "Ukendt bruger"}</Text>
+                  <Text size="sm">{user?.full_name || t("unknown.unknownUser")}</Text>
                 </div>
 
-                <Button color="red" onClick={() => deleteBooking(b.id)}>
-                  Slet
+                <Button
+                  color="red"
+                  onClick={() => {
+                    setBookingToDelete(b);
+                    setDeleteOpen(true);
+                  }}
+                >
+                  {t("admin.delete")}
                 </Button>
               </Group>
             </Card>
           );
         })}
       </div>
+
+      {/* SLET BOOKING OVERLAY */}
+      {deleteOpen && bookingToDelete && (
+        <DeleteBookingOverlay
+          opened={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          booking={bookingToDelete}
+          room={rooms.find((r) => r.id === bookingToDelete.room_id) || null}
+          profile={profiles.find((p) => p.id === bookingToDelete.user_id) || null}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
     </div>
   );
 }
