@@ -110,7 +110,7 @@ export default function TopFilterBar() {
               className="px-3 py-2 rounded-md border text-sm bg-secondary-300 border-secondary-200 text-main w-24 mt-1"
             />
           ) : (
-            <div className="w-24 h-[36px] mt-1 bg-secondary-300 rounded-md border border-secondary-200" />
+            <div className="w-24 h-36px mt-1 bg-secondary-300 rounded-md border border-secondary-200" />
           )}
         </div>
 
