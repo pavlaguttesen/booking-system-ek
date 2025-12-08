@@ -5,10 +5,12 @@ import { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import SettingsOverlay from "./settings/SettingsOverlay";
+import { useTranslation } from "react-i18next";
 
 export default function NavBar() {
   const { role } = useAuth();
   const [openSettings, setOpenSettings] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -27,18 +29,20 @@ export default function NavBar() {
         {/* Navigation */}
         <nav className="flex gap-10 text-primary-600 font-medium text-lg">
           <Link href="/" className="hover:underline">
-            Kalender
+            {t("navbar.calender")}
           </Link>
 
           <Link href="/mypage" className="hover:underline">
             Min side
+
+            {t("navbar.mypage")}
           </Link>
 
           <button
             onClick={() => setOpenSettings(true)}
             className="hover:underline"
           >
-            Indstillinger
+            {t("navbar.settings")}
           </button>
 
           {role === "admin" && (

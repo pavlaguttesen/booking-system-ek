@@ -6,9 +6,18 @@ import "@mantine/dates/styles.css";
 
 import { MantineProvider, createTheme } from "@mantine/core";
 import { Inter } from "next/font/google";
+import { ThemeProvider } from "next-themes";
+import { LanguageProvider } from "@/context/LanguageContext";
+import { SettingsProvider } from "@/context/SettingsContext";
+import "../translate/index";
 
 import { AuthProvider } from "@/context/AuthContext";
-import LayoutClient from "@/components/LayoutClient";
+
+
+import NavbarWrapper from "@/components/NavbarWrapper";
+import NavBar from "@/components/NavBar";
+
+
 
 export const metadata: Metadata = {
   title: "Booking system",
@@ -46,15 +55,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="da" className={inter.variable}>
       <body className="bg-page text-main font-sans">
+        <ThemeProvider>
+          <LanguageProvider>
+            <MantineProvider theme={theme} defaultColorScheme="light">
+              <AuthProvider>
+                <SettingsProvider>
 
-        {/* 🔥 MantineProvider + Auth + LayoutClient */}
-        <MantineProvider theme={theme} defaultColorScheme="light">
-          <AuthProvider>
-            <LayoutClient>
-              {children}
-            </LayoutClient>
-          </AuthProvider>
-        </MantineProvider>
+
+                  <NavbarWrapper>
+                    <NavBar />
+                  </NavbarWrapper>
+
+                  {children}
+
+
+                </SettingsProvider>
+              </AuthProvider>
+            </MantineProvider>
+          </LanguageProvider>
+        </ThemeProvider>
 
         {/* 🔥🔥 MÅ IKKE LIGGE INDE I MantineProvider */}
         <div id="overlay-root"></div>

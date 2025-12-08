@@ -10,6 +10,7 @@ import { DatePickerInput } from "@mantine/dates";
 import dayjs from "dayjs";
 import "dayjs/locale/da";
 import { DeleteBookingOverlay } from "@/app/overlays/DeleteBookingsOverlay";
+import { useTranslation } from "react-i18next";
 
 // Dansk kommentar: Vi bruger ISO-string som intern repræsentation for dato-filtre
 const ISO = "YYYY-MM-DD";
@@ -25,6 +26,9 @@ export default function AdminBookingPanel() {
 
   // VIGTIGT: Vi holder fast i string | null som du allerede har brugt,
   // for ikke at ødelægge eksisterende logik.
+  const { t } = useTranslation();
+
+  // VIGTIGT → Mantine v6 bruger string | null
   const [dateFrom, setDateFrom] = useState<string | null>(null);
   const [dateTo, setDateTo] = useState<string | null>(null);
 
@@ -121,7 +125,7 @@ export default function AdminBookingPanel() {
       {/* FILTERS */}
       <Group grow>
         <Select
-          label="Rum"
+          label={t("admin.room")}
           value={roomFilter}
           onChange={setRoomFilter}
           data={rooms.map((r) => ({ value: r.id, label: r.room_name }))}
@@ -129,7 +133,7 @@ export default function AdminBookingPanel() {
         />
 
         <Select
-          label="Bruger"
+          label={t("admin.user")}
           value={userFilter}
           onChange={setUserFilter}
           data={profiles.map((p) => ({
@@ -145,7 +149,7 @@ export default function AdminBookingPanel() {
           onChange={setTypeFilter}
           data={[
             { value: "normal", label: "Normal booking" },
-            { value: "exam", label: "Eksamensbooking" },
+            { value: "exam", label: t("admin.exambooking") },
           ]}
           clearable
         />
@@ -155,7 +159,7 @@ export default function AdminBookingPanel() {
       <Group grow>
         <DatePickerInput
           locale="da"
-          label="Fra dato"
+          label={t("admin.fromDate")}
           value={dateFrom}
           onChange={setDateFrom}
           valueFormat="DD-MM-YYYY"
@@ -164,7 +168,7 @@ export default function AdminBookingPanel() {
 
         <DatePickerInput
           locale="da"
-          label="Til dato"
+          label={t("admin.toDate")}
           value={dateTo}
           onChange={setDateTo}
           valueFormat="DD-MM-YYYY"
@@ -174,18 +178,11 @@ export default function AdminBookingPanel() {
 
       {/* SHORTCUT BUTTONS */}
       <Group>
-        <Button onClick={pickToday}>I dag</Button>
-        <Button onClick={pickTomorrow}>I morgen</Button>
-        <Button onClick={pickThisWeek}>Denne uge</Button>
-        <Button onClick={pickNextWeek}>Næste uge</Button>
-
-        <Button
-          variant="outline"
-          onClick={() => {
-            setDateFrom(null);
-            setDateTo(null);
-          }}
-        >
+        <Button onClick={pickToday}>{t("booking.today")}</Button>
+        <Button onClick={pickTomorrow}>{t("booking.tomorrow")}</Button>
+        <Button onClick={pickThisWeek}>{t("admin.thisWeek")}</Button>
+        <Button onClick={pickNextWeek}>{t("admin.nextWeek")}</Button>
+        <Button variant="outline" onClick={() => { setDateFrom(null); setDateTo(null); }}>
           Reset
         </Button>
       </Group>
@@ -203,22 +200,15 @@ export default function AdminBookingPanel() {
                   <Text fw={600}>{b.title || "Booking"}</Text>
 
                   <Text size="sm">
-                    {room?.room_name ?? "Ukendt lokale"} •{" "}
+                    {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
                     {dayjs(b.start_time).format("DD/MM/YYYY HH:mm")} –{" "}
                     {dayjs(b.end_time).format("HH:mm")}
                   </Text>
-
-                  <Text size="sm">{user?.full_name || "Ukendt bruger"}</Text>
+                  <Text size="sm">{user?.full_name || t("unknown.unknownUser")}</Text>
                 </div>
 
-                <Button
-                  color="red"
-                  onClick={() => {
-                    setBookingToDelete(b);
-                    setDeleteOpen(true);
-                  }}
-                >
-                  Slet
+                <Button color="red" onClick={() => deleteBooking(b.id)}>
+                  {t("admin.delete")}
                 </Button>
               </Group>
             </Card>

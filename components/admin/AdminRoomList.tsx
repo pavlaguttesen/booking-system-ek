@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Button, Group } from "@mantine/core";
 import SmoothSwitch from "@/components/admin/SmoothSwitch";
+import EditRoomOverlay from "@/app/overlays/EditRoomOverlay";
+import { useTranslation } from "react-i18next";
 
 // ------------------------------
 // NATURAL SORT FUNCTION
@@ -69,6 +71,10 @@ export default function AdminRoomList({
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [editingRoom, setEditingRoom] = useState<Room | null>(null);
+
+  const { t } = useTranslation();
+
   async function loadRooms() {
     setLoading(true);
 
@@ -117,7 +123,7 @@ export default function AdminRoomList({
   }, [rooms, search, typeFilter, floorFilter, statusFilter]);
 
   if (loading) {
-    return <p className="text-main text-sm">Henter lokaler...</p>;
+    return <p className="text-main text-sm">{t("layout.retrievesrooms")}</p>;
   }
 
   return (
@@ -131,7 +137,7 @@ export default function AdminRoomList({
             className="bg-white rounded-xl shadow-sm border border-secondary-200 px-8 py-6"
           >
             <h3 className="text-lg font-semibold text-main mb-4">
-              Etage {floor}
+              {t("admin.floor")} {floor}
             </h3>
 
             <div className="border-t border-secondary-200/60 mb-4" />
@@ -151,12 +157,12 @@ export default function AdminRoomList({
                       </span>
 
                       <span className="text-sm text-secondary-600">
-                        {room.room_type} • {room.capacity} pladser
+                        {room.room_type} • {room.capacity} {t("booking.seats")}
                       </span>
 
                       {room.is_closed && (
                         <span className="text-sm text-red-600 mt-1">
-                          Dette lokale er midlertidigt lukket
+                          {t("booking.roomclosed")}
                         </span>
                       )}
                     </div>
@@ -165,7 +171,7 @@ export default function AdminRoomList({
                     <Group gap="md" wrap="wrap" className="shrink-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-secondary-600">
-                          {room.is_closed ? "Lukket" : "Åben"}
+                          {room.is_closed ? t("booking.closed") : t("booking.open")}
                         </span>
 
                         <SmoothSwitch
@@ -195,6 +201,20 @@ export default function AdminRoomList({
                         color="red"
                         variant="outline"
                         onClick={() => onDelete(room)}
+                        onClick={async () => {
+                          const ok = window.confirm(
+                            `${t("admin.deletebookingtext")} ${room.room_name}?`
+                          );
+
+                          if (!ok) return;
+
+                          await supabase
+                            .from("rooms")
+                            .delete()
+                            .eq("id", room.id);
+
+                          loadRooms();
+                        }}
                       >
                         Slet
                       </Button>
