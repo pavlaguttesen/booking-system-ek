@@ -4,6 +4,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import RoomFiltersDropdown from "./RoomFiltersDropdown";
 import { DateInput, TimeInput } from "@mantine/dates";
 import { Button, Group } from "@mantine/core";
 import dayjs from "dayjs";
@@ -29,6 +30,10 @@ export function BookingAdvancedFilters({
     fourPersons: boolean;
     sixPersons: boolean;
     eightPersons: boolean;
+    capacity?: number | null;
+    floor?: number | null;
+    roomType?: string | null;
+    filteredRooms?: any[];
   }) => void;
 
   onError: (title: string, message: string) => void;
@@ -48,6 +53,7 @@ export function BookingAdvancedFilters({
   const [timeFrom, setTimeFrom] = useState("");
   const [timeTo, setTimeTo] = useState("");
   const [suggestedTimes, setSuggestedTimes] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   const today = dayjs().startOf("day");
 
@@ -231,29 +237,54 @@ export function BookingAdvancedFilters({
         onChange={(e) => setTimeTo(e.currentTarget.value)}
       />
 
-      {/* Søg */}
-      <Button
-        fullWidth
-        onClick={() => {
-          if (!timeFrom || !timeTo) {
-            onError(t("booking.choosedate"), t("booking.choosestartandendtime"));
-            return;
-          }
-
-          onSearch({
-            timeFrom,
-            timeTo,
-            whiteboard: roomFilters.whiteboard,
-            screen: roomFilters.screen,
-            board: roomFilters.board,
-            fourPersons: false,
-            sixPersons: false,
-            eightPersons: false,
-          });
-        }}
-      >
-        {t("booking.search")}
-      </Button>
+      {/* Show Filters Toggle & Søg */}
+      <div className="flex flex-col gap-2">
+        <Button
+          size="xs"
+          variant="outline"
+          onClick={() => setShowFilters((v) => !v)}
+          style={{ alignSelf: "flex-end", maxWidth: 120 }}
+        >
+          {showFilters ? t("booking.hidefilters") : t("booking.showfilters")}
+        </Button>
+        {showFilters && (
+          <div
+            className="mt-1 p-1"
+            style={{ maxWidth: 260 }}
+          >
+            {/* Compact filter dropdown */}
+            <RoomFiltersDropdown compact={true} />
+          </div>
+        )}
+        <Button
+          fullWidth
+          onClick={() => {
+            if (!timeFrom || !timeTo) {
+              onError(t("booking.choosedate"), t("booking.choosestartandendtime"));
+              return;
+            }
+            // Ensure correct types for filters
+            const capacity = typeof roomFilters.capacity === "string" ? Number(roomFilters.capacity) : roomFilters.capacity;
+            const floor = typeof roomFilters.floor === "string" ? Number(roomFilters.floor) : roomFilters.floor;
+            onSearch({
+              timeFrom,
+              timeTo,
+              whiteboard: roomFilters.whiteboard,
+              screen: roomFilters.screen,
+              board: roomFilters.board,
+              capacity,
+              floor,
+              roomType: roomFilters.roomType,
+              filteredRooms,
+              fourPersons: false,
+              sixPersons: false,
+              eightPersons: false,
+            });
+          }}
+        >
+          {t("booking.search")}
+        </Button>
+      </div>
     </div>
   );
 }

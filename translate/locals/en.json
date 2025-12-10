@@ -89,6 +89,8 @@
     "endtime": "End time",
     "end": "End",
     "resetfilter": "Reset filter",
+    "showfilters": "Show filters",
+    "hidefilters": "Hide filters",
     "overviewrooms": "Overview of rooms",
     "bulletinboard": "Bulletinboard",
     "Screen": "Screen",

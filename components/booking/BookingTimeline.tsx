@@ -75,7 +75,7 @@ export function BookingTimeline({
     []
   );
 
-  // Sortér rum korrekt
+  // Sortér rum korrekt: by floor, then alphabetically by room name
   const sortedRooms = useMemo(() => {
     return [...filteredRooms].sort((a, b) => {
       const fa = a.floor ?? 0;
@@ -83,11 +83,8 @@ export function BookingTimeline({
 
       if (fa !== fb) return fa - fb;
 
-      const pa = a.room_name.split(".").map(Number);
-      const pb = b.room_name.split(".").map(Number);
-
-      if (pa[1] !== pb[1]) return pa[1] - pb[1];
-      return pa[2] - pb[2];
+      // Sort alphabetically by room name
+      return (a.room_name || "").localeCompare(b.room_name || "");
     });
   }, [filteredRooms]);
 

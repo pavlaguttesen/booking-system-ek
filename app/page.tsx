@@ -130,6 +130,10 @@ function PageContent() {
     fourPersons: boolean;
     sixPersons: boolean;
     eightPersons: boolean;
+    capacity?: number | null;
+    floor?: number | null;
+    roomType?: string | null;
+    filteredRooms?: any[];
   }) {
     if (!selectedDate) {
       return setError({
@@ -179,19 +183,23 @@ function PageContent() {
       });
     }
 
-    const requiredCap = filters.eightPersons
+    const requiredCap = filters.capacity ?? (filters.eightPersons
       ? 8
       : filters.sixPersons
         ? 6
         : filters.fourPersons
           ? 4
-          : 0;
+          : 0);
 
     const featureMatched = rooms.filter((r) => {
       if (filters.whiteboard && !r.has_whiteboard) return false;
       if (filters.screen && !r.has_screen) return false;
       if (filters.board && !r.has_board) return false;
       if (requiredCap && (r.capacity || 0) < requiredCap) return false;
+      // Use floor filter if provided
+      if (filters.floor !== null && filters.floor !== undefined && r.floor !== filters.floor) return false;
+      // Use room type filter if provided
+      if (filters.roomType && r.room_type !== filters.roomType) return false;
       return true;
     });
 
@@ -218,6 +226,12 @@ function PageContent() {
 
         return s < bEnd && e > bStart;
       });
+    }).sort((a, b) => {
+      // Sort by floor first, then by room name alphabetically
+      const fa = a.floor ?? 0;
+      const fb = b.floor ?? 0;
+      if (fa !== fb) return fa - fb;
+      return (a.room_name || "").localeCompare(b.room_name || "");
     });
 
     if (available.length === 0) {
