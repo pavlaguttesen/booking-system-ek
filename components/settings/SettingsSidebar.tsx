@@ -7,9 +7,12 @@ import { useTranslation } from "react-i18next";
 export default function SettingsSidebar({
   activePage,
   setActivePage,
+  onClose
 }: {
   activePage: string;
   setActivePage: (page: string) => void;
+  onClose: () => void;
+
 }) {
   const { t } = useTranslation();
   const { user, profile } = useAuth();
@@ -34,7 +37,7 @@ export default function SettingsSidebar({
           onClick={() => setActivePage(item.id)}
           className={`flex items-center gap-3 p-3 rounded-lg text-left transition
             ${
-              activePage === item.id ? "bg-(var(--color-secondary-200) shadow" : "hover:bg-white/40"
+              activePage === item.id ? "bg-white/40" : "hover:bg-white/40"
             }`}
         >
           <span>{item.icon}</span>
@@ -43,8 +46,9 @@ export default function SettingsSidebar({
       ))}
 
       <Link
-        href="/min-side"
-        className="mt-auto bg-white p-4 rounded-lg flex items-center gap-3 hover:bg-white/80 transition"
+        href="/mypage"
+        className="mt-auto bg-white/40 p-4 rounded-lg flex items-center gap-3 hover:bg-white/80 transition"
+      onClick={onClose}
       >
         {/* <img
           src={profile?.avatar_url || "/avatar.jpg"}
@@ -57,6 +61,7 @@ export default function SettingsSidebar({
           </p>
           <p className="text-xs text-gray-500">{user?.email}</p>
         </div>
+
       </Link>
     </div>
   );

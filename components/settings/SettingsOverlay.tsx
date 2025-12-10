@@ -13,7 +13,6 @@ import { useTranslation } from "react-i18next";
 
 export default function SettingsOverlay({ open, onClose }: any) {
   const [activePage, setActivePage] = useState("apparance");
-
   const { t } = useTranslation();
 
   if (!open) return null;
@@ -35,14 +34,14 @@ export default function SettingsOverlay({ open, onClose }: any) {
         <FontAwesomeIcon icon={faCircleXmark} style={{ color: "#bb271a" }} />
       </button>
 
-      <SettingsSidebar activePage={activePage} setActivePage={setActivePage} />
+      <SettingsSidebar activePage={activePage} onClose={onClose} setActivePage={setActivePage} />
 
       {/* Hovedindhold */}
       <div className="flex-1 flex flex-col overflow-y-auto">
 
         {/* Header */}
         <div
-          className="px-8 py-4 text-2xl font-bold justify-center flex"
+          className="px-8 py-4 text-2xl font-bold justify-center flex rounded-tr-xl"
           style={{
             backgroundColor: "var(--color-secondary-200)",
             color: "var(--color-text-invert)",
