@@ -43,6 +43,22 @@ export type Booking = {
   start_time: string;
   end_time: string;
   title: string | null;
+  is_repeating?: boolean;
+  parent_repeating_id?: string | null;
+};
+
+export type RepeatingBooking = {
+  id: string;
+  room_id: string;
+  title: string | null;
+  start_time: string;
+  end_time: string;
+  recurrence_type: "daily" | "weekly" | "biweekly" | "monthly";
+  recurrence_end_date: string;
+  is_active: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Profile = {

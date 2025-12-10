@@ -95,9 +95,9 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Fejl- og succesbeskeder */}
-      {errorMsg && <p className="text-red-600 text-sm">{errorMsg}</p>}
+      {errorMsg && <p className="text-status-booked text-sm">{errorMsg}</p>}
 
-      {successMsg && <p className="text-green-700 text-sm">{successMsg}</p>}
+      {successMsg && <p className="text-main text-sm">{successMsg}</p>}
 
       {/* Lokalenavn */}
       <TextInput

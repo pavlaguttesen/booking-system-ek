@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Button, Select, Group, Card, Text } from "@mantine/core";
+import { Button, Select, Group, Card, Text, Tabs } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import dayjs from "dayjs";
 import "dayjs/locale/da";
@@ -16,6 +16,7 @@ const ISO = "YYYY-MM-DD";
 
 export default function AdminBookingPanel() {
   const [bookings, setBookings] = useState<any[]>([]);
+  const [repeatingBookings, setRepeatingBookings] = useState<any[]>([]);
   const [rooms, setRooms] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
 
@@ -34,20 +35,29 @@ export default function AdminBookingPanel() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<any | null>(null);
 
+  //State til slet-repeating booking
+  const [deleteRepeatingOpen, setDeleteRepeatingOpen] = useState(false);
+  const [repeatingToDelete, setRepeatingToDelete] = useState<any | null>(null);
+
   // --------------------------------------------------------
   // INDLÆS DATA
   // --------------------------------------------------------
   async function loadData() {
-    const [{ data: b }, { data: r }, { data: p }] = await Promise.all([
+    const [{ data: b }, { data: rb }, { data: r }, { data: p }] = await Promise.all([
       supabase
         .from("bookings")
         .select("*")
         .order("start_time", { ascending: true }),
+      supabase
+        .from("repeating_bookings")
+        .select("*")
+        .order("created_at", { ascending: false }),
       supabase.from("rooms").select("*"),
       supabase.from("profiles").select("*"),
     ]);
 
     setBookings(b || []);
+    setRepeatingBookings(rb || []);
     setRooms(r || []);
     setProfiles(p || []);
   }
@@ -69,6 +79,25 @@ export default function AdminBookingPanel() {
 
     setDeleteOpen(false);
     setBookingToDelete(null);
+  }
+
+  // --------------------------------------------------------
+  // BEKRÆFT SLETNING AF TILBAGEVENDENDE BOOKING
+  // --------------------------------------------------------
+  async function handleConfirmDeleteRepeating() {
+    if (!repeatingToDelete) return;
+
+    // Delete both the repeating booking and all its associated bookings
+    await Promise.all([
+      supabase.from("repeating_bookings").delete().eq("id", repeatingToDelete.id),
+      supabase.from("bookings").delete().eq("parent_repeating_id", repeatingToDelete.id),
+    ]);
+
+    // Reload alle data
+    await loadData();
+
+    setDeleteRepeatingOpen(false);
+    setRepeatingToDelete(null);
   }
 
   // --------------------------------------------------------
@@ -116,6 +145,22 @@ export default function AdminBookingPanel() {
     setDateTo(end.format(ISO));
   };
 
+  // Get recurrence type label
+  const getRecurrenceLabel = (type: string) => {
+    switch (type) {
+      case "daily":
+        return "Dagligt";
+      case "weekly":
+        return "Ugentligt";
+      case "biweekly":
+        return "Hver anden uge";
+      case "monthly":
+        return "Månedligt";
+      default:
+        return type;
+    }
+  };
+
   // --------------------------------------------------------
   // TEGNING
   // --------------------------------------------------------
@@ -123,113 +168,177 @@ export default function AdminBookingPanel() {
     <div className="flex flex-col gap-8">
       <h2 className="text-xl font-semibold text-main">{t("admin.allbookings")}</h2>
 
-      {/* FILTERS */}
-      <Group grow>
-        <Select
-          label={t("admin.room")}
-          value={roomFilter}
-          onChange={setRoomFilter}
-          data={rooms.map((r) => ({ value: r.id, label: r.room_name }))}
-          clearable
-        />
+      <Tabs defaultValue="regular">
+        <Tabs.List>
+          <Tabs.Tab value="regular">Almindelige bookinger ({filtered.length})</Tabs.Tab>
+          <Tabs.Tab value="repeating">Tilbagevendende bookinger ({repeatingBookings.length})</Tabs.Tab>
+        </Tabs.List>
 
-        <Select
-          label={t("admin.user")}
-          value={userFilter}
-          onChange={setUserFilter}
-          data={profiles.map((p) => ({
-            value: p.id,
-            label: p.full_name ?? "Ukendt",
-          }))}
-          clearable
-        />
+        {/* ALMINDELIGE BOOKINGER */}
+        <Tabs.Panel value="regular">
+          {/* FILTERS */}
+          <Group grow className="mt-6">
+            <Select
+              label={t("admin.room")}
+              value={roomFilter}
+              onChange={setRoomFilter}
+              data={rooms.map((r) => ({ value: r.id, label: r.room_name }))}
+              clearable
+            />
 
-        <Select
-          label={t("booking.roomtype")}
-          value={typeFilter}
-          onChange={setTypeFilter}
-          data={[
-            { value: "normal", label: t("admin.normalbooking") },
-            { value: "exam", label: t("admin.exambooking") },
-          ]}
-          clearable
-        />
-      </Group>
+            <Select
+              label={t("admin.user")}
+              value={userFilter}
+              onChange={setUserFilter}
+              data={profiles.map((p) => ({
+                value: p.id,
+                label: p.full_name ?? "Ukendt",
+              }))}
+              clearable
+            />
 
-      {/* DATE PICKERS */}
-      <Group grow>
-        <DatePickerInput
-          locale="da"
-          label={t("admin.fromDate")}
-          value={dateFrom}
-          onChange={setDateFrom}
-          valueFormat="DD-MM-YYYY"
-          clearable
-        />
+            <Select
+              label={t("booking.roomtype")}
+              value={typeFilter}
+              onChange={setTypeFilter}
+              data={[
+                { value: "normal", label: t("admin.normalbooking") },
+                { value: "exam", label: t("admin.exambooking") },
+              ]}
+              clearable
+            />
+          </Group>
 
-        <DatePickerInput
-          locale="da"
-          label={t("admin.toDate")}
-          value={dateTo}
-          onChange={setDateTo}
-          valueFormat="DD-MM-YYYY"
-          clearable
-        />
-      </Group>
+          {/* DATE PICKERS */}
+          <Group grow className="mt-4">
+            <DatePickerInput
+              locale="da"
+              label={t("admin.fromDate")}
+              value={dateFrom}
+              onChange={setDateFrom}
+              valueFormat="DD-MM-YYYY"
+              clearable
+            />
 
-      {/* SHORTCUT BUTTONS */}
-      <Group>
-        <Button onClick={pickToday}>{t("booking.today")}</Button>
-        <Button onClick={pickTomorrow}>{t("booking.tomorrow")}</Button>
-        <Button onClick={pickThisWeek}>{t("admin.thisWeek")}</Button>
-        <Button onClick={pickNextWeek}>{t("admin.nextWeek")}</Button>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setDateFrom(null);
-            setDateTo(null);
-          }}
-        >
-          Reset
-        </Button>
-      </Group>
+            <DatePickerInput
+              locale="da"
+              label={t("admin.toDate")}
+              value={dateTo}
+              onChange={setDateTo}
+              valueFormat="DD-MM-YYYY"
+              clearable
+            />
+          </Group>
 
-      {/* RESULT LIST */}
-      <div className="flex flex-col gap-4">
-        {filtered.map((b) => {
-          const room = rooms.find((r) => r.id === b.room_id);
-          const user = profiles.find((p) => p.id === b.user_id);
+          {/* SHORTCUT BUTTONS */}
+          <Group className="mt-4">
+            <Button onClick={pickToday}>{t("booking.today")}</Button>
+            <Button onClick={pickTomorrow}>{t("booking.tomorrow")}</Button>
+            <Button onClick={pickThisWeek}>{t("admin.thisWeek")}</Button>
+            <Button onClick={pickNextWeek}>{t("admin.nextWeek")}</Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDateFrom(null);
+                setDateTo(null);
+              }}
+            >
+              Reset
+            </Button>
+          </Group>
 
-          return (
-            <Card key={b.id} withBorder padding="lg">
-              <Group justify="space-between">
-                <div>
-                  <Text fw={600}>{b.title || "Booking"}</Text>
+          {/* RESULT LIST */}
+          <div className="flex flex-col gap-4 mt-6">
+            {filtered.map((b) => {
+              const room = rooms.find((r) => r.id === b.room_id);
+              const user = profiles.find((p) => p.id === b.user_id);
 
-                  <Text size="sm">
-                    {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
-                    {dayjs(b.start_time).format("DD/MM/YYYY HH:mm")} –{" "}
-                    {dayjs(b.end_time).format("HH:mm")}
-                  </Text>
-                  <Text size="sm">
-                    {user?.full_name || t("unknown.unknownUser")}
-                  </Text>
-                </div>
+              return (
+                <Card key={b.id} withBorder padding="lg">
+                  <Group justify="space-between">
+                    <div>
+                      <Text fw={600}>{b.title || "Booking"}</Text>
 
-                <Button
-                  color="red"
-                  onClick={() => {
-                    setBookingToDelete(b);
-                    setDeleteOpen(true);
-                  }}
-                >
-                  {t("admin.delete")}
-                </Button>
-              </Group>
-            </Card>
-          );
-        })}
-      </div>
+                      <Text size="sm">
+                        {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
+                        {dayjs(b.start_time).format("DD/MM/YYYY HH:mm")} –{" "}
+                        {dayjs(b.end_time).format("HH:mm")}
+                      </Text>
+                      <Text size="sm">
+                        {user?.full_name || t("unknown.unknownUser")}
+                      </Text>
+                      {b.parent_repeating_id && (
+                        <Text size="xs" c="dimmed">
+                          Del af tilbagevendende booking
+                        </Text>
+                      )}
+                    </div>
+
+                    <Button
+                      color="red"
+                      onClick={() => {
+                        setBookingToDelete(b);
+                        setDeleteOpen(true);
+                      }}
+                    >
+                      {t("admin.delete")}
+                    </Button>
+                  </Group>
+                </Card>
+              );
+            })}
+          </div>
+        </Tabs.Panel>
+
+        {/* TILBAGEVENDENDE BOOKINGER */}
+        <Tabs.Panel value="repeating">
+          {/* RESULT LIST */}
+          <div className="flex flex-col gap-4 mt-6">
+            {repeatingBookings.map((rb) => {
+              const room = rooms.find((r) => r.id === rb.room_id);
+              const creator = profiles.find((p) => p.id === rb.created_by);
+              const bookingCount = bookings.filter(
+                (b) => b.parent_repeating_id === rb.id
+              ).length;
+
+              return (
+                <Card key={rb.id} withBorder padding="lg" className="border-secondary-200 bg-secondary-300/30">
+                  <Group justify="space-between">
+                    <div>
+                      <Text fw={600}>{rb.title || "Tilbagevendende booking"}</Text>
+
+                      <Text size="sm">
+                        {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
+                        {rb.start_time} – {rb.end_time}
+                      </Text>
+                      <Text size="sm">
+                        {getRecurrenceLabel(rb.recurrence_type)} • Slutter:{" "}
+                        {dayjs(rb.recurrence_end_date).format("DD/MM/YYYY")}
+                      </Text>
+                      <Text size="sm">
+                        Oprettet af: {creator?.full_name || t("unknown.unknownUser")}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        Genererer {bookingCount} bookinger
+                      </Text>
+                    </div>
+
+                    <Button
+                      color="red"
+                      onClick={() => {
+                        setRepeatingToDelete(rb);
+                        setDeleteRepeatingOpen(true);
+                      }}
+                    >
+                      {t("admin.delete")}
+                    </Button>
+                  </Group>
+                </Card>
+              );
+            })}
+          </div>
+        </Tabs.Panel>
+      </Tabs>
 
       {/* SLET BOOKING OVERLAY */}
       {deleteOpen && bookingToDelete && (
@@ -243,6 +352,40 @@ export default function AdminBookingPanel() {
           }
           onConfirm={handleConfirmDelete}
         />
+      )}
+
+      {/* DELETE REPEATING BOOKING CONFIRMATION */}
+      {deleteRepeatingOpen && repeatingToDelete && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setDeleteRepeatingOpen(false)}
+        >
+          <Card
+            className="bg-white p-6 rounded-lg shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Text fw={600} size="lg" className="mb-4">
+              Slet tilbagevendende booking?
+            </Text>
+            <Text size="sm" className="mb-4">
+              Dette vil slette "{repeatingToDelete.title}" og alle {bookings.filter(
+                (b) => b.parent_repeating_id === repeatingToDelete.id
+              ).length}{" "}
+              tilknyttede bookinger. Dette kan ikke fortrydes.
+            </Text>
+            <Group justify="flex-end">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteRepeatingOpen(false)}
+              >
+                Annuller
+              </Button>
+              <Button color="red" onClick={handleConfirmDeleteRepeating}>
+                Slet
+              </Button>
+            </Group>
+          </Card>
+        </div>
       )}
     </div>
   );

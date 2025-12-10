@@ -157,12 +157,12 @@ export default function AdminRoomList({
                         {room.room_name}
                       </span>
 
-                      <span className="text-sm text-secondary-600">
+                      <span className="text-sm text-main/70">
                         {room.room_type} • {room.capacity} {t("booking.seats")}
                       </span>
 
                       {room.is_closed && (
-                        <span className="text-sm text-red-600 mt-1">
+                        <span className="text-sm text-status-booked mt-1">
                           {t("booking.roomclosed")}
                         </span>
                       )}
@@ -171,7 +171,7 @@ export default function AdminRoomList({
                     {/* RIGHT SIDE */}
                     <Group gap="md" wrap="wrap" className="shrink-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-secondary-600">
+                        <span className="text-sm text-main/70">
                           {room.is_closed
                             ? t("booking.closed")
                             : t("booking.open")}
