@@ -22,7 +22,7 @@
 
   "settings": {
     "title": "Settings",
-    "appearance_title": "Look",
+    "appearance_title": "Appearance",
     "appearance_text": "You can change the look of the site here.",
     "appearance_mode_light": "Light mode",
     "appearance_mode_dark": "Dark mode",
@@ -50,13 +50,13 @@
 
   "booking": {
     "facilities": "Facilities",
-    "number": "Number of people",
+    "number": "People",
     "level": "Level",
-    "roomtype": "Lokaletype",
+    "roomtype": "Room type",
     "all": "All",
     "studyroom": "Studyroom",
     "classroom": "Classroom",
-    "meetingroom": "Mettingroom",
+    "meetingroom": "Meetingroom",
     "room": "Room",
     "date": "Date",
     "book": "Book",

@@ -50,7 +50,7 @@
 
   "booking": {
     "facilities": "Faciliteter",
-    "number": "Antal af personer",
+    "number": "Antal",
     "level": "Etage",
     "roomtype": "Lokaletype",
     "all": "Alle",
