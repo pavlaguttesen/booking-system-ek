@@ -157,7 +157,7 @@
         "auditorium": "Auditorium",
         "status": "Status"
     },
-
+    
     "layout":{
         "title":"Bookingsystem",
         "description":"Book lokaler til undervisning og eksamner",

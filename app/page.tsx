@@ -65,7 +65,6 @@ function PageContent() {
     end: Date;
   } | null>(null);
 
-  // ↓↓↓ NYE STATES TIL SLETNING ↓↓↓
   const [deleteOverlayOpen, setDeleteOverlayOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<any>(null);
 
@@ -364,7 +363,7 @@ function PageContent() {
   const { t } = useTranslation();
 
   /* ---------------------------------------------------------
-     TEGNING
+     KALENDER
   --------------------------------------------------------- */
   return (
     <div className="w-full max-w-[1600px] mx-auto px-6 py-6 space-y-8">
