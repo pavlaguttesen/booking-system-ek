@@ -57,7 +57,7 @@ export default function BookingInfoPopup({
 
       <div className="flex flex-col gap-1 text-sm text-main">
         <div className="font-semibold text-main mb-1">
-          {booking.title || "Booking"}
+          {booking.title || t("booking.notitle")}
         </div>
 
         <div className="text-secondary-700">
@@ -69,7 +69,7 @@ export default function BookingInfoPopup({
         </div>
 
         <div className="text-secondary-700">
-          <strong>Tid:</strong>
+          <strong>{t("booking.time")}:</strong>
           <br />
           {dayjs(booking.start_time).format("HH:mm")} –{" "}
           {dayjs(booking.end_time).format("HH:mm")}

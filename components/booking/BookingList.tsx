@@ -104,18 +104,18 @@ export default function BookingList() {
                       const occupied = isOccupied(room.id);
 
                       let badgeColor = "#3b8f3b";
-                      let badgeText = "LEDIGT";
+                      let badgeText = t("booking.available").toUpperCase();
 
                       if (room.is_closed || occupied) {
                         badgeColor = "#b8000";
-                        badgeText = "OPTAGET";
+                        badgeText = t("booking.unavailable").toUpperCase();
                       } else if (
                         next &&
                         dayjs(next.start_time).diff(now, "minute") <= 60
                       ) {
-                        const t = dayjs(next.start_time).format("HH:mm");
+                        const time = dayjs(next.start_time).format("HH:mm");
                         badgeColor = "#d4b100";
-                        badgeText = `SNART OPTAGET • ${t}`;
+                        badgeText = `${t("booking.soonoccupied").toUpperCase()} • ${time}`;
                       }
 
                       return (

@@ -27,7 +27,7 @@ export function validateBookingLimits(
   if (durationHours > 4) {
     return {
       ok: false,
-      message: "Som studerende må du højst booke 4 timer ad gangen.",
+      message: "booking.maxfourhours",
     };
   }
 
@@ -35,8 +35,7 @@ export function validateBookingLimits(
   if (futureBookingsForUser.length >= 4) {
     return {
       ok: false,
-      message:
-        "Som studerende må du maks have 4 fremtidige bookinger. Slet en før du opretter en ny.",
+      message: "booking.maxfourbookings",
     };
   }
 

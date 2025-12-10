@@ -75,6 +75,7 @@
         "floor2":"Floor 2",
         "floor3":"Floor 3",
         "floor4":"Floor 4",
+        "floor":"Floor",
         "roomclosed":"The room is temporarily closed.",
         "roomavailable":"Available for the rest of the day",
         "seats":"Seats",
@@ -110,8 +111,22 @@
         "mypage": "My page",
         "logout": "Logout",
         "unknownuser": "Unknown user",
+        "unknown": "Unknown",
+        "unknownlocation": "Unknown location",
         "occupied": "Occupied",
-        "now": "now"
+        "now": "now",
+        "open": "Open",
+        "closed": "Closed",
+        "capacity": "Capacity",
+        "selectdatefortimeline": "Select a date to see the timeline.",
+        "todaytimeexpired": "The time window for today has expired.",
+        "selectupcomingday": "Select an upcoming day.",
+        "noroomsmatchfilters": "No rooms match your filters.",
+        "mybookings": "My bookings",
+        "time": "Time",
+        "soonoccupied": "SOON OCCUPIED",
+        "maxfourhours": "As a student, you can book a maximum of 4 hours at a time.",
+        "maxfourbookings": "As a student, you can have a maximum of 4 future bookings. Delete one before creating a new one."
     },
 
       "admin":{
@@ -155,7 +170,12 @@
         "choosetype": "Choose type",
         "whiteboard": "Whiteboard",
         "auditorium": "Auditorium",
-        "status": "Status"
+        "status": "Status",
+        "roomnamePlaceholder": "E.g. 3.14 or 'Study room 5'",
+        "capacityPlaceholder": "E.g. 24",
+        "seatsPlaceholder": "E.g. 16",
+        "floorPlaceholder": "E.g. 1, 2, 3...",
+        "numberPlaceholder": "E.g. 4"
     },
 
     "layout":{

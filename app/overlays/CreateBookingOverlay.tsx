@@ -176,7 +176,7 @@ export function CreateBookingOverlay({
       );
 
       if (!limits.ok) {
-        return limits.message ?? t("booking.bookinglimitexceeded");
+        return limits.message ? t(limits.message) : t("booking.bookinglimitexceeded");
       }
     }
 

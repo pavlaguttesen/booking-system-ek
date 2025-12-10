@@ -75,6 +75,7 @@
         "floor2":"Etage 2",
         "floor3":"Etage 3",
         "floor4":"Etage 4",
+        "floor":"Etage",
         "roomclosed":"Lokalet er midertidligt lukket",
         "roomavailable":"Ledigt resten af dagen",
         "seats":"Pladser",
@@ -110,8 +111,22 @@
         "mypage": "Min side",
         "logout": "Log ud",
         "unknownuser": "Ukendt bruger",
+        "unknown": "Ukendt",
+        "unknownlocation": "Ukendt lokale",
         "occupied": "Optaget",
-        "now": "nu"
+        "now": "nu",
+        "open": "Åben",
+        "closed": "Lukket",
+        "capacity": "Kapacitet",
+        "selectdatefortimeline": "Vælg en dato for at se tidsplanen.",
+        "todaytimeexpired": "Tidsrummet for i dag er udløbet.",
+        "selectupcomingday": "Vælg en kommende dag.",
+        "noroomsmatchfilters": "Ingen rum matcher dine filtre.",
+        "mybookings": "Mine bookinger",
+        "time": "Tid",
+        "soonoccupied": "SNART OPTAGET",
+        "maxfourhours": "Som studerende må du højst booke 4 timer ad gangen.",
+        "maxfourbookings": "Som studerende må du maks have 4 fremtidige bookinger. Slet en før du opretter en ny."
     },
 
     "admin":{
@@ -155,9 +170,14 @@
         "choosetype": "Vælg type",
         "whiteboard": "Whiteboard",
         "auditorium": "Auditorium",
-        "status": "Status"
+        "status": "Status",
+        "roomnamePlaceholder": "Fx 3.14 eller 'Studierum 5'",
+        "capacityPlaceholder": "Fx 24",
+        "seatsPlaceholder": "Fx 16",
+        "floorPlaceholder": "Fx 1, 2, 3...",
+        "numberPlaceholder": "Fx 4"
     },
-    
+
     "layout":{
         "title":"Bookingsystem",
         "description":"Book lokaler til undervisning og eksamner",

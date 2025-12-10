@@ -182,10 +182,10 @@ function PageContent() {
     const requiredCap = filters.eightPersons
       ? 8
       : filters.sixPersons
-      ? 6
-      : filters.fourPersons
-      ? 4
-      : 0;
+        ? 6
+        : filters.fourPersons
+          ? 4
+          : 0;
 
     const featureMatched = rooms.filter((r) => {
       if (filters.whiteboard && !r.has_whiteboard) return false;
@@ -313,7 +313,7 @@ function PageContent() {
       if (!limits.ok) {
         return setError({
           title: t("ErrorMsg.limitExceeded"),
-          message: limits.message ?? t("ErrorMsg.limitError"),
+          message: limits.message ? t(limits.message) : t("ErrorMsg.limitError"),
         });
       }
 

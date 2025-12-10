@@ -102,7 +102,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
       {/* Lokalenavn */}
       <TextInput
         label={t("admin.Roomname")}
-        placeholder="Fx 3.14 eller 'Studierum 5'"
+        placeholder={t("admin.roomnamePlaceholder")}
         value={roomName}
         onChange={(e) => setRoomName(e.target.value)}
       />
@@ -124,7 +124,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
       {/* Kapacitet */}
       <NumberInput
         label={t("booking.capacity")}
-        placeholder="Fx 24"
+        placeholder={t("admin.capacityPlaceholder")}
         value={capacity ?? undefined}
         onChange={(value) =>
           setCapacity(typeof value === "number" ? value : null)
@@ -134,8 +134,8 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
 
       {/* Antal sæder */}
       <NumberInput
-        label={t("admin.amoutofseats")}
-        placeholder="Fx 16"
+        label={t("admin.amountofseats")}
+        placeholder={t("admin.seatsPlaceholder")}
         value={nrOfSeats ?? undefined}
         onChange={(value) =>
           setNrOfSeats(typeof value === "number" ? value : null)
@@ -146,7 +146,7 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
       {/* Etage */}
       <NumberInput
         label={t("admin.floor")}
-        placeholder="Fx 1, 2, 3..."
+        placeholder={t("admin.floorPlaceholder")}
         value={floor ?? undefined}
         onChange={(value) => setFloor(typeof value === "number" ? value : null)}
         min={1}
