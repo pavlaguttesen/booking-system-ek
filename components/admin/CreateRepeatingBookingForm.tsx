@@ -3,7 +3,6 @@
 "use client";
 
 import {
-  Card,
   TextInput,
   Button,
   Select,
@@ -247,7 +246,7 @@ export default function CreateRepeatingBookingForm({
   const isDisabled = !!validate() || isLoading;
 
   return (
-    <Card withBorder padding="lg" className="bg-white rounded-lg shadow-sm border border-secondary-200">
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200">
       <Text fw={600} size="lg" className="mb-4 text-main">
         {t("repeatingBooking.title")}
       </Text>
@@ -267,10 +266,12 @@ export default function CreateRepeatingBookingForm({
 
         <Select
           label={t("repeatingBooking.roomLabel")}
-          data={allowedRoomsForDropdown.map((r) => ({
-            value: r.id,
-            label: r.room_name,
-          }))}
+          data={allowedRoomsForDropdown
+            .sort((a, b) => a.room_name.localeCompare(b.room_name, "da"))
+            .map((r) => ({
+              value: r.id,
+              label: r.room_name,
+            }))}
           value={roomId}
           onChange={(val) => {
             setRoomId(val || "");
@@ -353,6 +354,6 @@ export default function CreateRepeatingBookingForm({
           {t("repeatingBooking.createButton")}
         </Button>
       </Stack>
-    </Card>
+    </div>
   );
 }

@@ -4,7 +4,7 @@ export type RecurrenceType = "daily" | "weekly" | "biweekly" | "monthly";
 
 /**
  * Genererer et array af datoer baseret på gentagelsesmønster
- * @param startDate Startdatoen for gentagelsen
+ * @param startDate startdatoen for gentagelsen
  * @param endDate Slutdatoen (bookinger vil ikke blive oprettet efter denne dato)
  * @param recurrenceType Gentagelsestypen
  * @returns Array af datoer for gentagelsen
