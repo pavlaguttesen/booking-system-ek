@@ -14,7 +14,7 @@
   },
 
   "navbar": {
-    "calender": "Calender",
+    "calender": "Calendar",
     "mypage": "My page",
     "mybookings": "My bookings",
     "settings": "Settings"
@@ -79,10 +79,10 @@
     "seats": "Seats",
     "unavailable": "UNAVAILABLE",
     "available": "AVAILABLE",
-    "createbooking": "Creat booking",
+    "createbooking": "Create booking",
     "editbooking": "Edit booking",
     "deletebooking": "Delete booking",
-    "deletebookingtext": "Are you sure, you want to delete",
+    "deletebookingtext": "Are you sure you want to delete",
     "deletebookingcancel": "Cancel",
     "example": "Fx 'UX Groupproject'",
     "starttime": "Start time",
