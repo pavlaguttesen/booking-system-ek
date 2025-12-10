@@ -4,6 +4,22 @@
       "cancel": "cancel"
     },
 
+    "welcome": {
+        "title": "Welcome to the booking system",
+        "subtitle": "Here you can easily book rooms, equipment and study rooms. Log in with your EK Copenhagen login to get started.",
+        "password": "Password",
+        "login": "Login",
+        "remember": "Remember me",
+        "loggingIn": "Logging..."
+    },
+
+    "navbar":{
+        "calender": "Calender",
+        "mypage": "My page",
+        "mybookings": "My bookings",
+        "settings": "Settings"
+    },
+
     "settings": {
       "title": "Settings",
       "appearance_title": "Look",
@@ -31,21 +47,6 @@
       "teacher_description": "As a teacher, you can book classrooms to teach in. The rooms are available at EK in Lyngby on Firskovsvej.",
       "student_description": "As a student, you can book rooms to study in. The rooms are available at EK in Lyngby on Firskovsvej."
     
-    },
-
-    "welcome": {
-        "title": "Welcome to the booking system",
-        "subtitle": "Here you can easily book rooms, equipment and study rooms. Log in with your EK Copenhagen login to get started.",
-        "password": "Password",
-        "login": "Login",
-        "remember": "Remember me",
-        "loggingIn": "Logging..."
-    },
-
-    "navbar":{
-        "calender": "Calender",
-        "mypage": "My page",
-        "settings": "Settings"
     },
     
     "booking":{
@@ -110,7 +111,10 @@
         "logout": "Logout",
         "unknownuser": "Unknown user",
         "occupied": "Occupied",
-        "now": "now",
+        "now": "now"
+    },
+
+      "admin":{
         "createnewRoom":"Create new room",
         "editRoom":"Edit room",
         "deleteRoom":"Delete room",

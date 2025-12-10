@@ -116,6 +116,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
+
+  /* ----------------------------------------------------
+     AVATAR
+  ---------------------------------------------------- */
+  {/*
+  if (data?.avatar_path) {
+    const { data: publicURL } = supabase
+    .storage
+    .from('avatar')
+    .getPublicUrl(data.avatar_path);
+
+    data.avatar_url = publicUrl.publicUrl;
+  } */}
 }
 
 export function useAuth() {

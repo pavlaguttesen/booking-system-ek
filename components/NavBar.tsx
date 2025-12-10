@@ -34,7 +34,7 @@ export default function NavBar() {
           </Link>
 
           <Link href="/mypage" className="hover:underline">
-            {t("navbar.mypage")}
+            {t("navbar.mybookings")}
           </Link>
 
           <button

@@ -22,6 +22,7 @@ export default function LoginForm() {
   // -------------------------------------------------------
   // Login-funktion der bruger Supabase-session
   // -------------------------------------------------------
+
   // Translation constant
   const { t } = useTranslation();
 
@@ -48,7 +49,7 @@ export default function LoginForm() {
 
     const user = loginData.user;
     if (!user) {
-      setErrorMsg("Login fejlede. Prøv igen senere.");
+      setErrorMsg(t("ErrorMsg.loginFailed"));
       setLoading(false);
       return;
     }
@@ -61,7 +62,7 @@ export default function LoginForm() {
       .single();
 
     if (profileError || !profileData) {
-      setErrorMsg(t("wrongEmail_Password"));
+      setErrorMsg(t("ErrorMsg.wrongEmail_Password"));
       setLoading(false);
       return;
     }

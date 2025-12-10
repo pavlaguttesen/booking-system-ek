@@ -4,6 +4,23 @@
       "cancel": "Annullér"
     },
 
+    "welcome": {
+      "title": "Velkommen til bookingsystemet",
+      "subtitle": "Her kan du nemt booke lokaler, udstyr og studiepladser. Log ind med dit EA København-login for at komme i gang.",
+      "password": "Kodeord",
+      "login": "Log ind",
+      "remember": "Husk mig",
+      "loggingIn": "Logger ind..."
+  },
+
+  "navbar":{
+        "calender": "Kalender",
+        "mypage": "Min side",
+        "mybookings": "Mine bookinger",
+        "settings": "Indstillinger"
+    },
+    
+
     "settings": {
       "title": "Indstillinger",
       "appearance_title": "Udseende",
@@ -32,21 +49,6 @@
       "student_description": "Som studerende kan man booke lokale til at studere i. Lokalerne er tilgængelige på EK i lyngby på Firskovsvej."
     },
 
-    "welcome": {
-        "title": "Velkommen til bookingsystemet",
-        "subtitle": "Her kan du nemt booke lokaler, udstyr og studiepladser. Log ind med dit EA København-login for at komme i gang.",
-        "password": "Kodeord",
-        "login": "Log ind",
-        "remember": "Husk mig",
-        "loggingIn": "Logger ind..."
-    },
-
-    "navbar":{
-        "calender": "Kalender",
-        "mypage": "Min side",
-        "settings": "Indstillinger"
-    },
-    
     "booking":{
         "facilities": "Faciliteter",
         "number": "Antal af personer",

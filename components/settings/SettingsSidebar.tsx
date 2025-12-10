@@ -34,7 +34,7 @@ export default function SettingsSidebar({
           onClick={() => setActivePage(item.id)}
           className={`flex items-center gap-3 p-3 rounded-lg text-left transition
             ${
-              activePage === item.id ? "bg-white shadow" : "hover:bg-white/40"
+              activePage === item.id ? "bg-(var(--color-secondary-200) shadow" : "hover:bg-white/40"
             }`}
         >
           <span>{item.icon}</span>

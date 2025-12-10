@@ -13,6 +13,7 @@ export default function ApparanceSettings() {
 
   return (
     <div>
+       <p className="mb-6">{t("settings.appearance_text")}</p>
       <div className="flex gap-16 mt-8">
         <div className="text-center">
           <div className="w-32 h-20 bg-gray-700 rounded mb-2"></div>
@@ -27,7 +28,7 @@ export default function ApparanceSettings() {
         </div>
 
         <div className="text-center">
-          <div className="w-32 h-20 border border-gray-400 rounded mb-2"></div>
+          <div className="w-32 h-20 bg-white border border-gray-400 rounded mb-2"></div>
           <label className="flex items-center gap-2 justify-center">
             <input
               type="radio"
