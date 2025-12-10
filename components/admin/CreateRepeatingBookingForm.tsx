@@ -1,4 +1,4 @@
-// Component for creating repeating bookings - Admin only
+// Komponent til oprettelse af tilbagevendende bookinger - Kun admin
 
 "use client";
 
@@ -65,17 +65,17 @@ export default function CreateRepeatingBookingForm({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize roomId with first available room
+  // Initialiser roomId med første tilgængelige lokale
   useEffect(() => {
     if (rooms.length > 0 && !roomId) {
       setRoomId(rooms[0].id);
     }
   }, [rooms, roomId]);
 
-  // Allowed room types for admin
+  // Tilladte lokaltyper for admin
   const allowedRoomsForDropdown = rooms;
 
-  // Combine date and time
+  // Kombiner dato og tid
   function combine(dateStr: string | null, time: Date): Date {
     if (!dateStr) return new Date();
     return dayjs(dateStr)
@@ -85,38 +85,38 @@ export default function CreateRepeatingBookingForm({
       .toDate();
   }
 
-  // Validate form
+  // Validér formularen
   function validate(): string | null {
-    if (!roomId) return "Vælg venligst et lokale";
-    if (!title) return "Indtast venligst en titel";
-    if (!chosenDate) return "Vælg venligst en startdato";
-    if (!recurrenceEndDate) return "Vælg venligst en slutdato";
+    if (!roomId) return t("validation.selectRoom");
+    if (!title) return t("validation.enterTitle");
+    if (!chosenDate) return t("validation.selectStartDate");
+    if (!recurrenceEndDate) return t("validation.selectEndDate");
 
     const finalStart = combine(chosenDate, startTime);
     const finalEnd = combine(chosenDate, endTime);
 
     if (finalEnd <= finalStart) {
-      return "Sluttidspunktet skal være efter starttidspunktet";
+      return t("validation.endTimeBeforeStart");
     }
 
-    // Check opening hours
+    // Tjek åbningstid
     const startHour =
       dayjs(finalStart).hour() + dayjs(finalStart).minute() / 60;
     const endHour = dayjs(finalEnd).hour() + dayjs(finalEnd).minute() / 60;
 
     if (startHour < DAY_START_HOUR || endHour > DAY_END_HOUR) {
-      return `Booking skal være mellem ${DAY_START_HOUR}:00 og ${DAY_END_HOUR}:00`;
+      return t("validation.bookingOutsideHours", { returnObjects: false }).replace("{0}", DAY_START_HOUR.toString()).replace("{1}", DAY_END_HOUR.toString());
     }
 
-    // Check that end date is after start date
+    // Tjek at slutdatoen er efter startdatoen
     if (dayjs(recurrenceEndDate).isBefore(dayjs(chosenDate), "day")) {
-      return "Slutdatoen skal være efter startdatoen";
+      return t("validation.endDateBeforeStart");
     }
 
     return null;
   }
 
-  // Handle submission
+  // Håndter indsendelse
   async function handleSubmit() {
     try {
       setErrorMessage(null);
@@ -134,14 +134,14 @@ export default function CreateRepeatingBookingForm({
       const currentUser = authData.user;
 
       if (!currentUser) {
-        setErrorMessage("Du skal være logget ind");
+        setErrorMessage(t("booking.mustBeLoggedIn"));
         return;
       }
 
       const finalStart = combine(chosenDate, startTime);
       const finalEnd = combine(chosenDate, endTime);
 
-      // Create the repeating booking record
+      // Opret tilbagevendende booking-post
       const { data: repeatingData, error: repeatingError } = await supabase
         .from("repeating_bookings")
         .insert({
@@ -159,24 +159,24 @@ export default function CreateRepeatingBookingForm({
 
       if (repeatingError) {
         console.error("REPEATING BOOKING ERROR:", repeatingError);
-        setErrorMessage("Fejl ved oprettelse af tilbagevendende booking");
+        setErrorMessage(t("repeatingBooking.repeatingBookingError"));
         return;
       }
 
-      // Generate individual bookings
+      // Generer individuelle bookinger
       const recurrenceDates = generateRecurrenceDates(
         finalStart,
         recurrenceEndDate ? dayjs(recurrenceEndDate, "DD-MM-YYYY").toDate() : dayjs().add(1, "month").toDate(),
         recurrenceType
       );
 
-      // Only create bookings that don't conflict and are on weekdays
+      // Opret kun bookinger uden konflikter og på hverdage
       const validDates = recurrenceDates.filter((date) => {
         const dayOfWeek = dayjs(date).day();
-        // Skip weekends (0 = Sunday, 6 = Saturday)
+        // Spring weekender over (0 = Søndag, 6 = Lørdag)
         if (dayOfWeek === 0 || dayOfWeek === 6) return false;
 
-        // Check for conflicts
+        // Tjek for konflikter
         const bookingStart = dayjs(date)
           .hour(finalStart.getHours())
           .minute(finalStart.getMinutes())
@@ -206,7 +206,7 @@ export default function CreateRepeatingBookingForm({
         repeatingData.id
       );
 
-      // Insert all individual bookings
+      // Indsæt alle individuelle bookinger
       if (bookingsToCreate.length > 0) {
         const { error: bookingsError } = await supabase
           .from("bookings")
@@ -214,16 +214,16 @@ export default function CreateRepeatingBookingForm({
 
         if (bookingsError) {
           console.error("BOOKINGS INSERT ERROR:", bookingsError);
-          setErrorMessage("Fejl ved oprettelse af individuelle bookinger");
+          setErrorMessage(t("repeatingBooking.bookingsCreationError"));
           return;
         }
       }
 
       setSuccessMessage(
-        `Tilbagevendende booking oprettet! ${bookingsToCreate.length} bookinger genereret.`
+        `${t("repeatingBooking.successMessage")} ${bookingsToCreate.length} ${bookingsToCreate.length === 1 ? "booking" : "bookinger"} ${t("repeatingBooking.generated")}.`
       );
 
-      // Reset form
+      // Nulstil formularen
       setTitle("");
       setChosenDate(dayjs().format("YYYY-MM-DD"));
       setStartTime(dayjs().hour(8).minute(0).toDate());
@@ -231,14 +231,14 @@ export default function CreateRepeatingBookingForm({
       setRecurrenceType("weekly");
       setRecurrenceEndDate(dayjs().add(1, "month").format("YYYY-MM-DD"));
 
-      // Call success callback
+      // Kald success callback
       onSuccess();
 
-      // Clear success message after 3 seconds
+      // Ryd succesbeskeden efter 3 sekunder
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error("RAW ERROR:", err);
-      setErrorMessage("En uventet fejl opstod");
+      setErrorMessage(t("ErrorMsg.generalError"));
     } finally {
       setIsLoading(false);
     }
@@ -247,26 +247,26 @@ export default function CreateRepeatingBookingForm({
   const isDisabled = !!validate() || isLoading;
 
   return (
-    <Card withBorder padding="lg" className="bg-white border-secondary-200">
+    <Card withBorder padding="lg" className="bg-white rounded-lg shadow-sm border border-secondary-200">
       <Text fw={600} size="lg" className="mb-4 text-main">
-        Opret tilbagevendende booking
+        {t("repeatingBooking.title")}
       </Text>
 
       <Stack gap="md">
         {errorMessage && (
-          <Alert color="red" title="Fejl">
+          <Alert color="red" title={t("repeatingBooking.errorTitle")}>
             {errorMessage}
           </Alert>
         )}
 
         {successMessage && (
-          <Alert color="green" title="Succes">
+          <Alert color="green" title={t("repeatingBooking.successTitle")}>
             {successMessage}
           </Alert>
         )}
 
         <Select
-          label="Lokale"
+          label={t("repeatingBooking.roomLabel")}
           data={allowedRoomsForDropdown.map((r) => ({
             value: r.id,
             label: r.room_name,
@@ -279,8 +279,8 @@ export default function CreateRepeatingBookingForm({
         />
 
         <TextInput
-          label="Titel"
-          placeholder="f.eks. Matematik gruppe 1"
+          label={t("repeatingBooking.titleLabel")}
+          placeholder={t("repeatingBooking.titlePlaceholder")}
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
@@ -289,7 +289,7 @@ export default function CreateRepeatingBookingForm({
         />
 
         <DatePickerInput
-          label="Startdato"
+          label={t("repeatingBooking.startDateLabel")}
           value={chosenDate}
           valueFormat="DD-MM-YYYY"
           onChange={(value) => {
@@ -300,7 +300,7 @@ export default function CreateRepeatingBookingForm({
 
         <Group grow>
           <TimeInput
-            label="Starttidspunkt"
+            label={t("repeatingBooking.startTimeLabel")}
             value={dayjs(startTime).format("HH:mm")}
             onChange={(event) => {
               const [h, m] = event.currentTarget.value.split(":");
@@ -310,7 +310,7 @@ export default function CreateRepeatingBookingForm({
           />
 
           <TimeInput
-            label="Sluttidspunkt"
+            label={t("repeatingBooking.endTimeLabel")}
             value={dayjs(endTime).format("HH:mm")}
             onChange={(event) => {
               const [h, m] = event.currentTarget.value.split(":");
@@ -321,12 +321,12 @@ export default function CreateRepeatingBookingForm({
         </Group>
 
         <Select
-          label="Gentagelsestype"
+          label={t("repeatingBooking.recurrenceTypeLabel")}
           data={[
-            { value: "daily", label: "Dagligt" },
-            { value: "weekly", label: "Ugentligt" },
-            { value: "biweekly", label: "Hver anden uge" },
-            { value: "monthly", label: "Månedligt" },
+            { value: "daily", label: t("repeatingBooking.recurrenceTypeDaily") },
+            { value: "weekly", label: t("repeatingBooking.recurrenceTypeWeekly") },
+            { value: "biweekly", label: t("repeatingBooking.recurrenceTypeBiweekly") },
+            { value: "monthly", label: t("repeatingBooking.recurrenceTypeMonthly") },
           ]}
           value={recurrenceType}
           onChange={(val) => {
@@ -335,7 +335,7 @@ export default function CreateRepeatingBookingForm({
         />
 
         <DatePickerInput
-          label="Slutdato for gentagelse"
+          label={t("repeatingBooking.recurrenceEndDateLabel")}
           value={recurrenceEndDate}
           valueFormat="DD-MM-YYYY"
           onChange={(value) => {
@@ -350,7 +350,7 @@ export default function CreateRepeatingBookingForm({
           disabled={isDisabled}
           loading={isLoading}
         >
-          Opret tilbagevendende booking
+          {t("repeatingBooking.createButton")}
         </Button>
       </Stack>
     </Card>

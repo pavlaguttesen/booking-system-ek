@@ -178,6 +178,52 @@
     "numberPlaceholder": "Fx 4"
   },
 
+  "repeatingBooking": {
+    "title": "Opret tilbagevendende booking",
+    "createButton": "Opret tilbagevendende booking",
+    "roomLabel": "Lokale",
+    "titleLabel": "Titel",
+    "titlePlaceholder": "f.eks. Matematik gruppe 1",
+    "startDateLabel": "Startdato",
+    "startTimeLabel": "Starttidspunkt",
+    "endTimeLabel": "Sluttidspunkt",
+    "recurrenceTypeLabel": "Gentagelsestype",
+    "recurrenceTypeDaily": "Dagligt",
+    "recurrenceTypeWeekly": "Ugentligt",
+    "recurrenceTypeBiweekly": "Hver anden uge",
+    "recurrenceTypeMonthly": "Månedligt",
+    "recurrenceEndDateLabel": "Slutdato for gentagelse",
+    "successMessage": "Tilbagevendende booking oprettet!",
+    "errorTitle": "Fejl",
+    "successTitle": "Succes",
+    "repeatingBookingError": "Fejl ved oprettelse af tilbagevendende booking",
+    "bookingsCreationError": "Fejl ved oprettelse af individuelle bookinger",
+    "generated": "genereret",
+    "partOfRepeating": "Del af tilbagevendende booking",
+    "createdBy": "Oprettet af",
+    "endsOn": "Slutter",
+    "generatesBookings": "Genererer",
+    "deleteConfirm": "Slet tilbagevendende booking?",
+    "deleteWarning": "Dette vil slette",
+    "deleteWarningEnd": "og alle",
+    "deleteWarningLinked": "tilknyttede bookinger. Dette kan ikke fortrydes.",
+    "confirm": "Bekræft",
+    "cancel": "Annuller",
+    "regularBookings": "Almindelige bookinger",
+    "recurringBookings": "Tilbagevendende bookinger",
+    "repeatingBookingLabel": "Tilbagevendende booking"
+  },
+
+  "validation": {
+    "selectRoom": "Vælg venligst et lokale",
+    "enterTitle": "Indtast venligst en titel",
+    "selectStartDate": "Vælg venligst en startdato",
+    "selectEndDate": "Vælg venligst en slutdato",
+    "endTimeBeforeStart": "Sluttidspunktet skal være efter starttidspunktet",
+    "bookingOutsideHours": "Booking skal være mellem {0}:00 og {1}:00",
+    "endDateBeforeStart": "Slutdatoen skal være efter startdatoen"
+  },
+
   "layout": {
     "title": "Bookingsystem",
     "description": "Book lokaler til undervisning og eksamner",

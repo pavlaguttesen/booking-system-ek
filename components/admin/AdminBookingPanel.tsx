@@ -87,7 +87,7 @@ export default function AdminBookingPanel() {
   async function handleConfirmDeleteRepeating() {
     if (!repeatingToDelete) return;
 
-    // Delete both the repeating booking and all its associated bookings
+    // Slet både tilbagevendende booking og alle dens tilknyttede bookinger
     await Promise.all([
       supabase.from("repeating_bookings").delete().eq("id", repeatingToDelete.id),
       supabase.from("bookings").delete().eq("parent_repeating_id", repeatingToDelete.id),
@@ -149,13 +149,13 @@ export default function AdminBookingPanel() {
   const getRecurrenceLabel = (type: string) => {
     switch (type) {
       case "daily":
-        return "Dagligt";
+        return t("repeatingBooking.recurrenceTypeDaily");
       case "weekly":
-        return "Ugentligt";
+        return t("repeatingBooking.recurrenceTypeWeekly");
       case "biweekly":
-        return "Hver anden uge";
+        return t("repeatingBooking.recurrenceTypeBiweekly");
       case "monthly":
-        return "Månedligt";
+        return t("repeatingBooking.recurrenceTypeMonthly");
       default:
         return type;
     }
@@ -170,8 +170,8 @@ export default function AdminBookingPanel() {
 
       <Tabs defaultValue="regular">
         <Tabs.List>
-          <Tabs.Tab value="regular">Almindelige bookinger ({filtered.length})</Tabs.Tab>
-          <Tabs.Tab value="repeating">Tilbagevendende bookinger ({repeatingBookings.length})</Tabs.Tab>
+          <Tabs.Tab value="regular">{t("repeatingBooking.regularBookings")} ({filtered.length})</Tabs.Tab>
+          <Tabs.Tab value="repeating">{t("repeatingBooking.recurringBookings")} ({repeatingBookings.length})</Tabs.Tab>
         </Tabs.List>
 
         {/* ALMINDELIGE BOOKINGER */}
@@ -254,7 +254,7 @@ export default function AdminBookingPanel() {
               const user = profiles.find((p) => p.id === b.user_id);
 
               return (
-                <Card key={b.id} withBorder padding="lg">
+                <Card key={b.id} withBorder padding="lg" className="rounded-lg shadow-sm border border-secondary-200">
                   <Group justify="space-between">
                     <div>
                       <Text fw={600}>{b.title || "Booking"}</Text>
@@ -269,7 +269,7 @@ export default function AdminBookingPanel() {
                       </Text>
                       {b.parent_repeating_id && (
                         <Text size="xs" c="dimmed">
-                          Del af tilbagevendende booking
+                          {t("repeatingBooking.partOfRepeating")}
                         </Text>
                       )}
                     </div>
@@ -302,24 +302,24 @@ export default function AdminBookingPanel() {
               ).length;
 
               return (
-                <Card key={rb.id} withBorder padding="lg" className="border-secondary-200 bg-secondary-300/30">
+                <Card key={rb.id} withBorder padding="lg" className="rounded-lg shadow-sm border border-secondary-200 bg-secondary-300/30">
                   <Group justify="space-between">
                     <div>
-                      <Text fw={600}>{rb.title || "Tilbagevendende booking"}</Text>
+                      <Text fw={600}>{rb.title || t("repeatingBooking.repeatingBookingLabel")}</Text>
 
                       <Text size="sm">
                         {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
                         {rb.start_time} – {rb.end_time}
                       </Text>
                       <Text size="sm">
-                        {getRecurrenceLabel(rb.recurrence_type)} • Slutter:{" "}
+                        {getRecurrenceLabel(rb.recurrence_type)} • {t("repeatingBooking.endsOn")}:{" "}
                         {dayjs(rb.recurrence_end_date).format("DD/MM/YYYY")}
                       </Text>
                       <Text size="sm">
-                        Oprettet af: {creator?.full_name || t("unknown.unknownUser")}
+                        {t("repeatingBooking.createdBy")}: {creator?.full_name || t("unknown.unknownUser")}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        Genererer {bookingCount} bookinger
+                        {t("repeatingBooking.generatesBookings")} {bookingCount} {bookingCount === 1 ? "booking" : "bookinger"}
                       </Text>
                     </div>
 
@@ -361,27 +361,27 @@ export default function AdminBookingPanel() {
           onClick={() => setDeleteRepeatingOpen(false)}
         >
           <Card
-            className="bg-white p-6 rounded-lg shadow-lg"
+            className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200"
             onClick={(e) => e.stopPropagation()}
           >
             <Text fw={600} size="lg" className="mb-4">
-              Slet tilbagevendende booking?
+              {t("repeatingBooking.deleteConfirm")}
             </Text>
             <Text size="sm" className="mb-4">
-              Dette vil slette "{repeatingToDelete.title}" og alle {bookings.filter(
+              {t("repeatingBooking.deleteWarning")} "{repeatingToDelete.title}" {t("repeatingBooking.deleteWarningEnd")} {bookings.filter(
                 (b) => b.parent_repeating_id === repeatingToDelete.id
               ).length}{" "}
-              tilknyttede bookinger. Dette kan ikke fortrydes.
+              {t("repeatingBooking.deleteWarningLinked")}
             </Text>
             <Group justify="flex-end">
               <Button
                 variant="outline"
                 onClick={() => setDeleteRepeatingOpen(false)}
               >
-                Annuller
+                {t("repeatingBooking.cancel")}
               </Button>
               <Button color="red" onClick={handleConfirmDeleteRepeating}>
-                Slet
+                {t("admin.delete")}
               </Button>
             </Group>
           </Card>

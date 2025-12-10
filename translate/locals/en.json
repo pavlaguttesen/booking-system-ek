@@ -178,6 +178,52 @@
     "numberPlaceholder": "E.g. 4"
   },
 
+  "repeatingBooking": {
+    "title": "Create recurring booking",
+    "createButton": "Create recurring booking",
+    "roomLabel": "Room",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g. Math group 1",
+    "startDateLabel": "Start date",
+    "startTimeLabel": "Start time",
+    "endTimeLabel": "End time",
+    "recurrenceTypeLabel": "Recurrence type",
+    "recurrenceTypeDaily": "Daily",
+    "recurrenceTypeWeekly": "Weekly",
+    "recurrenceTypeBiweekly": "Biweekly",
+    "recurrenceTypeMonthly": "Monthly",
+    "recurrenceEndDateLabel": "Recurrence end date",
+    "successMessage": "Recurring booking created!",
+    "errorTitle": "Error",
+    "successTitle": "Success",
+    "repeatingBookingError": "Error creating recurring booking",
+    "bookingsCreationError": "Error creating individual bookings",
+    "generated": "generated",
+    "partOfRepeating": "Part of recurring booking",
+    "createdBy": "Created by",
+    "endsOn": "Ends",
+    "generatesBookings": "Generates",
+    "deleteConfirm": "Delete recurring booking?",
+    "deleteWarning": "This will delete",
+    "deleteWarningEnd": "and all",
+    "deleteWarningLinked": "linked bookings. This cannot be undone.",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "regularBookings": "Regular bookings",
+    "recurringBookings": "Recurring bookings",
+    "repeatingBookingLabel": "Recurring booking"
+  },
+
+  "validation": {
+    "selectRoom": "Please select a room",
+    "enterTitle": "Please enter a title",
+    "selectStartDate": "Please select a start date",
+    "selectEndDate": "Please select an end date",
+    "endTimeBeforeStart": "End time must be after start time",
+    "bookingOutsideHours": "Booking must be between {0}:00 and {1}:00",
+    "endDateBeforeStart": "End date must be after start date"
+  },
+
   "layout": {
     "title": "Booking system",
     "description": "Book room for teaching and exams",
