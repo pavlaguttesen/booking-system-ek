@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import BookingItem from "./BookingItem";
 import { createClient } from "@supabase/supabase-js";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,6 +14,7 @@ const supabase = createClient(
 export default function MyBookingList({ userId }: any) {
   const [bookings, setBookings] = useState<any[]>([]);
   const { role: userRole } = useAuth();
+  const { t } = useTranslation();
 
   async function load() {
     const { data } = await supabase
@@ -33,7 +35,7 @@ export default function MyBookingList({ userId }: any) {
   return (
     <>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-3xl font-semibold text-main">Mine bookinger</h2>
+        <h2 className="text-3xl font-semibold text-main">{t("booking.mybookings")}</h2>
 
         {userRole === "student" && (
           <span

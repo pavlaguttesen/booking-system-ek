@@ -65,7 +65,6 @@ function PageContent() {
     end: Date;
   } | null>(null);
 
-  // ↓↓↓ NYE STATES TIL SLETNING ↓↓↓
   const [deleteOverlayOpen, setDeleteOverlayOpen] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState<any>(null);
 
@@ -183,10 +182,10 @@ function PageContent() {
     const requiredCap = filters.eightPersons
       ? 8
       : filters.sixPersons
-      ? 6
-      : filters.fourPersons
-      ? 4
-      : 0;
+        ? 6
+        : filters.fourPersons
+          ? 4
+          : 0;
 
     const featureMatched = rooms.filter((r) => {
       if (filters.whiteboard && !r.has_whiteboard) return false;
@@ -314,7 +313,7 @@ function PageContent() {
       if (!limits.ok) {
         return setError({
           title: t("ErrorMsg.limitExceeded"),
-          message: limits.message ?? t("ErrorMsg.limitError"),
+          message: limits.message ? t(limits.message) : t("ErrorMsg.limitError"),
         });
       }
 
@@ -364,7 +363,7 @@ function PageContent() {
   const { t } = useTranslation();
 
   /* ---------------------------------------------------------
-     TEGNING
+     KALENDER
   --------------------------------------------------------- */
   return (
     <div className="w-full max-w-[1600px] mx-auto px-6 py-6 space-y-8">
@@ -380,7 +379,8 @@ function PageContent() {
             onCreateBooking={handleCreateBookingRequest}
             onDeleteBooking={handleDeleteBookingRequest}
           />
-          <BookingList />
+          {/* BOOKING LIST ikke ønsket af UX, efter test */}
+          {/* <BookingList /> */}
         </div>
 
         {/* ADVANCED */}

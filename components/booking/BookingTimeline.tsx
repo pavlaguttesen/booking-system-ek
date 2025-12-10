@@ -25,6 +25,8 @@ const BOTTOM_MARGIN = 16;
 
 const TIME_COL_WIDTH = 55;
 
+
+
 type BookingTimelineProps = {
   onCreateBooking: (data: { roomId: string; start: Date; end: Date }) => void;
   onDeleteBooking?: (booking: any) => void;
@@ -92,7 +94,7 @@ export function BookingTimeline({
   if (!selectedDate) {
     return (
       <div className="text-center py-10 text-main text-lg">
-        Vælg en dato for at se tidsplanen.
+        {t("booking.selectdatefortimeline")}
       </div>
     );
   }
@@ -114,9 +116,9 @@ export function BookingTimeline({
     return (
       <div className="text-center py-14 bg-secondary-300 rounded-xl border border-secondary-200">
         <p className="text-main text-lg font-semibold">
-          Tidsrummet for i dag er udløbet.
+          {t("booking.todaytimeexpired")}
         </p>
-        <p className="text-main/70 text-sm mt-1">Vælg en kommende dag.</p>
+        <p className="text-main/70 text-sm mt-1">{t("booking.selectupcomingday")}</p>
       </div>
     );
   }
@@ -125,7 +127,7 @@ export function BookingTimeline({
     return (
       <div className="text-center py-16 px-4 bg-secondary-300 rounded-xl border border-secondary-200">
         <p className="text-lg font-semibold text-main">
-          Ingen rum matcher dine filtre.
+          {t("booking.noroomsmatchfilters")}
         </p>
       </div>
     );
@@ -250,8 +252,8 @@ export function BookingTimeline({
       >
         <div></div>
         {sortedRooms.map((room) => {
-          const t = normalizeType(room.room_type);
-          const blocked = !roleCanBook(t);
+          const normalizedType = normalizeType(room.room_type);
+          const blocked = !roleCanBook(normalizedType);
 
           return (
             <div
@@ -314,8 +316,8 @@ export function BookingTimeline({
 
         {/* Rumkolonner */}
         {sortedRooms.map((room) => {
-          const t = normalizeType(room.room_type);
-          const blocked = !roleCanBook(t);
+          const normalizedType = normalizeType(room.room_type);
+          const blocked = !roleCanBook(normalizedType);
 
           const roomBookings = filteredBookings.filter(
             (b) => b.room_id === room.id
@@ -381,11 +383,11 @@ export function BookingTimeline({
                     }}
                   >
                     <div className="font-semibold truncate">
-                      {b.title || "Booking"}
+                      {b.title || t("booking.notitle")}
                     </div>
 
                     <div className="text-[10px] opacity-90">
-                      {owner?.full_name || "Ukendt"}
+                      {owner?.full_name || t("booking.unknown")}
                     </div>
 
                     <div className="text-[10px] mt-1 opacity-90">
@@ -428,8 +430,8 @@ export function BookingTimeline({
             <BookingInfoPopup
               key={p.id}
               booking={p.booking}
-              ownerName={owner?.full_name ?? "Ukendt"}
-              roomName={room?.room_name ?? "Ukendt lokale"}
+              ownerName={owner?.full_name ?? t("booking.unknown")}
+              roomName={room?.room_name ?? t("booking.unknownlocation")}
               x={p.x}
               y={p.y}
               onClose={() =>

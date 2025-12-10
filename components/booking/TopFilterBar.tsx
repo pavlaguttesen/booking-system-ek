@@ -112,7 +112,7 @@ export default function TopFilterBar() {
             <input
               type="text"
               value={capacityInput}
-              placeholder="Fx 4"
+              placeholder={t("admin.numberPlaceholder")}
               onChange={(e) => handleCapacityChange(e.target.value)}
               className="px-3 py-2 rounded-md border text-sm bg-secondary-300 border-secondary-200 text-main w-24 mt-1"
             />
