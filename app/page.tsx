@@ -379,7 +379,8 @@ function PageContent() {
             onCreateBooking={handleCreateBookingRequest}
             onDeleteBooking={handleDeleteBookingRequest}
           />
-          <BookingList />
+          {/* BOOKING LIST ikke ønsket af UX, efter test */}
+          {/* <BookingList /> */}
         </div>
 
         {/* ADVANCED */}
