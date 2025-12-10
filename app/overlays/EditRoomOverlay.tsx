@@ -73,7 +73,7 @@ export default function EditRoomOverlay({
   if (!mounted) return null;
 
   const overlay = (
-    <div className="fixed inset-0 bg-black/40 z-[9999] flex justify-center items-center p-4">
+    <div className="fixed inset-0 bg-black/40 z-9999 flex justify-center items-center p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-xl border border-secondary-200">
         {/* HEADER */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-secondary-200">
