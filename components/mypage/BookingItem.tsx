@@ -2,13 +2,12 @@
 
 import dayjs from "dayjs";
 import "dayjs/locale/da";
+import "dayjs/locale/en";
 import { createClient } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
-
-dayjs.locale("da");
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,7 +15,10 @@ const supabase = createClient(
 );
 
 export default function BookingItem({ booking, reload }: any) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  
+  // Set dayjs locale based on current language
+  dayjs.locale(i18n.language);
 
   async function deleteBooking() {
     await supabase.from("bookings").delete().eq("id", booking.id);

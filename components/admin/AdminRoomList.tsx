@@ -135,7 +135,7 @@ export default function AdminRoomList({
         .map((floor) => (
           <div
             key={floor}
-            className="bg-white rounded-xl shadow-sm border border-secondary-200 px-8 py-6"
+            className="bg-white rounded-lg shadow-sm border border-secondary-200 px-8 py-6"
           >
             <h3 className="text-lg font-semibold text-main mb-4">
               {t("admin.floor")} {floor}

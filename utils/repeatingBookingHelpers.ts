@@ -3,11 +3,11 @@ import dayjs from "dayjs";
 export type RecurrenceType = "daily" | "weekly" | "biweekly" | "monthly";
 
 /**
- * Generates an array of dates based on recurrence pattern
- * @param startDate The starting date for the recurrence
- * @param endDate The end date (bookings won't be created after this date)
- * @param recurrenceType The type of recurrence
- * @returns Array of dates for the recurrence
+ * Genererer et array af datoer baseret på gentagelsesmønster
+ * @param startDate startdatoen for gentagelsen
+ * @param endDate Slutdatoen (bookinger vil ikke blive oprettet efter denne dato)
+ * @param recurrenceType Gentagelsestypen
+ * @returns Array af datoer for gentagelsen
  */
 export function generateRecurrenceDates(
   startDate: Date,
@@ -41,15 +41,15 @@ export function generateRecurrenceDates(
 }
 
 /**
- * Creates individual booking objects from a repeating booking template
- * @param dates Array of dates for the recurrence
- * @param startTime Time portion of the booking (e.g., 10:00)
- * @param endTime Time portion of the booking (e.g., 12:00)
- * @param roomId The room ID
- * @param title Booking title
- * @param userId User ID (usually admin)
- * @param parentRepeatingId The ID of the repeating booking record
- * @returns Array of booking objects ready to insert
+ * Opretter individuelle bookingsobjekter fra en tilbagevendende bookingskabelon
+ * @param dates Array af datoer for gentagelsen
+ * @param startTime Tidspunkt for bookingen (f.eks. 10:00)
+ * @param endTime Sluttidspunkt for bookingen (f.eks. 12:00)
+ * @param roomId Lokale-ID
+ * @param title Bookingtitel
+ * @param userId Bruger-ID (normalt admin)
+ * @param parentRepeatingId ID'et for tilbagevendende booking-posten
+ * @returns Array af booking-objekter klar til indsætning
  */
 export function createBookingsFromRecurrence(
   dates: Date[],
