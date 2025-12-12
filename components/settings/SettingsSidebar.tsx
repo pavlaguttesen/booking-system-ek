@@ -50,10 +50,10 @@ export default function SettingsSidebar({
         className="mt-auto bg-white/40 p-4 rounded-lg flex items-center gap-3 hover:bg-white/80 transition"
       onClick={onClose}
       >
-        {/* <img
-          src={profile?.avatar_url || "/avatar.jpg"}
-          className="w-10 h-10 rounded-full"
-        /> */}
+        <img
+          src={profile?.avatar_url || "https://vmyzbnqvfwwmhoazveei.supabase.co/storage/v1/object/public/avatar/user-regular-full.svg"}
+          className="w-10 h-10 rounded-full object-cover bg-white border border-gray-300"
+        />
 
         <div>
           <p className="font-xs text-gray-600">

@@ -166,7 +166,7 @@ export default function AdminBookingPanel() {
   // --------------------------------------------------------
   return (
     <div className="flex flex-col gap-8">
-      <h2 className="text-xl font-semibold text-main">{t("admin.allbookings")}</h2>
+      <h2 className="text-xl font-semibold text-secondary">{t("admin.allbookings")}</h2>
 
       <Tabs defaultValue="regular">
         <Tabs.List>

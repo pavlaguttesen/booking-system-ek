@@ -6,6 +6,7 @@
 :root {
   --color-text-main: #000000;
   --color-text-invert: #ffffff;
+  --color-text-secondary: #000000;
 
   --color-primary-600: #0038a7;
 
@@ -25,6 +26,7 @@
 :root[data-theme="dark"] {
   --color-text-main: #ffffff;
   --color-text-invert: #ffffff;
+  --color-text-secondary: #000000;
 
   --color-primary-600: #0038a7;
 
@@ -89,6 +91,10 @@ body {
 
 .text-invert {
   color: var(--color-text-invert);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
 }
 
 .text-primary-600 {

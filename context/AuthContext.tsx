@@ -14,6 +14,7 @@ export type Profile = {
   id: string;
   full_name: string | null;
   role: "student" | "teacher" | "admin";
+  avatar_url?: string | null;
   language?: "da" | "en" | null;
   theme?: "light" | "dark" | null;
 };
@@ -116,19 +117,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-
-  /* ----------------------------------------------------
-     AVATAR
-  ---------------------------------------------------- */
-  {/*
-  if (data?.avatar_path) {
-    const { data: publicURL } = supabase
-    .storage
-    .from('avatar')
-    .getPublicUrl(data.avatar_path);
-
-    data.avatar_url = publicUrl.publicUrl;
-  } */}
 }
 
 export function useAuth() {

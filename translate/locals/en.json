@@ -227,6 +227,9 @@
     "generalError": "An error occurred. Try again later.",
     "supabaseError": "Could not delete booking.",
     "timeAlreadyPassed": "This time slot has already passed.",
-    "deletionError": "Error"
+    "deletionError": "Error",
+    "notAblePF": "Couldn't upload profile picture.",
+    "notAbleUpdate": "Couldn't update profile.",
+    "somethingWentWrong": "Something went wrong."
   }
 }

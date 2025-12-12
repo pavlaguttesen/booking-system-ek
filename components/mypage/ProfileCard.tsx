@@ -4,6 +4,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
+import ProfilePicture from "./ProfilePicture";
 
 export default function ProfileCard() {
   const { profile, user, logout } = useAuth();
@@ -11,6 +12,9 @@ export default function ProfileCard() {
 
   return (
     <div className="w-full flex flex-col items-center text-center space-y-3">
+      <ProfilePicture/>
+      
+      
       <h2 className="text-xl font-semibold text-main">
         {profile?.full_name ?? user?.email ?? t("unknown.unknownUser")}
       </h2>
