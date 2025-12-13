@@ -24,6 +24,10 @@ export default function AdminBookingPanel() {
   const [userFilter, setUserFilter] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   //Oversættelses konstant
   const { t } = useTranslation();
 
@@ -100,11 +104,18 @@ export default function AdminBookingPanel() {
     setRepeatingToDelete(null);
   }
 
+  // Tab state for booking type filtering
+  const [activeTab, setActiveTab] = useState<"all" | "regular" | "repeating">("all");
+
   // --------------------------------------------------------
   // FILTRERING
   // --------------------------------------------------------
   const filtered = bookings.filter((b) => {
     const start = dayjs(b.start_time);
+
+    // Tab-baseret filtrering
+    if (activeTab === "regular" && b.parent_repeating_id) return false;
+    if (activeTab === "repeating" && !b.parent_repeating_id) return false;
 
     if (roomFilter && b.room_id !== roomFilter) return false;
     if (userFilter && b.user_id !== userFilter) return false;
@@ -115,6 +126,19 @@ export default function AdminBookingPanel() {
 
     return true;
   });
+
+  // --------------------------------------------------------
+  // PAGINATION LOGIK
+  // --------------------------------------------------------
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedBookings = filtered.slice(startIndex, endIndex);
+
+  // Reset til første side når filtre ændres
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, roomFilter, userFilter, typeFilter, dateFrom, dateTo]);
 
   // --------------------------------------------------------
   // DATO GENVEJSKNAPPER
@@ -168,14 +192,388 @@ export default function AdminBookingPanel() {
     <div className="flex flex-col gap-8">
       <h2 className="text-xl font-semibold text-secondary">{t("admin.allbookings")}</h2>
 
-      <Tabs defaultValue="regular">
+      <Tabs value={activeTab} onChange={(val) => setActiveTab(val as any)}>
         <Tabs.List>
-          <Tabs.Tab value="regular">{t("repeatingBooking.regularBookings")} ({filtered.length})</Tabs.Tab>
-          <Tabs.Tab value="repeating">{t("repeatingBooking.recurringBookings")} ({repeatingBookings.length})</Tabs.Tab>
+          <Tabs.Tab value="all">{t("adminTabs.all", { count: bookings.length })}</Tabs.Tab>
+          <Tabs.Tab value="regular">{t("adminTabs.regular", { count: bookings.filter(b => !b.parent_repeating_id).length })}</Tabs.Tab>
+          <Tabs.Tab value="repeating">{t("adminTabs.repeating", { count: bookings.filter(b => b.parent_repeating_id).length })}</Tabs.Tab>
         </Tabs.List>
 
-        {/* ALMINDELIGE BOOKINGER */}
+        {/* ALLE BOOKINGER / ALMINDELIGE BOOKINGER / TILBAGEVENDENDE BOOKINGER */}
+        <Tabs.Panel value="all">
+          {/* FILTERS */}
+          <Group grow className="mt-6">
+            <Select
+              label={t("admin.room")}
+              value={roomFilter}
+              onChange={setRoomFilter}
+              data={rooms.map((r) => ({ value: r.id, label: r.room_name }))}
+              clearable
+            />
+
+            <Select
+              label={t("admin.user")}
+              value={userFilter}
+              onChange={setUserFilter}
+              data={profiles.map((p) => ({
+                value: p.id,
+                label: p.full_name ?? t("unknown.unknownUser"),
+              }))}
+              clearable
+            />
+
+            <Select
+              label={t("booking.roomtype")}
+              value={typeFilter}
+              onChange={setTypeFilter}
+              data={[
+                { value: "normal", label: t("admin.normalbooking") },
+                { value: "exam", label: t("admin.exambooking") },
+              ]}
+              clearable
+            />
+          </Group>
+
+          {/* DATE PICKERS */}
+          <Group grow className="mt-4">
+            <DatePickerInput
+              locale="da"
+              label={t("admin.fromDate")}
+              value={dateFrom}
+              onChange={setDateFrom}
+              valueFormat="DD-MM-YYYY"
+              clearable
+            />
+
+            <DatePickerInput
+              locale="da"
+              label={t("admin.toDate")}
+              value={dateTo}
+              onChange={setDateTo}
+              valueFormat="DD-MM-YYYY"
+              clearable
+            />
+          </Group>
+
+          {/* SHORTCUT BUTTONS */}
+          <Group className="mt-4">
+            <Button onClick={pickToday}>{t("booking.today")}</Button>
+            <Button onClick={pickTomorrow}>{t("booking.tomorrow")}</Button>
+            <Button onClick={pickThisWeek}>{t("admin.thisWeek")}</Button>
+            <Button onClick={pickNextWeek}>{t("admin.nextWeek")}</Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDateFrom(null);
+                setDateTo(null);
+              }}
+            >
+              {t("booking.resetfilter")}
+            </Button>
+          </Group>
+
+          {/* RESULT LIST */}
+          <div className="flex flex-col gap-4 mt-6">
+            {paginatedBookings.map((b) => {
+              const room = rooms.find((r) => r.id === b.room_id);
+              const user = profiles.find((p) => p.id === b.user_id);
+
+              return (
+                <Card key={b.id} withBorder padding="lg" className="rounded-lg shadow-sm border border-secondary-200">
+                  <Group justify="space-between">
+                    <div>
+                      <Text fw={600}>{b.title || "Booking"}</Text>
+
+                      <Text size="sm">
+                        {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
+                        {dayjs(b.start_time).format("DD/MM/YYYY HH:mm")} –{" "}
+                        {dayjs(b.end_time).format("HH:mm")}
+                      </Text>
+                      <Text size="sm">
+                        {user?.full_name || t("unknown.unknownUser")}
+                      </Text>
+                      {b.parent_repeating_id && (
+                        <Text size="xs" c="dimmed">
+                          {t("repeatingBooking.partOfRepeating")}
+                        </Text>
+                      )}
+                    </div>
+
+                    <Button
+                      color="red"
+                      onClick={() => {
+                        setBookingToDelete(b);
+                        setDeleteOpen(true);
+                      }}
+                    >
+                      {t("admin.delete")}
+                    </Button>
+                  </Group>
+                </Card>
+              );
+            })}
+
+            {/* PAGINATION CONTROLS */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 p-4 bg-secondary-50 rounded-lg border border-secondary-200">
+                <Text size="sm" c="dimmed">
+                  {t("admin.showing")} {startIndex + 1}-{Math.min(endIndex, filtered.length)} {t("admin.of")} {filtered.length} {t("admin.bookings")}
+                </Text>
+                
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => p - 1)}
+                  >
+                    {t("admin.previous")}
+                  </Button>
+                  
+                  <div className="flex gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                      // Vis første side, sidste side, aktuel side og +/- 1 omkring aktuel
+                      const shouldShow = 
+                        page === 1 || 
+                        page === totalPages || 
+                        Math.abs(page - currentPage) <= 1;
+                      
+                      // Vis "..." mellem gaps
+                      const showEllipsisBefore = page === currentPage - 2 && currentPage > 3;
+                      const showEllipsisAfter = page === currentPage + 2 && currentPage < totalPages - 2;
+                      const isActive = currentPage === page;
+
+                      return (
+                        <div key={page} className="flex items-center">
+                          {showEllipsisBefore && <Text size="sm" className="px-2">...</Text>}
+                          {shouldShow && (
+                            <Button
+                              size="sm"
+                              variant={isActive ? "filled" : "outline"}
+                              color={isActive ? undefined : "gray"}
+                              onClick={() => setCurrentPage(page)}
+                              className="min-w-36px"
+                              styles={isActive ? {
+                                root: {
+                                  backgroundColor: '#1e40af',
+                                  color: 'white',
+                                  '&:hover': {
+                                    backgroundColor: '#1e3a8a'
+                                  }
+                                }
+                              } : undefined}
+                            >
+                              {page}
+                            </Button>
+                          )}
+                          {showEllipsisAfter && <Text size="sm" className="px-2">...</Text>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => p + 1)}
+                  >
+                    {t("admin.next")}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </Tabs.Panel>
+
         <Tabs.Panel value="regular">
+          {/* FILTERS */}
+          <Group grow className="mt-6">
+            <Select
+              label={t("admin.room")}
+              value={roomFilter}
+              onChange={setRoomFilter}
+              data={rooms.map((r) => ({ value: r.id, label: r.room_name }))}
+              clearable
+            />
+
+            <Select
+              label={t("admin.user")}
+              value={userFilter}
+              onChange={setUserFilter}
+              data={profiles.map((p) => ({
+                value: p.id,
+                label: p.full_name ?? t("unknown.unknownUser"),
+              }))}
+              clearable
+            />
+
+            <Select
+              label={t("booking.roomtype")}
+              value={typeFilter}
+              onChange={setTypeFilter}
+              data={[
+                { value: "normal", label: t("admin.normalbooking") },
+                { value: "exam", label: t("admin.exambooking") },
+              ]}
+              clearable
+            />
+          </Group>
+
+          {/* DATE PICKERS */}
+          <Group grow className="mt-4">
+            <DatePickerInput
+              locale="da"
+              label={t("admin.fromDate")}
+              value={dateFrom}
+              onChange={setDateFrom}
+              valueFormat="DD-MM-YYYY"
+              clearable
+            />
+
+            <DatePickerInput
+              locale="da"
+              label={t("admin.toDate")}
+              value={dateTo}
+              onChange={setDateTo}
+              valueFormat="DD-MM-YYYY"
+              clearable
+            />
+          </Group>
+
+          {/* SHORTCUT BUTTONS */}
+          <Group className="mt-4">
+            <Button onClick={pickToday}>{t("booking.today")}</Button>
+            <Button onClick={pickTomorrow}>{t("booking.tomorrow")}</Button>
+            <Button onClick={pickThisWeek}>{t("admin.thisWeek")}</Button>
+            <Button onClick={pickNextWeek}>{t("admin.nextWeek")}</Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDateFrom(null);
+                setDateTo(null);
+              }}
+            >
+              {t("booking.resetfilter")}
+            </Button>
+          </Group>
+
+          {/* RESULT LIST */}
+          <div className="flex flex-col gap-4 mt-6">
+            {paginatedBookings.map((b) => {
+              const room = rooms.find((r) => r.id === b.room_id);
+              const user = profiles.find((p) => p.id === b.user_id);
+
+              return (
+                <Card key={b.id} withBorder padding="lg" className="rounded-lg shadow-sm border border-secondary-200">
+                  <Group justify="space-between">
+                    <div>
+                      <Text fw={600}>{b.title || "Booking"}</Text>
+
+                      <Text size="sm">
+                        {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
+                        {dayjs(b.start_time).format("DD/MM/YYYY HH:mm")} –{" "}
+                        {dayjs(b.end_time).format("HH:mm")}
+                      </Text>
+                      <Text size="sm">
+                        {user?.full_name || t("unknown.unknownUser")}
+                      </Text>
+                      {b.parent_repeating_id && (
+                        <Text size="xs" c="dimmed">
+                          {t("repeatingBooking.partOfRepeating")}
+                        </Text>
+                      )}
+                    </div>
+
+                    <Button
+                      color="red"
+                      onClick={() => {
+                        setBookingToDelete(b);
+                        setDeleteOpen(true);
+                      }}
+                    >
+                      {t("admin.delete")}
+                    </Button>
+                  </Group>
+                </Card>
+              );
+            })}
+
+            {/* PAGINATION CONTROLS */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 p-4 bg-secondary-50 rounded-lg border border-secondary-200">
+                <Text size="sm" c="dimmed">
+                  {t("admin.showing")} {startIndex + 1}-{Math.min(endIndex, filtered.length)} {t("admin.of")} {filtered.length} {t("admin.bookings")}
+                </Text>
+                
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => p - 1)}
+                  >
+                    {t("admin.previous")}
+                  </Button>
+                  
+                  <div className="flex gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                      // Vis første side, sidste side, aktuel side og +/- 1 omkring aktuel
+                      const shouldShow = 
+                        page === 1 || 
+                        page === totalPages || 
+                        Math.abs(page - currentPage) <= 1;
+                      
+                      // Vis "..." mellem gaps
+                      const showEllipsisBefore = page === currentPage - 2 && currentPage > 3;
+                      const showEllipsisAfter = page === currentPage + 2 && currentPage < totalPages - 2;
+                      const isActive = currentPage === page;
+
+                      return (
+                        <div key={page} className="flex items-center">
+                          {showEllipsisBefore && <Text size="sm" className="px-2">...</Text>}
+                          {shouldShow && (
+                            <Button
+                              size="sm"
+                              variant={isActive ? "filled" : "outline"}
+                              color={isActive ? undefined : "gray"}
+                              onClick={() => setCurrentPage(page)}
+                              className="min-w-36px"
+                              styles={isActive ? {
+                                root: {
+                                  backgroundColor: '#1e40af',
+                                  color: 'white',
+                                  '&:hover': {
+                                    backgroundColor: '#1e3a8a'
+                                  }
+                                }
+                              } : undefined}
+                            >
+                              {page}
+                            </Button>
+                          )}
+                          {showEllipsisAfter && <Text size="sm" className="px-2">...</Text>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => p + 1)}
+                  >
+                    {t("admin.next")}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </Tabs.Panel>
+
+        {/* TILBAGEVENDENDE BOOKINGER TAB - SHOWS BOOKINGS THAT ARE PART OF REPEATING */}
+        <Tabs.Panel value="repeating">
           {/* FILTERS */}
           <Group grow className="mt-6">
             <Select
@@ -249,12 +647,12 @@ export default function AdminBookingPanel() {
 
           {/* RESULT LIST */}
           <div className="flex flex-col gap-4 mt-6">
-            {filtered.map((b) => {
+            {paginatedBookings.map((b) => {
               const room = rooms.find((r) => r.id === b.room_id);
               const user = profiles.find((p) => p.id === b.user_id);
 
               return (
-                <Card key={b.id} withBorder padding="lg" className="rounded-lg shadow-sm border border-secondary-200">
+                <Card key={b.id} withBorder padding="lg" className="rounded-lg shadow-sm border border-secondary-200 bg-secondary-300/30">
                   <Group justify="space-between">
                     <div>
                       <Text fw={600}>{b.title || "Booking"}</Text>
@@ -267,11 +665,9 @@ export default function AdminBookingPanel() {
                       <Text size="sm">
                         {user?.full_name || t("unknown.unknownUser")}
                       </Text>
-                      {b.parent_repeating_id && (
-                        <Text size="xs" c="dimmed">
-                          {t("repeatingBooking.partOfRepeating")}
-                        </Text>
-                      )}
+                      <Text size="xs" c="dimmed">
+                        {t("repeatingBooking.partOfRepeating")}
+                      </Text>
                     </div>
 
                     <Button
@@ -287,55 +683,77 @@ export default function AdminBookingPanel() {
                 </Card>
               );
             })}
-          </div>
-        </Tabs.Panel>
 
-        {/* TILBAGEVENDENDE BOOKINGER */}
-        <Tabs.Panel value="repeating">
-          {/* RESULT LIST */}
-          <div className="flex flex-col gap-4 mt-6">
-            {repeatingBookings.map((rb) => {
-              const room = rooms.find((r) => r.id === rb.room_id);
-              const creator = profiles.find((p) => p.id === rb.created_by);
-              const bookingCount = bookings.filter(
-                (b) => b.parent_repeating_id === rb.id
-              ).length;
+            {/* PAGINATION CONTROLS */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 p-4 bg-secondary-50 rounded-lg border border-secondary-200">
+                <Text size="sm" c="dimmed">
+                  {t("admin.showing")} {startIndex + 1}-{Math.min(endIndex, filtered.length)} {t("admin.of")} {filtered.length} {t("admin.bookings")}
+                </Text>
+                
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => p - 1)}
+                  >
+                    {t("admin.previous")}
+                  </Button>
+                  
+                  <div className="flex gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                      // Vis første side, sidste side, aktuel side og +/- 1 omkring aktuel
+                      const shouldShow = 
+                        page === 1 || 
+                        page === totalPages || 
+                        Math.abs(page - currentPage) <= 1;
+                      
+                      // Vis "..." mellem gaps
+                      const showEllipsisBefore = page === currentPage - 2 && currentPage > 3;
+                      const showEllipsisAfter = page === currentPage + 2 && currentPage < totalPages - 2;
+                      const isActive = currentPage === page;
 
-              return (
-                <Card key={rb.id} withBorder padding="lg" className="rounded-lg shadow-sm border border-secondary-200 bg-secondary-300/30">
-                  <Group justify="space-between">
-                    <div>
-                      <Text fw={600}>{rb.title || t("repeatingBooking.repeatingBookingLabel")}</Text>
-
-                      <Text size="sm">
-                        {room?.room_name ?? t("unknown.unknownRoom")} •{" "}
-                        {rb.start_time} – {rb.end_time}
-                      </Text>
-                      <Text size="sm">
-                        {getRecurrenceLabel(rb.recurrence_type)} • {t("repeatingBooking.endsOn")}:{" "}
-                        {dayjs(rb.recurrence_end_date).format("DD/MM/YYYY")}
-                      </Text>
-                      <Text size="sm">
-                        {t("repeatingBooking.createdBy")}: {creator?.full_name || t("unknown.unknownUser")}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {t("repeatingBooking.generatesBookings")} {bookingCount} {bookingCount === 1 ? "booking" : "bookinger"}
-                      </Text>
-                    </div>
-
-                    <Button
-                      color="red"
-                      onClick={() => {
-                        setRepeatingToDelete(rb);
-                        setDeleteRepeatingOpen(true);
-                      }}
-                    >
-                      {t("admin.delete")}
-                    </Button>
-                  </Group>
-                </Card>
-              );
-            })}
+                      return (
+                        <div key={page} className="flex items-center">
+                          {showEllipsisBefore && <Text size="sm" className="px-2">...</Text>}
+                          {shouldShow && (
+                            <Button
+                              size="sm"
+                              variant={isActive ? "filled" : "outline"}
+                              color={isActive ? undefined : "gray"}
+                              onClick={() => setCurrentPage(page)}
+                              className="min-w-36px"
+                              styles={isActive ? {
+                                root: {
+                                  backgroundColor: '#1e40af',
+                                  color: 'white',
+                                  '&:hover': {
+                                    backgroundColor: '#1e3a8a'
+                                  }
+                                }
+                              } : undefined}
+                            >
+                              {page}
+                            </Button>
+                          )}
+                          {showEllipsisAfter && <Text size="sm" className="px-2">...</Text>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => p + 1)}
+                  >
+                    {t("admin.next")}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </Tabs.Panel>
       </Tabs>

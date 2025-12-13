@@ -1,4 +1,27 @@
-// Modal overlay til brugerindstillinger. Indeholder faner for udseende, sprog og regler.
+/**
+ * SettingsOverlay Komponent
+ * 
+ * Modal overlay der viser brugerindstillinger i et organiseret interface.
+ * Komponenten fungerer som container for forskellige indstillings-sider og
+ * håndterer navigation mellem dem via et sidebar-system.
+ * 
+ * Funktionalitet:
+ * - Modal overlay med mørk baggrund og click-outside-to-close
+ * - Tab-baseret navigation mellem tre sektioner:
+ *   1. Apparance (udseende/tema)
+ *   2. Language (sprog)
+ *   3. Rules (regler for brugerroller)
+ * - Dynamisk header der ændres baseret på aktiv sektion
+ * - Luk-knap i top-højre hjørne
+ * - Event propagation stopper for modal-indhold
+ * 
+ * Props:
+ * @param open - Boolean der styrer om modal er synlig
+ * @param onClose - Callback funktion til at lukke modal
+ * 
+ * State:
+ * - activePage: Holder styr på hvilken indstillings-sektion der vises
+ */
 
 "use client";
 
@@ -12,7 +35,10 @@ import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 
 export default function SettingsOverlay({ open, onClose }: any) {
+  // State til at holde styr på hvilken indstillings-side der vises
   const [activePage, setActivePage] = useState("apparance");
+  
+  // Oversættelses-funktionalitet til headers
   const { t } = useTranslation();
 
   if (!open) return null;
