@@ -12,6 +12,7 @@ import AdminRoomFilters from "@/components/admin/AdminRoomFilters";
 import AdminBookingPanel from "@/components/admin/AdminBookingPanel";
 import AdminStatsTabs from "@/components/admin/stats/AdminStatsTabs";
 import CreateRepeatingBookingForm from "@/components/admin/CreateRepeatingBookingForm";
+import { useTranslation } from "react-i18next";
 
 import EditRoomOverlay from "@/app/overlays/EditRoomOverlay";
 import DeleteRoomOverlay from "@/app/overlays/DeleteRoomOverlay";
@@ -29,6 +30,8 @@ export default function AdminPage() {
 
   const [reloadRoomsKey, setReloadRoomsKey] = useState(0);
   const [activeTab, setActiveTab] = useState<"manage" | "stats">("manage");
+
+  const { t } = useTranslation();
 
   // REDIGER OVERLAY TILSTAND
   const [roomToEdit, setRoomToEdit] = useState<any | null>(null);
@@ -83,8 +86,8 @@ export default function AdminPage() {
   return (
     <div className="max-w-7xl mx-auto mt-10 px-4 pb-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-main">Administrering</h1>
-        <p className="text-secondary-200 mt-1">Styr lokaler og bookinger</p>
+        <h1 className="text-3xl font-bold text-main">{t("admin.administration")}</h1>
+        <p className="text-secondary-200 mt-1">{t("admin.manageRoomandBookings")}</p>
       </div>
 
       {/* Tabs */}
@@ -95,7 +98,7 @@ export default function AdminPage() {
           }`}
           onClick={() => setActiveTab("manage")}
         >
-          Administrer
+          {t("admin.administrate")}
         </button>
         <button
           className={`px-3 py-2 rounded-t ${
@@ -103,7 +106,7 @@ export default function AdminPage() {
           }`}
           onClick={() => setActiveTab("stats")}
         >
-          Statistik
+          {t("admin.statiscs")}
         </button>
       </div>
 
@@ -111,12 +114,12 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200">
-              <h2 className="text-xl font-semibold text-main mb-4">Opret nyt lokale</h2>
+              <h2 className="text-xl font-semibold text-secondary mb-4">{t("admin.createnewRoom")}</h2>
               <CreateRoomForm onRoomCreated={handleRoomCreated} />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200">
-              <h2 className="text-xl font-semibold text-main mb-4">Administrer lokaler</h2>
+              <h2 className="text-xl font-semibold text-secondary mb-4">{t("admin.manageRooms")}</h2>
               <AdminRoomFilters
                 search={search}
                 setSearch={setSearch}

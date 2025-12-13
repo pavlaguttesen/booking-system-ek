@@ -175,7 +175,12 @@
     "capacityPlaceholder": "Fx 24",
     "seatsPlaceholder": "Fx 16",
     "floorPlaceholder": "Fx 1, 2, 3...",
-    "numberPlaceholder": "Fx 4"
+    "numberPlaceholder": "Fx 4",
+    "administration": "Administrering",
+    "manageRoomandBookings": "Styr lokaler og bookinger",
+    "administrate": "Administrer",
+    "statiscs": "Statistik",
+    "manageRooms": "Administrer lokaler"
   },
 
   "repeatingBooking": {

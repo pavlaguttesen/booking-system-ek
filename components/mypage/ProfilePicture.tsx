@@ -10,7 +10,7 @@ const ProfilePicture = () => {
     const { t } = useTranslation();
     const [isUploading, setUploading] = useState(false);
 
-    const defaultAvatarUrl = 'https://vmyzbnqvfwwmhoazveei.supabase.co/storage/v1/object/public/avatar/default/user-regular-full.svg';
+    const defaultAvatarUrl = 'https://vmyzbnqvfwwmhoazveei.supabase.co/storage/v1/object/public/avatar/default/avatar.svg';
 
     async function handleFileChange(event:React.ChangeEvent<HTMLInputElement>) {
         const file = event.target.files?.[0];
@@ -68,7 +68,7 @@ const ProfilePicture = () => {
         <img
           src={profile?.avatar_url || defaultAvatarUrl}
           alt="Profile billede"
-          className="w-40 h-40 rounded-full object-cover border border-gray-300 bg-white : hover:opacity-90"
+          className="w-40 h-40 rounded-full object-cover border border-gray-300 bg-white"
         />
 
         {/* Skjult file input */}

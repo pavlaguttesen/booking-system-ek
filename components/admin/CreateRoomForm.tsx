@@ -21,15 +21,6 @@ type CreateRoomFormProps = {
   onRoomCreated?: () => void;
 };
 
-const labelStyle = {
-  label: {
-    color: "#000000",
-  },
-};
-const checkboxStyle = {
-    color: "#000000",
-};
-
 export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
   // Lokal state til formularfelter
   const [roomName, setRoomName] = useState("");
@@ -114,7 +105,11 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
         placeholder={t("admin.roomnamePlaceholder")}
         value={roomName}
         onChange={(e) => setRoomName(e.target.value)}
-        styles={labelStyle}
+        styles={{
+          label: {
+            color: "#000000",
+          },
+        }}
       />
 
       {/* Lokaletype */}
@@ -129,7 +124,11 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
           { value: "klasseværelse", label: t("booking.classroom") },
           { value: "auditorium", label: "Auditorium" },
         ]}
-        styles={labelStyle}
+        styles={{
+          label: {
+            color: "#000000",
+          }
+        }}
     
       />
 
@@ -142,7 +141,11 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
           setCapacity(typeof value === "number" ? value : null)
         }
         min={1}
-        styles={labelStyle}
+        styles={{
+          label: {
+            color: "#000000",
+          },
+        }}
       />
 
       {/* Antal sæder */}
@@ -154,7 +157,11 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
           setNrOfSeats(typeof value === "number" ? value : null)
         }
         min={1}
-        styles={labelStyle}
+        styles={{
+          label: {
+            color: "#000000",
+          },
+        }}
       />
 
       {/* Etage */}
@@ -164,7 +171,11 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
         value={floor ?? undefined}
         onChange={(value) => setFloor(typeof value === "number" ? value : null)}
         min={1}
-        styles={labelStyle}
+        styles={{
+          label: {
+            color: "#000000",
+          },
+        }}
       />
 
       {/* Faciliteter */}

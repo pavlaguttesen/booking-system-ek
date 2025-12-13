@@ -175,7 +175,12 @@
     "capacityPlaceholder": "E.g. 24",
     "seatsPlaceholder": "E.g. 16",
     "floorPlaceholder": "E.g. 1, 2, 3...",
-    "numberPlaceholder": "E.g. 4"
+    "numberPlaceholder": "E.g. 4",
+    "administration": "Administration",
+    "manageRoomandBookings": "Manage rooms and bookings",
+    "administrate": "Administrate",
+    "statiscs": "Statistics",
+    "manageRooms": "Manage rooms"
   },
 
   "repeatingBooking": {

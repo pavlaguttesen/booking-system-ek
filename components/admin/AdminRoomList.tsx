@@ -137,7 +137,7 @@ export default function AdminRoomList({
             key={floor}
             className="bg-white rounded-lg shadow-sm border border-secondary-200 px-8 py-6"
           >
-            <h3 className="text-lg font-semibold text-main mb-4">
+            <h3 className="text-lg font-semibold text-black mb-4">
               {t("admin.floor")} {floor}
             </h3>
 
@@ -153,11 +153,11 @@ export default function AdminRoomList({
                   >
                     {/* LEFT SIDE */}
                     <div className="flex flex-col">
-                      <span className="font-medium text-main text-lg">
+                      <span className="font-medium text-secondary text-lg">
                         {room.room_name}
                       </span>
 
-                      <span className="text-sm text-main/70">
+                      <span className="text-sm text-secondary/70">
                         {room.room_type} • {room.capacity} {t("booking.seats")}
                       </span>
 
@@ -171,7 +171,7 @@ export default function AdminRoomList({
                     {/* RIGHT SIDE */}
                     <Group gap="md" wrap="wrap" className="shrink-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-main/70">
+                        <span className="text-sm text-secondary/70">
                           {room.is_closed
                             ? t("booking.closed")
                             : t("booking.open")}
