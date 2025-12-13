@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/lib/supabaseClient";
 
 // Viser statistik for gentagne bookinger samt (valgfrit) hvor ofte brugere booker.
 export default function StatsRepeatAndUsers() {
+  const { t } = useTranslation();
   // Bookinger fra databasen
   const [bookings, setBookings] = useState<any[]>([]);
   // Toggle til at vise brugerfrekvens
@@ -71,24 +73,39 @@ export default function StatsRepeatAndUsers() {
 
   // Lille søjlediagram (SVG) for gentagne vs. ikke-gentagne
   function RepeatChart() {
-    const labels = ["Gentagne", "Ikke-gentagne"];
+    const labels = [t("adminStats.repeatLabelRecurring"), t("adminStats.repeatLabelNonRecurring")];
     const values = [repeatCount, Math.max(0, totalCount - repeatCount)];
     const max = Math.max(1, ...values);
-    const barWidth = 60;
-    const gap = 24;
-    const height = 120;
-    const width = labels.length * barWidth + (labels.length - 1) * gap;
+    const barHeight = 32;
+    const rowGap = 18;
+    const paddingLeft = 140; // space for category labels
+    const paddingRight = 80; // space for value pill
+    const width = 520; // fixed width for horizontal layout
+    const height = labels.length * (barHeight + rowGap) + 20;
     return (
-      <svg width={width} height={height} role="img" aria-label="Gentagne kontra ikke-gentagne">
+      <svg width={width} height={height} role="img" aria-label={t("adminStats.repeatChartAria")}>
         {values.map((v, i) => {
-          const h = (v / max) * (height - 20);
-          const x = i * (barWidth + gap);
-          const y = height - h;
-          const color = i === 0 ? "#3B82F6" : "#A3E635";
+          const rowY = i * (barHeight + rowGap) + 10;
+          const barLength = (v / max) * (width - paddingLeft - paddingRight);
+          const color = i === 0 ? "#4F46E5" : "#93C5FD";
+          const label = labels[i] ?? "";
+          // Category label (left)
+          const catX = 12;
+          const catY = rowY + barHeight / 2 + 5; // text baseline adjustment
+          // Value pill (right)
+          const valueStr = String(v);
+          const valueWidth = Math.min(92, Math.max(36, valueStr.length * 8.5 + 12));
+          const pillX = paddingLeft + barLength + 10;
+          const pillY = rowY + (barHeight - 22) / 2;
           return (
             <g key={i}>
-              <rect x={x} y={y} width={barWidth} height={h} fill={color} rx={6} />
-              <text x={x + barWidth / 2} y={height - 2} textAnchor="middle" fontSize={12} fill="#374151">{labels[i]}</text>
+              {/* Category label on the left */}
+              <text x={catX} y={catY} fontSize={13} fill="#111827" fontWeight="600">{label}</text>
+              {/* Bar */}
+              <rect x={paddingLeft} y={rowY} width={barLength} height={barHeight} fill={color} rx={6} />
+              {/* Value pill */}
+              <rect x={pillX} y={pillY} width={valueWidth} height={22} fill="#FFFFFF" stroke="#E5E7EB" rx={8} />
+              <text x={pillX + valueWidth / 2} y={pillY + 15} textAnchor="middle" fontSize={14} fill="#0F172A" fontWeight="700">{v}</text>
             </g>
           );
         })}
@@ -100,14 +117,26 @@ export default function StatsRepeatAndUsers() {
     <div className="space-y-4">
       {/* Overskrift */}
       <div className="border-b border-secondary-200 pb-2">
-        <h3 className="text-lg font-semibold text-main">Gentagelser & brugere</h3>
-        <p className="text-sm text-secondary-300">Statistik over gentagne bookinger og brugerfrekvens</p>
+        <h3 className="text-lg font-semibold text-main">{t("adminStats.repeatTitle")}</h3>
+        <p className="text-sm text-secondary-300">{t("adminStats.repeatSubtitle")}</p>
       </div>
       {/* Hurtigvalg for semestre */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-main">Hurtigvalg:</span>
-        <button className="px-3 py-1 border border-secondary-200 rounded bg-secondary-50 hover:bg-secondary-100 text-main text-sm transition" onClick={() => { setStart("2025-08-01"); setEnd("2025-12-31"); }}>Efterår 2025</button>
-        <button className="px-3 py-1 border border-secondary-200 rounded bg-secondary-50 hover:bg-secondary-100 text-main text-sm transition" onClick={() => { setStart("2026-01-01"); setEnd("2026-06-30"); }}>Forår 2026</button>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+        <div className="flex flex-col gap-1 md:col-span-1">
+          <label className="text-xs font-medium text-secondary-400">{t("adminStats.quickSelect")}</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button className="h-10 w-full rounded border text-sm transition bg-secondary-50 hover:bg-secondary-100 text-main border-secondary-200" onClick={() => { setStart("2025-08-01"); setEnd("2025-12-31"); }}>{t("adminStats.quickAutumn2025")}</button>
+            <button className="h-10 w-full rounded border text-sm transition bg-secondary-50 hover:bg-secondary-100 text-main border-secondary-200" onClick={() => { setStart("2026-01-01"); setEnd("2026-06-30"); }}>{t("adminStats.quickSpring2026")}</button>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-secondary-400">{t("admin.fromDate")}</label>
+          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full" value={start} onChange={(e) => setStart(e.target.value)} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-secondary-400">{t("admin.toDate")}</label>
+          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full" value={end} onChange={(e) => setEnd(e.target.value)} />
+        </div>
       </div>
       {/* Periodevælger */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -117,13 +146,13 @@ export default function StatsRepeatAndUsers() {
 
       {/* Nøgletal */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="p-4 bg-secondary-50 rounded">
-          <div className="text-secondary-300">Gentagne bookinger</div>
-          <div className="text-2xl font-semibold">{repeatCount}</div>
+        <div className="p-4 bg-white rounded border border-secondary-200 shadow-sm">
+          <div className="text-secondary-300">{t("adminStats.repeatCount")}</div>
+          <div className="text-2xl font-semibold text-main">{repeatCount}</div>
         </div>
-        <div className="p-4 bg-secondary-50 rounded">
-          <div className="text-secondary-300">Andel gentagne</div>
-          <div className="text-2xl font-semibold">{repeatPct}%</div>
+        <div className="p-4 bg-white rounded border border-secondary-200 shadow-sm">
+          <div className="text-secondary-300">{t("adminStats.repeatShare")}</div>
+          <div className="text-2xl font-semibold text-main">{repeatPct}%</div>
         </div>
       </div>
 
@@ -132,9 +161,9 @@ export default function StatsRepeatAndUsers() {
 
       {/* Toggle for brugerliste */}
       <div className="flex items-center gap-2">
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={showUsers} onChange={(e) => setShowUsers(e.target.checked)} />
-          <span>Vis brugere og frekvens</span>
+        <label className="flex items-center gap-2 text-main">
+          <input type="checkbox" className="accent-primary-600" checked={showUsers} onChange={(e) => setShowUsers(e.target.checked)} />
+          <span className="text-sm">{t("adminStats.repeatShowUsers")}</span>
         </label>
       </div>
 
@@ -143,10 +172,10 @@ export default function StatsRepeatAndUsers() {
         <div className="mt-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {userFreq.map(([userId, count]) => (
-              <div key={userId} className="flex items-center justify-between p-3 border rounded">
+              <div key={userId} className="flex items-center justify-between p-3 border border-secondary-200 rounded bg-white shadow-sm">
                 {/* Viser brugernavn hvis tilgængelig */}
-                <span className="text-secondary-300">{userNames[userId] || userId}</span>
-                <span className="font-medium">{count}</span>
+                <span className="text-secondary-400">{userNames[userId] || userId}</span>
+                <span className="font-medium text-main">{count}</span>
               </div>
             ))}
           </div>
