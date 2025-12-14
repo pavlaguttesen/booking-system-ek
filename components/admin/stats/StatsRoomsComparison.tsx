@@ -111,10 +111,10 @@ export default function StatsRoomsComparison() {
   // (Removed) UtilizationBar
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-secondary">
       {/* Overskrift */}
       <div className="border-b border-secondary-200 pb-2">
-        <h3 className="text-lg font-semibold text-main">{t("adminStats.compareTitle")}</h3>
+        <h3 className="text-lg font-semibold">{t("adminStats.compareTitle")}</h3>
         <p className="text-sm text-secondary-300">{t("adminStats.compareSubtitle")}</p>
       </div>
 
@@ -126,29 +126,29 @@ export default function StatsRoomsComparison() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-secondary-400">{t("adminStats.cardTypeLabel")}</label>
-          <select className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full" value={typeFilter ?? ""} onChange={(e) => setTypeFilter(e.target.value ? e.target.value : null)}>
+          <select className="h-10 bg-white border border-secondary-200 rounded px-3 text-secondary opacity-50 shadow-sm w-full" value={typeFilter ?? ""} onChange={(e) => setTypeFilter(e.target.value ? e.target.value : null)}>
             <option value="">{t("adminStats.typeAllOption")}</option>
             {uniqueTypes.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-secondary-400">{t("adminStats.cardFloorLabel")}</label>
-          <select className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full" value={floorFilter ?? ""} onChange={(e) => setFloorFilter(e.target.value ? e.target.value : null)}>
+          <select className="h-10 bg-white border border-secondary-200 rounded px-3 text-secondary opacity-50 shadow-sm w-full" value={floorFilter ?? ""} onChange={(e) => setFloorFilter(e.target.value ? e.target.value : null)}>
             <option value="">{t("adminStats.floorAllOption")}</option>
             {uniqueFloors.map(f => <option key={f} value={f}>{f}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-secondary-400">{t("admin.fromDate")}</label>
-          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full" value={start} onChange={(e) => setStart(e.target.value)} />
+          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-secondary opacity-50 shadow-sm w-full" value={start} onChange={(e) => setStart(e.target.value)} />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-secondary-400">{t("admin.toDate")}</label>
-          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full" value={end} onChange={(e) => setEnd(e.target.value)} />
+          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-secondary opacity-50 shadow-sm w-full" value={end} onChange={(e) => setEnd(e.target.value)} />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-secondary-400">{t("adminStats.sortPopularity")}</label>
-          <select className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full" value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
+          <select className="h-10 bg-white border border-secondary-200 rounded px-3 text-secondary opacity-50 shadow-sm w-full" value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
             <option value="popularity">{t("adminStats.sortPopularity")}</option>
             <option value="type">{t("adminStats.sortType")}</option>
             <option value="floor">{t("adminStats.sortFloor")}</option>
@@ -162,19 +162,19 @@ export default function StatsRoomsComparison() {
           <label className="text-xs font-medium text-secondary-400">{t("adminStats.facilitiesLabel")}</label>
           <div className="grid grid-cols-3 gap-2">
             <button
-              className={`h-10 w-full rounded border text-sm transition ${whiteboard ? "bg-primary-600 text-white border-primary-600" : "bg-white text-main border-secondary-200 hover:bg-secondary-50"}`}
+              className={`h-10 w-full rounded border text-sm transition ${whiteboard ? "bg-primary-600 text-white border-primary-600" : "bg-white text-secondary opacity-50 border-secondary-200 hover:bg-secondary-50"}`}
               onClick={() => setWhiteboard(v => !v)}
             >
               {t("adminStats.facilityWhiteboard")}
             </button>
             <button
-              className={`h-10 w-full rounded border text-sm transition ${screen ? "bg-primary-600 text-white border-primary-600" : "bg-white text-main border-secondary-200 hover:bg-secondary-50"}`}
+              className={`h-10 w-full rounded border text-sm transition ${screen ? "bg-primary-600 border-primary-600" : "bg-white text-secondary opacity-50 border-secondary-200 hover:bg-secondary-50"}`}
               onClick={() => setScreen(v => !v)}
             >
               {t("adminStats.facilityScreen")}
             </button>
             <button
-              className={`h-10 w-full rounded border text-sm transition ${board ? "bg-primary-600 text-white border-primary-600" : "bg-white text-main border-secondary-200 hover:bg-secondary-50"}`}
+              className={`h-10 w-full rounded border text-sm transition ${board ? "bg-primary-600 text-white border-primary-600" : "bg-white text-secondary opacity-50 border-secondary-200 hover:bg-secondary-50"}`}
               onClick={() => setBoard(v => !v)}
             >
               {t("adminStats.facilityBoard")}
@@ -186,7 +186,7 @@ export default function StatsRoomsComparison() {
           <input
             type="number"
             min={0}
-            className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full"
+            className="h-10 bg-white border border-secondary-200 rounded px-3 text-secondary opacity-50 shadow-sm w-full"
             value={capacity ?? ""}
             onChange={(e) => {
               const n = Number(e.target.value);
@@ -198,7 +198,7 @@ export default function StatsRoomsComparison() {
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-secondary-400">{t("adminStats.resetFilters")}</label>
           <button
-            className="h-10 w-full rounded-md border text-sm transition bg-secondary-300 border-secondary-200 text-main hover:bg-secondary-200 font-medium"
+            className="h-10 w-full rounded-md border text-sm transition bg-secondary-300 border-secondary-200 text-secondary hover:bg-secondary-200 font-medium"
             onClick={() => { setTypeFilter(null); setFloorFilter(null); setStart(""); setEnd(""); setWhiteboard(false); setScreen(false); setBoard(false); setCapacity(null); }}
           >
             {t("adminStats.resetFilters")}
@@ -208,9 +208,9 @@ export default function StatsRoomsComparison() {
 
       {/* Hurtigvalg for semestre */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-main">{t("adminStats.quickSelect")}</span>
-        <button className="px-3 py-1 border border-secondary-200 rounded bg-secondary-50 hover:bg-secondary-100 text-main text-sm transition" onClick={() => { setStart("2025-08-01"); setEnd("2025-12-31"); }}>{t("adminStats.quickAutumn2025")}</button>
-        <button className="px-3 py-1 border border-secondary-200 rounded bg-secondary-50 hover:bg-secondary-100 text-main text-sm transition" onClick={() => { setStart("2026-01-01"); setEnd("2026-06-30"); }}>{t("adminStats.quickSpring2026")}</button>
+        <span className="text-sm font-medium text-secondary">{t("adminStats.quickSelect")}</span>
+        <button className="px-3 py-1 border border-secondary-200 rounded bg-secondary-50 hover:bg-secondary-100 text-secondary text-sm transition" onClick={() => { setStart("2025-08-01"); setEnd("2025-12-31"); }}>{t("adminStats.quickAutumn2025")}</button>
+        <button className="px-3 py-1 border border-secondary-200 rounded bg-secondary-50 hover:bg-secondary-100 text-secondary text-sm transition" onClick={() => { setStart("2026-01-01"); setEnd("2026-06-30"); }}>{t("adminStats.quickSpring2026")}</button>
       </div>
 
       {/* (Removed) Utilization results */}
@@ -221,7 +221,7 @@ export default function StatsRoomsComparison() {
           {paginatedRooms.length > 0 ? (
             paginatedRooms.map(r => (
               <div key={r.id} className="bg-white p-4 border border-secondary-200 rounded shadow-sm">
-                <div className="font-semibold text-main">{r.room_name ?? r.name}</div>
+                <div className="font-semibold text-secondary">{r.room_name ?? r.name}</div>
                 <div className="text-sm text-secondary-300">{t("adminStats.cardTypeLabel")}: {r.room_type || r.type || "-"}</div>
                 <div className="text-sm text-secondary-300">{t("adminStats.cardFloorLabel")}: {r.floor ?? "-"}</div>
                 <div className="mt-2 text-sm"><span className="font-medium">{t("adminStats.cardBookingsLabel")}:</span> {r.popularity}</div>
@@ -290,7 +290,7 @@ function PopularityChart({ rooms }: { rooms: Array<{ id: string; room_name?: str
 
   return (
     <div className="mt-4 bg-white p-4 rounded border border-secondary-200 shadow-sm">
-      <div className="text-sm font-semibold text-main mb-3">{t("adminStats.chartTitle")}</div>
+      <div className="text-sm font-semibold text-secondary mb-3">{t("adminStats.chartTitle")}</div>
       <svg width={String(width)} height={String(height)} role="img" aria-label={t("adminStats.chartAria")}>
         <line x1="0" y1={String(height - 28)} x2={String(width)} y2={String(height - 28)} stroke="#E5E7EB" strokeWidth="1" />
         {values.map((v, i) => {

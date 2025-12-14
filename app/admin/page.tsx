@@ -93,7 +93,7 @@ export default function AdminPage() {
       {/* Tabs */}
       <div className="flex items-center gap-3 mb-6 border-b border-secondary-200">
         <button
-          className={`px-3 py-2 rounded-t ${
+          className={`px-3 py-2 rounded-t cursor-pointer ${
             activeTab === "manage" ? "bg-secondary-50 font-medium" : "hover:bg-secondary-50"
           }`}
           onClick={() => setActiveTab("manage")}
@@ -101,7 +101,7 @@ export default function AdminPage() {
           {t("admin.administrate")}
         </button>
         <button
-          className={`px-3 py-2 rounded-t ${
+          className={`px-3 py-2 rounded-t cursor-pointer ${
             activeTab === "stats" ? "bg-secondary-50 font-medium" : "hover:bg-secondary-50"
           }`}
           onClick={() => setActiveTab("stats")}
