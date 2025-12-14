@@ -36,7 +36,7 @@ const ProfilePicture = () => {
     const [isUploading, setUploading] = useState(false);
 
     // Standard avatar URL hvis brugeren ikke har uploadet et billede
-    const defaultAvatarUrl = 'https://vmyzbnqvfwwmhoazveei.supabase.co/storage/v1/object/public/avatar/default/user-regular-full.svg';
+    const defaultAvatarUrl = 'https://vmyzbnqvfwwmhoazveei.supabase.co/storage/v1/object/public/avatar/default/avatar.svg';
 
     /**
      * Håndterer fil-upload når brugeren vælger et nyt billede

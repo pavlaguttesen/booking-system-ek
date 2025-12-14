@@ -120,6 +120,7 @@ export default function AdminPage() {
 
             <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200">
               <h2 className="text-xl font-semibold text-secondary mb-4">{t("admin.manageRooms")}</h2>
+             <div className="text-secondary">
               <AdminRoomFilters
                 search={search}
                 setSearch={setSearch}
@@ -130,7 +131,8 @@ export default function AdminPage() {
                 statusFilter={statusFilter}
                 setStatusFilter={setStatusFilter}
               />
-              <div className="mt-6">
+              </div>
+              <div className="mt-6 text-secondary">
                 <AdminRoomList
                   search={search}
                   typeFilter={typeFilter}
@@ -147,13 +149,13 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 text-secondary">
             <CreateRepeatingBookingForm
               onSuccess={handleRepeatingBookingCreated}
               rooms={rooms}
               bookings={bookings}
             />
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200">
+            <div className="bg-white text-secondary p-6 rounded-lg shadow-sm border border-secondary-200">
               <AdminBookingPanel />
             </div>
           </div>

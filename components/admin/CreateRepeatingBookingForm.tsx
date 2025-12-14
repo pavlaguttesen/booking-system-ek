@@ -247,7 +247,7 @@ export default function CreateRepeatingBookingForm({
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200">
-      <Text fw={600} size="lg" className="mb-4 text-main">
+      <Text fw={600} size="lg" className="mb-4 text-black">
         {t("repeatingBooking.title")}
       </Text>
 
@@ -277,6 +277,11 @@ export default function CreateRepeatingBookingForm({
             setRoomId(val || "");
             setErrorMessage(null);
           }}
+          styles={{
+            label: {
+              color: "#000000",
+            }
+          }}
         />
 
         <TextInput
@@ -287,6 +292,11 @@ export default function CreateRepeatingBookingForm({
             setTitle(e.target.value);
             setErrorMessage(null);
           }}
+          styles={{
+            label: {
+              color: "#000000",
+            }
+          }}
         />
 
         <DatePickerInput
@@ -296,6 +306,11 @@ export default function CreateRepeatingBookingForm({
           onChange={(value) => {
             setChosenDate(value);
             setErrorMessage(null);
+          }}
+          styles={{
+            label: {
+              color: "#000000",
+            }
           }}
         />
 
@@ -308,6 +323,11 @@ export default function CreateRepeatingBookingForm({
               setStartTime(dayjs(startTime).hour(+h).minute(+m).toDate());
               setErrorMessage(null);
             }}
+            styles={{
+              label: {
+                color: "#000000",
+              }
+            }}
           />
 
           <TimeInput
@@ -317,6 +337,11 @@ export default function CreateRepeatingBookingForm({
               const [h, m] = event.currentTarget.value.split(":");
               setEndTime(dayjs(endTime).hour(+h).minute(+m).toDate());
               setErrorMessage(null);
+            }}
+            styles={{
+              label: {
+                color: "#000000",
+              }
             }}
           />
         </Group>
@@ -333,6 +358,11 @@ export default function CreateRepeatingBookingForm({
           onChange={(val) => {
             if (val) setRecurrenceType(val as "daily" | "weekly" | "biweekly" | "monthly");
           }}
+          styles={{
+            label: {
+              color: "#000000",
+            }
+          }}
         />
 
         <DatePickerInput
@@ -342,6 +372,11 @@ export default function CreateRepeatingBookingForm({
           onChange={(value) => {
             setRecurrenceEndDate(value);
             setErrorMessage(null);
+          }}
+          styles={{
+            label: {
+              color: "#000000",
+            }
           }}
         />
 

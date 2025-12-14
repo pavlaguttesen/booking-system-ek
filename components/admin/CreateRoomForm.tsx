@@ -184,24 +184,44 @@ export default function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
           label={t("admin.whiteboard")}
           checked={hasWhiteboard}
           onChange={(e) => setHasWhiteboard(e.currentTarget.checked)}
+          styles={{
+            label: {
+              color: "#000000",
+            },
+          }}
         />
 
         <Checkbox
           label={t("admin.screen")}
           checked={hasScreen}
           onChange={(e) => setHasScreen(e.currentTarget.checked)}
+          styles={{
+            label: {
+              color: "#000000",
+            },
+          }}
         />
 
         <Checkbox
           label={t("admin.bulletinboard")}
           checked={hasBoard}
           onChange={(e) => setHasBoard(e.currentTarget.checked)}
+          styles={{
+            label: {
+              color: "#000000",
+            },
+          }}
         />
 
         <Checkbox
           label={t("admin.closedroom")}
           checked={isClosed}
           onChange={(e) => setIsClosed(e.currentTarget.checked)}
+          styles={{
+            label: {
+              color: "#000000",
+            },
+          }}
         />
       </div>
 
