@@ -117,42 +117,42 @@ export default function StatsRepeatAndUsers() {
     <div className="space-y-4">
       {/* Overskrift */}
       <div className="border-b border-secondary-200 pb-2">
-        <h3 className="text-lg font-semibold text-main">{t("adminStats.repeatTitle")}</h3>
-        <p className="text-sm text-secondary-300">{t("adminStats.repeatSubtitle")}</p>
+        <h3 className="text-lg font-semibold text-secondary">{t("adminStats.repeatTitle")}</h3>
+        <p className="text-sm text-secondary">{t("adminStats.repeatSubtitle")}</p>
       </div>
       {/* Hurtigvalg for semestre */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
         <div className="flex flex-col gap-1 md:col-span-1">
-          <label className="text-xs font-medium text-secondary-400">{t("adminStats.quickSelect")}</label>
+          <label className="text-xs font-medium text-secondary">{t("adminStats.quickSelect")}</label>
           <div className="grid grid-cols-2 gap-2">
-            <button className="h-10 w-full rounded border text-sm transition bg-secondary-50 hover:bg-secondary-100 text-main border-secondary-200" onClick={() => { setStart("2025-08-01"); setEnd("2025-12-31"); }}>{t("adminStats.quickAutumn2025")}</button>
-            <button className="h-10 w-full rounded border text-sm transition bg-secondary-50 hover:bg-secondary-100 text-main border-secondary-200" onClick={() => { setStart("2026-01-01"); setEnd("2026-06-30"); }}>{t("adminStats.quickSpring2026")}</button>
+            <button className="h-10 w-full rounded border text-sm transition bg-secondary-50 hover:bg-secondary-100 text-secondary border-secondary-200" onClick={() => { setStart("2025-08-01"); setEnd("2025-12-31"); }}>{t("adminStats.quickAutumn2025")}</button>
+            <button className="h-10 w-full rounded border text-sm transition bg-secondary-50 hover:bg-secondary-100 text-secondary border-secondary-200" onClick={() => { setStart("2026-01-01"); setEnd("2026-06-30"); }}>{t("adminStats.quickSpring2026")}</button>
           </div>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-secondary-400">{t("admin.fromDate")}</label>
-          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full" value={start} onChange={(e) => setStart(e.target.value)} />
+          <label className="text-xs font-medium text-secondary">{t("admin.fromDate")}</label>
+          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-secondary opacity-50 shadow-sm w-full" value={start} onChange={(e) => setStart(e.target.value)} />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-secondary-400">{t("admin.toDate")}</label>
-          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-main shadow-sm w-full" value={end} onChange={(e) => setEnd(e.target.value)} />
+          <label className="text-xs font-medium text-secondary">{t("admin.toDate")}</label>
+          <input type="date" className="h-10 bg-white border border-secondary-200 rounded px-3 text-secondary opacity-50 shadow-sm w-full" value={end} onChange={(e) => setEnd(e.target.value)} />
         </div>
       </div>
       {/* Periodevælger */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <input type="date" className="bg-white border border-secondary-200 rounded px-3 py-2 text-main shadow-sm" value={start} onChange={(e) => setStart(e.target.value)} />
-        <input type="date" className="bg-white border border-secondary-200 rounded px-3 py-2 text-main shadow-sm" value={end} onChange={(e) => setEnd(e.target.value)} />
+        <input type="date" className="bg-white border border-secondary-200 rounded px-3 py-2 text-secondary opacity-50 shadow-sm" value={start} onChange={(e) => setStart(e.target.value)} />
+        <input type="date" className="bg-white border border-secondary-200 rounded px-3 py-2 text-secondary opacity-50 shadow-sm" value={end} onChange={(e) => setEnd(e.target.value)} />
       </div>
 
       {/* Nøgletal */}
       <div className="grid grid-cols-2 gap-3">
         <div className="p-4 bg-white rounded border border-secondary-200 shadow-sm">
-          <div className="text-secondary-300">{t("adminStats.repeatCount")}</div>
-          <div className="text-2xl font-semibold text-main">{repeatCount}</div>
+          <div className="text-secondary opacity-70">{t("adminStats.repeatCount")}</div>
+          <div className="text-2xl font-semibold text-secondary">{repeatCount}</div>
         </div>
         <div className="p-4 bg-white rounded border border-secondary-200 shadow-sm">
-          <div className="text-secondary-300">{t("adminStats.repeatShare")}</div>
-          <div className="text-2xl font-semibold text-main">{repeatPct}%</div>
+          <div className="text-secondary opacity-70">{t("adminStats.repeatShare")}</div>
+          <div className="text-2xl font-semibold text-secondary">{repeatPct}%</div>
         </div>
       </div>
 
@@ -161,7 +161,7 @@ export default function StatsRepeatAndUsers() {
 
       {/* Toggle for brugerliste */}
       <div className="flex items-center gap-2">
-        <label className="flex items-center gap-2 text-main">
+        <label className="flex items-center gap-2 text-secondary">
           <input type="checkbox" className="accent-primary-600" checked={showUsers} onChange={(e) => setShowUsers(e.target.checked)} />
           <span className="text-sm">{t("adminStats.repeatShowUsers")}</span>
         </label>
