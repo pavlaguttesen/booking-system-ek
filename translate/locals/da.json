@@ -6,7 +6,7 @@
 
   "welcome": {
     "title": "Velkommen til bookingsystemet",
-    "subtitle": "Her kan du nemt booke lokaler, udstyr og studiepladser. Log ind med dit EA København-login for at komme i gang.",
+    "subtitle": "Her kan du nemt booke lokaler, udstyr og studiepladser. Log ind med dit EK-login for at komme i gang.",
     "password": "Kodeord",
     "login": "Log ind",
     "remember": "Husk mig",
