@@ -40,7 +40,7 @@ import type { User } from "@supabase/supabase-js";
  */
 export type Profile = {
   id: string;
-  full_name: string | null;
+  full_name?: string | null;
   role: "student" | "teacher" | "admin";
   avatar_url?: string | null;
   language?: "da" | "en" | null;

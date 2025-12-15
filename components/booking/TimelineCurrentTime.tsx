@@ -2,8 +2,6 @@
 
 // Viser en rød linje i timeline der angiver det nuværende tidspunkt (kun når dagens dato er valgt).
 
-"use client";
-
 // Rød tidslinje der viser nuværende tidspunkt i timeline.
 // Vises kun hvis valgt dato = i dag.
 
@@ -13,7 +11,7 @@ export function TimelineCurrentTime({ topPercent }: { topPercent: number }) {
       className="absolute left-0 w-full pointer-events-none"
       style={{
         top: `${topPercent}%`,
-        borderTop: "2px solid red",
+        borderTop: "1px solid red",
       }}
     />
   );

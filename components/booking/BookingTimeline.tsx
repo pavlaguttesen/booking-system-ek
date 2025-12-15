@@ -82,6 +82,10 @@ type BookingTimelineProps = {
  * @param type - Den originale lokale type
  * @returns Normaliseret lokale type eller null
  */
+
+
+// normalizeType var for at ændre møderum til studierum, da ux'erne mente at møderum var studierum og er for studerende.
+// Hvis vi får møderum fra database, så vil den behandle den som studierum.
 function normalizeType(type: string | null): string | null {
   if (!type) return null;
   // Historisk konvertering: møderum blev omdøbt til studierum
