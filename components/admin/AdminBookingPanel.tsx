@@ -227,8 +227,8 @@ export default function AdminBookingPanel() {
               value={typeFilter}
               onChange={setTypeFilter}
               data={[
-                { value: "normal", label: t("admin.normalbooking") },
-                { value: "exam", label: t("admin.exambooking") },
+                { value: "normal", label: t("admin.normalBooking") },
+                { value: "exam", label: t("admin.examBooking") },
               ]}
               clearable
             />
@@ -413,8 +413,8 @@ export default function AdminBookingPanel() {
               value={typeFilter}
               onChange={setTypeFilter}
               data={[
-                { value: "normal", label: t("admin.normalbooking") },
-                { value: "exam", label: t("admin.exambooking") },
+                { value: "normal", label: t("admin.normalBooking") },
+                { value: "exam", label: t("admin.examBooking") },
               ]}
               clearable
             />
@@ -600,8 +600,8 @@ export default function AdminBookingPanel() {
               value={typeFilter}
               onChange={setTypeFilter}
               data={[
-                { value: "normal", label: t("admin.normalbooking") },
-                { value: "exam", label: t("admin.exambooking") },
+                { value: "normal", label: t("admin.normalBooking") },
+                { value: "exam", label: t("admin.examBooking") },
               ]}
               clearable
             />
