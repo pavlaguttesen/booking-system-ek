@@ -85,7 +85,7 @@ export default function SettingsSidebar({
       >
         {/* Profilbillede - viser brugerens avatar eller standard ikon */}
         <img
-          src={profile?.avatar_url || "https://vmyzbnqvfwwmhoazveei.supabase.co/storage/v1/object/public/avatar/user-regular-full.svg"}
+          src={profile?.avatar_url || 'https://vmyzbnqvfwwmhoazveei.supabase.co/storage/v1/object/public/avatar/default/avatar.svg'}
           className="w-10 h-10 rounded-full object-cover bg-white border border-gray-300"
         />
 

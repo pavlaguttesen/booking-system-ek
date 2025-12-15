@@ -1,17 +1,17 @@
 /**
  * AuthContext.tsx
- * 
+ *
  * Denne fil implementerer authentication context for hele applikationen.
  * Den håndterer brugerauthentificering via Supabase, holder styr på login-status,
  * brugerdata, profil-information og roller.
- * 
+ *
  * HOVEDFORMÅL:
  * - Håndtere bruger login/logout state gennem hele applikationen
  * - Hente og cache bruger-profil fra databasen
  * - Levere brugerrolle for autorisation (student/teacher/admin)
  * - Lytte efter auth state ændringer i realtid
  * - Levere en central kilde til sandhed for brugerdata
- * 
+ *
  * BRUGES AF:
  * - Alle komponenter der behøver at vide om brugeren er logget ind
  * - Komponenter der skal vise brugerspecifikt indhold
@@ -27,10 +27,10 @@ import type { User } from "@supabase/supabase-js";
 
 /**
  * Type definition for en brugerprofil fra databasen.
- * 
+ *
  * VIGTIGT: Denne type SKAL inkludere alle felter der bruges af ThemeContext og LanguageContext.
  * Dette sikrer at hele applikationen har adgang til bruger-præferencer.
- * 
+ *
  * @property id - UUID der matcher Supabase auth user id (primary key)
  * @property full_name - Brugerens fulde navn (kan være null hvis ikke udfyldt)
  * @property role - Brugerens rolle i systemet, afgør adgangsrettigheder
@@ -50,7 +50,7 @@ export type Profile = {
 /**
  * Type definition for alle værdier der er tilgængelige gennem AuthContext.
  * Dette er den contract som alle komponenter kan forlade sig på.
- * 
+ *
  * @property user - Supabase auth User objekt (null hvis ikke logget ind)
  * @property profile - Brugerens profil fra vores database (null hvis ikke logget ind eller ikke hentet endnu)
  * @property role - Brugerens rolle som string for nem adgang (null hvis ikke logget ind)
@@ -63,6 +63,7 @@ export type AuthContextType = {
   role: string | null;
   loading: boolean;
   logout: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 };
 
 /**
@@ -76,51 +77,52 @@ const AuthContext = createContext<AuthContextType>({
   role: null,
   loading: true,
   logout: async () => {},
+  refreshProfile: async () => {},
 });
 
 /**
  * AuthProvider komponenten wrapper hele applikationen og leverer auth state.
- * 
+ *
  * ANSVARSOMRÅDER:
  * - Initialisere auth state ved app start
  * - Lytte efter auth ændringer i realtid
  * - Hente bruger-profil når nogen logger ind
  * - Opdatere state når nogen logger ud
  * - Levere context værdier til child komponenter
- * 
+ *
  * @param children - Child komponenter der skal have adgang til auth context
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // user: Supabase auth User objekt, indeholder email, id, osv.
   const [user, setUser] = useState<User | null>(null);
-  
+
   // profile: Vores egen bruger-profil fra 'profiles' tabellen i databasen
   // Indeholder rolle, navn, præferencer mm.
   const [profile, setProfile] = useState<Profile | null>(null);
-  
+
   // role: Brugerens rolle som separat state for nem adgang
   // Gemmes separat så komponenter nemt kan tjekke rolle uden at gå gennem profile objektet
   const [role, setRole] = useState<string | null>(null);
-  
+
   // loading: Indikerer om vi stadig henter initial auth state
   // Bruges til at vise loading states og forhindre flash af forkert indhold
   const [loading, setLoading] = useState(true);
 
   /**
    * Henter bruger-profil fra 'profiles' tabellen i Supabase.
-   * 
+   *
    * Denne funktion kaldes når:
    * - En bruger logger ind
    * - Ved app start hvis en session eksisterer
    * - Efter en session er genoprettet
-   * 
+   *
    * PROCES:
    * 1. Query profiles tabellen med brugerens ID
    * 2. Forvent præcis én række (single())
    * 3. Gem profil data i state hvis succesfuld
    * 4. Gem rolle separat for nem adgang
    * 5. Sæt loading til false når færdig
-   * 
+   *
    * @param userId - Supabase auth bruger ID (UUID)
    */
   async function loadProfile(userId: string) {
@@ -143,23 +145,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
   }
 
+  // Genindlæser den aktuelle brugers profil fra databasen
+  // Bruges efter opdatering af brugerprofil, som fx Profil billede er opdateret
+
+  // Funtionen:
+  // Henter den seneste profil for den loggede bruger
+  // Opdaterer profile state i AuthContext
+  // Opdaterer rolle state med sikker fallback ("student")
+
+  async function refreshProfile() {
+    if (!user) return;
+
+    // Hent den nyeste profil fra 'profiles' tabellen
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+      // Opdater context state hvis data blev hentet korrekt
+    if (!error && data) {
+      setProfile(data as Profile);
+      setRole(data.role ?? "student"); // Brug rolle fra databasen, fallback til "student" for at sikre laveste rettighedsniveau ved manglende data
+    }
+  }
+
   /**
    * Effect der håndterer initial session load og lytter efter auth state ændringer.
-   * 
+   *
    * Dette effect kører når komponenten mounter og sætter to ting op:
    * 1. Henter initial session state (hvis bruger allerede er logget ind)
    * 2. Sætter en listener op der lytter efter alle fremtidige auth ændringer
-   * 
+   *
    * INITIAL LOAD PROCES:
    * - Hent nuværende session fra Supabase
    * - Hvis session findes, hent bruger-profil
    * - Hvis ingen session, sæt loading til false
-   * 
+   *
    * AUTH STATE LISTENER:
    * - Lytter efter SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED, osv.
    * - Opdaterer user state ved alle ændringer
    * - Henter profil ved login, rydder profil ved logout
-   * 
+   *
    * CLEANUP:
    * - Unsubscribe fra listener når komponenten unmounter
    */
@@ -208,22 +235,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Logger brugeren ud af systemet.
-   * 
+   *
    * PROCES:
    * 1. Kalder Supabase signOut() for at invalidere sessionen
    * 2. Rydder lokal user state
    * 3. Rydder profil state
    * 4. Rydder rolle state
-   * 
+   *
    * Efter logout vil auth state listener automatisk blive trigget,
    * hvilket sender brugeren til login siden.
-   * 
+   *
    * @returns Promise der resolver når logout er fuldført
    */
   async function logout() {
     // Logout fra Supabase (invaliderer session, fjerner tokens, osv.)
     await supabase.auth.signOut();
-    
+
     // Ryd all lokal state relateret til brugeren
     setUser(null);
     setProfile(null);
@@ -235,11 +262,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user,          // Supabase auth User objekt
-        profile,       // Bruger-profil fra database
-        role,          // Brugerens rolle (student/teacher/admin)
-        loading,       // Loading state for initial data fetch
-        logout,        // Funktion til at logge ud
+        user, // Supabase auth User objekt
+        profile, // Bruger-profil fra database
+        role, // Brugerens rolle (student/teacher/admin)
+        loading, // Loading state for initial data fetch
+        logout, // Funktion til at logge ud
+        refreshProfile, // Funktion til at genindlæse bruger-profil
       }}
     >
       {children}
@@ -249,15 +277,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 /**
  * Custom hook til at tilgå auth context i komponenter.
- * 
+ *
  * BRUG:
  * ```tsx
  * const { user, profile, role, loading, logout } = useAuth();
  * ```
- * 
+ *
  * BEMÆRK: Denne hook skal bruges inden for en AuthProvider.
  * Hvis den bruges uden for en Provider, vil den returnere default værdierne.
- * 
+ *
  * @returns AuthContextType objekt med alle auth-relaterede værdier og funktioner
  */
 export function useAuth() {
