@@ -160,7 +160,7 @@ export default function LoginForm() {
    * KOMPONENT RETURN - LOGIN FORMULAR UI
    * 
    * Strukturen består af:
-   * 1. EK København logo
+   * 1. EK logo
    * 2. Velkomst overskrift og undertekst
    * 3. Email input felt (required)
    * 4. Password input felt (required)

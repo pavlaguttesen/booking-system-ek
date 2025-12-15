@@ -6,7 +6,7 @@
 
   "welcome": {
     "title": "Welcome to the booking system",
-    "subtitle": "Here you can easily book rooms, equipment and study rooms. Log in with your EK Copenhagen login to get started.",
+    "subtitle": "Here you can easily book rooms, equipment and study rooms. Log in with your EK-login to get started.",
     "password": "Password",
     "login": "Login",
     "remember": "Remember me",
