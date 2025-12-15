@@ -56,6 +56,7 @@ export type Profile = {
  * @property role - Brugerens rolle som string for nem adgang (null hvis ikke logget ind)
  * @property loading - true mens vi henter initial auth state, false når data er klar
  * @property logout - Async funktion til at logge brugeren ud
+ * @property refreshProfile - Async funktion der genindlæser den aktuelle brugers profil fra databasen.
  */
 export type AuthContextType = {
   user: User | null;
