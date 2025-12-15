@@ -168,7 +168,7 @@
     "room": "Room",
     "examBooking": "Exams booking",
     "allbookings": "All bookings",
-    "normalbooking": "Normal booking",
+    "normalBooking": "Normal booking",
     "fillroomandtype": "You must fill in both name and type.",
     "roomcreated": "Room was created.",
     "roomname": "Room name",
