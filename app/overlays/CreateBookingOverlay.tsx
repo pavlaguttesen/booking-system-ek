@@ -514,7 +514,7 @@ export function CreateBookingOverlay({
             onChange={(event) => {
               const val = event.currentTarget.value;
               setStartTimeStr(val);
-              // Accept only full HH:mm before updating Date state
+              // Accepter kun fuldt HH:mm format før opdatering af Date state
               const match = /^(\d{1,2}):(\d{2})$/.exec(val);
               if (match) {
                 let h = parseInt(match[1], 10);
@@ -529,7 +529,7 @@ export function CreateBookingOverlay({
               }
             }}
             onBlur={() => {
-              // On blur, if empty or invalid, default to current valid or opening hour
+              // Når input mister fokus: hvis tomt eller ugyldigt, sæt til gyldig tid eller åbningstid
               const match = /^(\d{1,2}):(\d{2})$/.exec(startTimeStr);
               if (!match) {
                 const fallback = dayjs(startTime).isValid() ? dayjs(startTime) : dayjs().hour(DAY_START_HOUR).minute(0);
@@ -569,7 +569,7 @@ export function CreateBookingOverlay({
             onBlur={() => {
               const match = /^(\d{1,2}):(\d{2})$/.exec(endTimeStr);
               if (!match) {
-                // default end to one hour after start within opening window
+                // Standard: slut en time efter start indenfor åbningstiderne
                 const fallbackStart = dayjs(startTime);
                 let fallbackEnd = fallbackStart.add(1, "hour");
                 if (fallbackEnd.hour() > DAY_END_HOUR) fallbackEnd = fallbackStart.hour(DAY_END_HOUR).minute(0);

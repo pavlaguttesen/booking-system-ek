@@ -78,9 +78,9 @@ export default function StatsRepeatAndUsers() {
     const max = Math.max(1, ...values);
     const barHeight = 32;
     const rowGap = 18;
-    const paddingLeft = 140; // space for category labels
-    const paddingRight = 80; // space for value pill
-    const width = 520; // fixed width for horizontal layout
+    const paddingLeft = 140; // plads til kategorinavne
+    const paddingRight = 80; // plads til værdipille
+    const width = 520; // fast bredde for horisontalt layout
     const height = labels.length * (barHeight + rowGap) + 20;
     return (
       <svg width={width} height={height} role="img" aria-label={t("adminStats.repeatChartAria")}>
@@ -89,21 +89,21 @@ export default function StatsRepeatAndUsers() {
           const barLength = (v / max) * (width - paddingLeft - paddingRight);
           const color = i === 0 ? "#4F46E5" : "#93C5FD";
           const label = labels[i] ?? "";
-          // Category label (left)
+          // Kategori label (venstre)
           const catX = 12;
-          const catY = rowY + barHeight / 2 + 5; // text baseline adjustment
-          // Value pill (right)
+          const catY = rowY + barHeight / 2 + 5; // justering af tekst baseline
+          // Værdipille (højre)
           const valueStr = String(v);
           const valueWidth = Math.min(92, Math.max(36, valueStr.length * 8.5 + 12));
           const pillX = paddingLeft + barLength + 10;
           const pillY = rowY + (barHeight - 22) / 2;
           return (
             <g key={i}>
-              {/* Category label on the left */}
+              {/* Kategori label (venstre) */}
               <text x={catX} y={catY} fontSize={13} fill="#111827" fontWeight="600">{label}</text>
               {/* Bar */}
               <rect x={paddingLeft} y={rowY} width={barLength} height={barHeight} fill={color} rx={6} />
-              {/* Value pill */}
+              {/* Værdipille (højre) */}
               <rect x={pillX} y={pillY} width={valueWidth} height={22} fill="#FFFFFF" stroke="#E5E7EB" rx={8} />
               <text x={pillX + valueWidth / 2} y={pillY + 15} textAnchor="middle" fontSize={14} fill="#0F172A" fontWeight="700">{v}</text>
             </g>

@@ -71,7 +71,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { profile, user } = useAuth();
   
   // theme: Det aktuelt valgte tema i applikationen
-  // Default til lyst tema ("light") indtil brugerens præference er loaded
+  // Standard til lyst tema ("light") indtil brugerens præference er loaded
   const [theme, setThemeState] = useState<"light" | "dark">("light");
 
   /**

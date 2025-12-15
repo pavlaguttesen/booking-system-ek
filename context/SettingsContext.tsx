@@ -70,11 +70,11 @@ export function SettingsProvider({ children }: any) {
   const { user } = useAuth();
   
   // theme: Det aktuelt valgte tema
-  // Default til lyst tema ("light") indtil brugerens præference er loaded
+  // Standard til lyst tema ("light") indtil brugerens præference er loaded
   const [theme, setThemeState] = useState<"light" | "dark">("light");
   
   // language: Det aktuelt valgte sprog
-  // Default til dansk ("da") indtil brugerens præference er loaded
+  // Standard til dansk ("da") indtil brugerens præference er loaded
   const [language, setLanguageState] = useState<"da" | "en">("da");
 
   /**

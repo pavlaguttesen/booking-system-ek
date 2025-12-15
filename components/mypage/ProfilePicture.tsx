@@ -61,7 +61,7 @@ const ProfilePicture = () => {
     // Valider at både fil og bruger eksisterer før upload
     if (!file || !user) return;
 
-    // Aktiver loading state for at vise bruger-feedback
+    // Aktiver indlæsningsstatus for at vise bruger-feedback
     setUploading(true);
 
     try {
@@ -113,7 +113,7 @@ const ProfilePicture = () => {
       setUploading(false);
       return;
     } finally {
-      // Deaktiver loading state uanset resultat
+      // Deaktiver indlæsningsstatus uanset resultat
       setUploading(false);
     }
   }

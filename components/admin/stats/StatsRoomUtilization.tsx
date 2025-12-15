@@ -16,7 +16,7 @@ export default function StatsRoomUtilization() {
   const [selectedRoomIds, setSelectedRoomIds] = useState<string[]>([]); // flere rum kan sammenlignes
   const [roomToAdd, setRoomToAdd] = useState<string>(""); // buffer til dropdown-valg før tilføj
   const [roomQuery, setRoomQuery] = useState<string>(""); // søgning i lokaler
-  const MAX_ROOMS = 6; // Dansk kommentar: Maksimalt antal lokaler i sammenligning for overskuelighed.
+  const MAX_ROOMS = 6; // Maksimalt antal lokaler i sammenligning for overskuelighed.
   const [start, setStart] = useState<string>(""); // yyyy-MM-dd (fra input type=date)
   const [end, setEnd] = useState<string>("");
 
@@ -103,7 +103,7 @@ export default function StatsRoomUtilization() {
               onChange={(e) => setRoomQuery(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  // Dansk kommentar: Enter tilføjer det aktuelt valgte eller første forslag.
+                  // Enter tilføjer det aktuelt valgte eller første forslag.
                   if (roomToAdd && !selectedRoomIds.includes(roomToAdd) && selectedRoomIds.length < MAX_ROOMS) {
                     setSelectedRoomIds(prev => [...prev, roomToAdd]);
                     setRoomToAdd("");
@@ -123,7 +123,7 @@ export default function StatsRoomUtilization() {
                     setRoomToAdd("");
                   }
                 } else if (e.key === "Escape") {
-                  // Dansk kommentar: Esc rydder søgning.
+                  // Esc rydder søgning.
                   setRoomQuery("");
                   setRoomToAdd("");
                 }
@@ -159,7 +159,7 @@ export default function StatsRoomUtilization() {
               className="px-4 py-2 rounded bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition whitespace-nowrap"
               disabled={!roomToAdd || selectedRoomIds.includes(roomToAdd) || selectedRoomIds.length >= MAX_ROOMS}
               onClick={() => {
-                // Dansk kommentar: Tilføjer det valgte lokale til sammenligningslisten (uden duplikater).
+                // Tilføjer det valgte lokale til sammenligningslisten (uden duplikater).
                 if (!roomToAdd || selectedRoomIds.includes(roomToAdd) || selectedRoomIds.length >= MAX_ROOMS) return;
                 setSelectedRoomIds(prev => [...prev, roomToAdd]);
                 setRoomToAdd("");
@@ -171,7 +171,7 @@ export default function StatsRoomUtilization() {
               className="px-4 py-2 rounded border border-secondary-200 bg-white text-main text-sm hover:bg-secondary-100 transition whitespace-nowrap disabled:opacity-50"
               disabled={selectedRoomIds.length === 0}
               onClick={() => {
-                // Dansk kommentar: Fjerner alle valgte lokaler fra listen.
+                // Fjerner alle valgte lokaler fra listen.
                 setSelectedRoomIds([]);
               }}
             >
@@ -278,7 +278,7 @@ export default function StatsRoomUtilization() {
                         <button
                           className="text-xs px-2 py-1 rounded border border-secondary-200 text-secondary-400 hover:bg-secondary-50"
                           onClick={() => {
-                            // Dansk kommentar: Fjerner lokalet fra sammenligningslisten.
+                            // Fjerner lokalet fra sammenligningslisten.
                             setSelectedRoomIds(prev => prev.filter(id => id !== roomId));
                           }}
                         >

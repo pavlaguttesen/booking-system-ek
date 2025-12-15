@@ -57,9 +57,8 @@ export function BookingAdvancedFilters({
 
   const today = dayjs().startOf("day");
 
-  // Ensure local date state and context selectedDate are initialized when component mounts.
-  // This prevents a situation where the advanced filter is opened without a date
-  // and thus no auto-suggestion for times is produced.
+  // Sørg for at lokal dato state og context.selectedDate er initialiseret ved mount.
+  // Dette forhindrer, at avanceret filter åbnes uden en valgt dato og dermed ingen auto-forslag for tider.
   useEffect(() => {
     if (!mounted) return;
 
@@ -133,7 +132,7 @@ export function BookingAdvancedFilters({
         `${String(Number(first.split(":")[0]) + 1).padStart(2, "0")}:00`
       );
     } else {
-      // No available slots found, but if it's a future date, default to opening hours
+      // Ingen tilgængelige tidspunkter fundet; hvis datoen er i fremtiden, sæt til åbningstiderne
       if (!isToday) {
         setTimeFrom("08:00");
         setTimeTo("09:00");
@@ -284,7 +283,7 @@ export function BookingAdvancedFilters({
               onError(t("booking.choosedate"), t("booking.choosestartandendtime"));
               return;
             }
-            // Ensure correct types for filters
+            // Sørg for korrekte typer for filtre
             const capacity = typeof roomFilters.capacity === "string" ? Number(roomFilters.capacity) : roomFilters.capacity;
             const floor = typeof roomFilters.floor === "string" ? Number(roomFilters.floor) : roomFilters.floor;
             onSearch({

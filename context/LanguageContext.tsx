@@ -74,7 +74,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { profile, user } = useAuth();
   
   // language: Det aktuelt valgte sprog i applikationen
-  // Default til dansk ("da") indtil brugerens præference er loaded
+  // Standard til dansk ("da") indtil brugerens præference er loaded
   const [language, setLanguageState] = useState<Lang>("da");
 
   /**

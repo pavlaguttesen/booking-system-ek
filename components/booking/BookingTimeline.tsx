@@ -169,7 +169,7 @@ export function BookingTimeline({
    */
   const sortedRooms = useMemo(() => {
     return [...filteredRooms].sort((a, b) => {
-      // Hent etage nummer (brug 0 som default)
+      // Hent etage nummer (brug 0 som standard)
       const fa = a.floor ?? 0;
       const fb = b.floor ?? 0;
 
@@ -381,7 +381,7 @@ export function BookingTimeline({
       return;
     }
 
-    // VARIGHED-BEREGNING: Start med default varighed på 60 minutter
+    // VARIGHED-BEREGNING: Start med standard varighed på 60 minutter
     let end = start.add(60, "minute");
 
     // BEGRÆNSNING 1: Booking må ikke gå ud over dagens sluttid

@@ -230,7 +230,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   
   // selectedDate: Den dato brugeren har valgt at se bookinger for
-  // Default til i dag i YYYY-MM-DD format
+  // Standard: i dag i YYYY-MM-DD format
   const [selectedDate, setSelectedDate] = useState<string | null>(
     dayjs().format("YYYY-MM-DD")
   );
@@ -483,7 +483,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       setRoomFilters((prev) => ({
         ...prev,
         // Hvis floor allerede er sat, behold værdien
-        // Ellers default til etage 1
+        // Ellers standard til etage 1
         floor: prev.floor ?? 1,
       }));
     } else {

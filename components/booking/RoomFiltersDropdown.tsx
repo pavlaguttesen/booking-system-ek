@@ -78,7 +78,7 @@ export default function RoomFiltersDropdown({ compact = false }: { compact?: boo
     setCapacityFilter,     // Sæt minimum kapacitet
     setFloorFilter,        // Sæt etage filter
     setRoomTypeFilter,     // Sæt lokaletype filter
-    resetRoomFilters,      // Nulstil alle filtre til default
+    resetRoomFilters,      // Nulstil alle filtre til standard
   } = useBookingContext();
 
   // Hent brugerens rolle fra AuthContext

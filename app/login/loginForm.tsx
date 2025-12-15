@@ -60,7 +60,7 @@ export default function LoginForm() {
   
   // UI state
   const [errorMsg, setErrorMsg] = useState("");     // Fejlbesked til bruger
-  const [loading, setLoading] = useState(false);    // Loading state under autentificering
+  const [loading, setLoading] = useState(false);    // Indlæsningsstatus under autentificering
 
   // Hook til oversættelser (internationalisering)
   const { t } = useTranslation();
@@ -91,10 +91,10 @@ export default function LoginForm() {
    * @param e - React form submit event
    */
   async function handleLogin(e: React.FormEvent) {
-    // Prevent browser default form submission (page reload)
+    // Forhindrer standard formularindsendelse (side genindlæsning)
     e.preventDefault();
 
-    // Aktivér loading state og nulstil eventuelle tidligere fejl
+    // Aktivér indlæsningsstatus og nulstil eventuelle tidligere fejl
     setLoading(true);
     setErrorMsg("");
 

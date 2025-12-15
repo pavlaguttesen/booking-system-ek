@@ -36,6 +36,6 @@ export default function RulesSettings() {
     return TeacherRules();
   }
 
-  // Default: Vis studerende-regler
+  // Standard: Vis studerende-regler
   return StudentRules();
 }

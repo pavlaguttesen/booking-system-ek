@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<string | null>(null);
 
   // loading: Indikerer om vi stadig henter initial auth state
-  // Bruges til at vise loading states og forhindre flash af forkert indhold
+  // Bruges til at vise indlæsningsindikatorer og forhindre flash af forkert indhold
   const [loading, setLoading] = useState(true);
 
   /**
@@ -266,7 +266,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user, // Supabase auth User objekt
         profile, // Bruger-profil fra database
         role, // Brugerens rolle (student/teacher/admin)
-        loading, // Loading state for initial data fetch
+        loading, // Indikerer at initial data bliver hentet
         logout, // Funktion til at logge ud
         refreshProfile, // Funktion til at genindlæse bruger-profil
       }}
