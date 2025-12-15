@@ -310,28 +310,26 @@ export default function RoomFiltersDropdown({ compact = false }: { compact?: boo
 
       {/* 
         NULSTIL KNAP:
-        Nulstiller alle filtre til deres default værdier.
-        - Faciliteter: alle false
-        - Kapacitet: null (ingen filter)
-        - Etage: null (alle etager)
-        - Lokaletype: null (alle typer)
-        
-        Også nulstiller lokal capacityInput state.
-        Hover og active effekter for god UX.
+        Labeled reset control aligned like other filters.
       */}
-      <button
-        onClick={() => {
-          resetRoomFilters();
-          setCapacityInput("");  // Nulstil lokal input state
-        }}
-        className={
-          compact
-            ? "px-2 py-1 rounded border text-xs transition bg-secondary-200 border-secondary-200 text-main hover:bg-secondary-100 active:scale-[0.98] h-fit font-medium mt-2"
-            : "px-5 py-2 rounded-md border text-sm transition bg-secondary-300 border-secondary-200 text-main hover:bg-secondary-200 active:scale-[0.98] h-fit font-medium"
-        }
-      >
-        {t("booking.resetfilter")}
-      </button>
+      <div className={compact ? "flex flex-col items-start" : "flex flex-col"}>
+        <label className={compact ? "text-xs font-semibold text-main" : "text-sm font-semibold text-main"}>
+          {t("booking.resetfilter")}
+        </label>
+        <button
+          onClick={() => {
+            resetRoomFilters();
+            setCapacityInput("");  // Nulstil lokal input state
+          }}
+          className={
+            compact
+              ? "h-6 px-2 rounded border text-xs transition bg-secondary-200 border-secondary-200 text-main hover:bg-secondary-100 active:scale-[0.98] mt-1"
+              : "h-10 px-5 rounded-md border text-sm transition bg-secondary-300 border-secondary-200 text-main hover:bg-secondary-200 active:scale-[0.98]"
+          }
+        >
+          {t("booking.resetfilter")}
+        </button>
+      </div>
     </div>
   );
 }

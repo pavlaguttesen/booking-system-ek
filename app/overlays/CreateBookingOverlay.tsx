@@ -189,6 +189,8 @@ export function CreateBookingOverlay({
    * Initialiseres med start-tid fra props
    */
   const [startTime, setStartTime] = useState<Date>(initialStart);
+  // String mirror for controlled typing without jitter
+  const [startTimeStr, setStartTimeStr] = useState<string>(dayjs(initialStart).format("HH:mm"));
   
   /**
    * STATE: endTime
@@ -196,6 +198,8 @@ export function CreateBookingOverlay({
    * Initialiseres med slut-tid fra props
    */
   const [endTime, setEndTime] = useState<Date>(initialEnd);
+  // String mirror for controlled typing without jitter
+  const [endTimeStr, setEndTimeStr] = useState<string>(dayjs(initialEnd).format("HH:mm"));
   
   /**
    * STATE: errorMessage
@@ -215,7 +219,9 @@ export function CreateBookingOverlay({
     setRoomId(initialRoomId);
     setChosenDate(initialStart);
     setStartTime(initialStart);
+    setStartTimeStr(dayjs(initialStart).format("HH:mm"));
     setEndTime(initialEnd);
+    setEndTimeStr(dayjs(initialEnd).format("HH:mm"));
     setTitle("");
     setErrorMessage(null);
   }, [opened, initialRoomId, initialStart, initialEnd]);
@@ -504,26 +510,80 @@ export function CreateBookingOverlay({
           {/* Starttidspunkt */}
           <TimeInput
             label={t("booking.starttime")} // "Starttid"
-            value={dayjs(startTime).format("HH:mm")}
+            value={startTimeStr}
             onChange={(event) => {
-              // Parse input værdi (format: "HH:mm")
-              const [h, m] = event.currentTarget.value.split(":");
-              // Opdater startTime med nye timer og minutter
-              setStartTime(dayjs(startTime).hour(+h).minute(+m).toDate());
-              setErrorMessage(null); // Nulstil fejlbesked
+              const val = event.currentTarget.value;
+              setStartTimeStr(val);
+              // Accept only full HH:mm before updating Date state
+              const match = /^(\d{1,2}):(\d{2})$/.exec(val);
+              if (match) {
+                let h = parseInt(match[1], 10);
+                let m = parseInt(match[2], 10);
+                if (isNaN(h) || isNaN(m)) return;
+                // Clamp
+                h = Math.min(Math.max(0, h), 23);
+                m = Math.min(Math.max(0, m), 59);
+                const next = dayjs(startTime).hour(h).minute(m).second(0).toDate();
+                setStartTime(next);
+                setErrorMessage(null);
+              }
+            }}
+            onBlur={() => {
+              // On blur, if empty or invalid, default to current valid or opening hour
+              const match = /^(\d{1,2}):(\d{2})$/.exec(startTimeStr);
+              if (!match) {
+                const fallback = dayjs(startTime).isValid() ? dayjs(startTime) : dayjs().hour(DAY_START_HOUR).minute(0);
+                setStartTime(fallback.toDate());
+                setStartTimeStr(fallback.format("HH:mm"));
+              } else {
+                let h = parseInt(match[1], 10);
+                let m = parseInt(match[2], 10);
+                h = Math.min(Math.max(0, h), 23);
+                m = Math.min(Math.max(0, m), 59);
+                const normalized = dayjs(startTime).hour(h).minute(m).second(0);
+                setStartTime(normalized.toDate());
+                setStartTimeStr(normalized.format("HH:mm"));
+              }
             }}
           />
 
           {/* Sluttidspunkt */}
           <TimeInput
             label={t("booking.endtime")} // "Sluttid"
-            value={dayjs(endTime).format("HH:mm")}
+            value={endTimeStr}
             onChange={(event) => {
-              // Parse input værdi (format: "HH:mm")
-              const [h, m] = event.currentTarget.value.split(":");
-              // Opdater endTime med nye timer og minutter
-              setEndTime(dayjs(endTime).hour(+h).minute(+m).toDate());
-              setErrorMessage(null); // Nulstil fejlbesked
+              const val = event.currentTarget.value;
+              setEndTimeStr(val);
+              const match = /^(\d{1,2}):(\d{2})$/.exec(val);
+              if (match) {
+                let h = parseInt(match[1], 10);
+                let m = parseInt(match[2], 10);
+                if (isNaN(h) || isNaN(m)) return;
+                h = Math.min(Math.max(0, h), 23);
+                m = Math.min(Math.max(0, m), 59);
+                const next = dayjs(endTime).hour(h).minute(m).second(0).toDate();
+                setEndTime(next);
+                setErrorMessage(null);
+              }
+            }}
+            onBlur={() => {
+              const match = /^(\d{1,2}):(\d{2})$/.exec(endTimeStr);
+              if (!match) {
+                // default end to one hour after start within opening window
+                const fallbackStart = dayjs(startTime);
+                let fallbackEnd = fallbackStart.add(1, "hour");
+                if (fallbackEnd.hour() > DAY_END_HOUR) fallbackEnd = fallbackStart.hour(DAY_END_HOUR).minute(0);
+                setEndTime(fallbackEnd.toDate());
+                setEndTimeStr(fallbackEnd.format("HH:mm"));
+              } else {
+                let h = parseInt(match[1], 10);
+                let m = parseInt(match[2], 10);
+                h = Math.min(Math.max(0, h), 23);
+                m = Math.min(Math.max(0, m), 59);
+                const normalized = dayjs(endTime).hour(h).minute(m).second(0);
+                setEndTime(normalized.toDate());
+                setEndTimeStr(normalized.format("HH:mm"));
+              }
             }}
           />
         </Group>
