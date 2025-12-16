@@ -43,7 +43,7 @@ export default function LoginLayout({
     <MantineProvider>
       {/* HOVEDCONTAINER - Fuld skærm, flex layout */}
       <div className="w-screen h-screen flex overflow-hidden">
-        
+
         {/* VENSTRE SIDE - LOGIN FORMULAR */}
         <div
           className="
