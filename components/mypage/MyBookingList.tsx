@@ -68,7 +68,6 @@ export default function MyBookingList({ userId }: any) {
   }, []);
 
   // Tjek om studerende har nået max antal bookinger (4)
-  // Tjek om studerende har nået max antal bookinger (4)
   const isFull = bookings.length >= 4;
 
   return (
