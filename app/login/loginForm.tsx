@@ -184,7 +184,7 @@ export default function LoginForm() {
       {/* EMAIL INPUT FELT */}
       <label className="block mb-2 text-main font-medium">E-mail:</label>
       <input
-        type="email"          // HTML5 email validation
+        type="email"          // email validation
         className="border border-secondary-200 bg-card text-main rounded w-full p-2 mb-4"
         value={email}
         onChange={(e) => setEmail(e.target.value)}  // Opdater state ved ændring
