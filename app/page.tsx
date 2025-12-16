@@ -116,7 +116,7 @@ function PageContent() {
   } = useBookingContext();
 
   /* STATE MANAGEMENT */
-  
+
   // State til "Opret Booking" overlay
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayData, setOverlayData] = useState<{
@@ -148,7 +148,7 @@ function PageContent() {
      Kaldes når bruger klikker på timeline for at oprette booking.
      Validerer at tidspunkt ikke er fortid, derefter åbner overlay.
   --------------------------------------------------------- */
-  
+
   /**
    * Håndterer anmodning om at oprette en booking fra timeline.
    * 
@@ -186,7 +186,7 @@ function PageContent() {
      Kaldes når bruger klikker på "slet" knap på en booking i timeline.
      Åbner bekræftelse overlay før sletning.
   --------------------------------------------------------- */
-  
+
   /**
    * Håndterer anmodning om at slette en booking.
    * Gemmer booking i state og åbner bekræftelse overlay.
@@ -204,7 +204,7 @@ function PageContent() {
      Kaldes når bruger bekræfter sletning i overlay.
      Sletter booking fra database og genindlæser data.
   --------------------------------------------------------- */
-  
+
   /**
    * Bekræfter og udfører sletning af booking.
    * 
@@ -236,7 +236,7 @@ function PageContent() {
 
     // Genindlæs bookinger fra database
     await reloadBookings();
-    
+
     // Luk overlay og nulstil state
     setDeleteOverlayOpen(false);
     setBookingToDelete(null);
@@ -257,7 +257,7 @@ function PageContent() {
      - Ét ledigt lokale → Åbn direkte opret-overlay
      - Flere ledige lokaler → Åbn vælg-lokale overlay
   --------------------------------------------------------- */
-  
+
   /**
    * Håndterer avanceret søgning efter ledige lokaler.
    * 
@@ -425,7 +425,7 @@ function PageContent() {
     });
 
     /* TRIN 10: HÅNDTER RESULTAT BASERET PÅ ANTAL LEDIGE LOKALER */
-    
+
     // Ingen ledige lokaler i det søgte tidsrum
     if (available.length === 0) {
       return setError({
@@ -465,7 +465,7 @@ function PageContent() {
      7. Tjek for overlappende bookinger i samme lokale
      8. Gem i database
   --------------------------------------------------------- */
-  
+
   /**
    * Opretter en ny booking med omfattende validering.
    * 
@@ -546,7 +546,7 @@ function PageContent() {
       }
 
       /* TRIN 6: VALIDER BOOKING LIMITS BASERET PÅ ROLLE */
-      
+
       // Find alle fremtidige bookinger for denne bruger
       const now = new Date();
       const futureBookingsForUser = bookings.filter(
@@ -573,7 +573,7 @@ function PageContent() {
       }
 
       /* TRIN 7: TJEK FOR OVERLAPPENDE BOOKINGER */
-      
+
       // Tjek om lokalet allerede er booket i det valgte tidsrum
       const hasConflict = filteredBookings.some((b) => {
         // Ignorer bookinger i andre lokaler
@@ -598,7 +598,7 @@ function PageContent() {
       }
 
       /* TRIN 8: GEM I DATABASE */
-      
+
       // Indsæt ny booking i Supabase database
       const { error } = await supabase.from("bookings").insert({
         room_id: roomId,
@@ -617,13 +617,13 @@ function PageContent() {
       }
 
       /* TRIN 9: OPDATER UI */
-      
+
       // Genindlæs alle bookinger fra database
       await reloadBookings();
-      
+
       // Luk overlay
       setOverlayOpen(false);
-      
+
     } catch (err) {
       // Fang alle uventede fejl
       console.error("RAW ERROR:", err);
@@ -633,7 +633,7 @@ function PageContent() {
       });
     }
   }
-  
+
   // Hook til oversættelser
   const { t } = useTranslation();
 
@@ -642,7 +642,7 @@ function PageContent() {
      
      Hovedlayout med timeline, filtre og overlays.
   --------------------------------------------------------- */
-  
+
   /**
    * KOMPONENT RETURN - HOVEDLAYOUT
    * 
@@ -655,7 +655,7 @@ function PageContent() {
    */
   return (
     <div className="w-full max-w-[1600px] mx-auto px-6 py-6 space-y-8">
-      
+
       {/* TOP FILTER BAR */}
       {/* Indeholder dato-vælger og basis filtre */}
       <div className="flex items-center justify-between">
@@ -664,7 +664,7 @@ function PageContent() {
 
       {/* HOVED LAYOUT - TO SPALTER */}
       <div className="flex gap-10">
-        
+
         {/* VENSTRE SPALTE - TIMELINE */}
         <div className="flex-1 space-y-6">
           {/* 
@@ -677,7 +677,7 @@ function PageContent() {
             onCreateBooking={handleCreateBookingRequest}
             onDeleteBooking={handleDeleteBookingRequest}
           />
-          
+
           {/* 
             BOOKING LIST - Deaktiveret efter UX test
             Liste-visning af bookinger blev fundet unødvendig
