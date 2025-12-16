@@ -32,6 +32,8 @@
 
 "use client";
 
+
+
 import { useState } from "react";
 import { BookingTimeline } from "@/components/booking/BookingTimeline";
 import { BookingAdvancedFilters } from "@/components/booking/BookingAdvancedFilters";
@@ -230,6 +232,7 @@ function PageContent() {
         message: t("ErrorMsg.supabaseError"),
       });
     }
+
 
     // Genindlæs bookinger fra database
     await reloadBookings();
