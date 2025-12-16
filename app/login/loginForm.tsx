@@ -37,7 +37,6 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Logo from "./logo";
 import { useTranslation } from "react-i18next";
-import { error } from "console";
 
 /**
  * LOGIN FORM COMPONENT
